@@ -4,6 +4,10 @@
 
 "Meet Elias". O site apresenta a pessoa tanto quanto o trabalho: alguém com camadas, interesses que parecem desconexos e se complementam (fotografia com Fuji X-T3, engenharia, história, filosofia, jogos de estratégia, ficção científica, guitarra). Cada cena é uma obra única, com humor e cor próprios, e o scroll muda o clima do site.
 
+## Curiosidade como traço
+
+O Elias é muito curioso e adora explicar os fatos mais aleatórios. A narrativa dá pistas disso, e algumas partes ganham "detours" opcionais: explicações interativas que quem quiser pode abrir (ex.: como funcionava a internet discada e o que era cada som do modem). Quem não quiser segue rolando.
+
 ## Para quem
 
 Recrutadores estrangeiros e pessoas técnicas. Eles precisam:

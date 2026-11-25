@@ -8,6 +8,7 @@ Material de consulta. Nada daqui vai para produção.
 - `prototype/black-hole.html`: protótipo da abertura Horizon (shader de buraco negro com a luz curvada passo a passo, planeta arrastável com relógio próprio). Enquadramento escolhido: Off-axis. HTML puro. Versão viva: https://claude.ai/artifact/4aFGXG6sZ5XPprmWWgzfQP
 - `prototype/the-fall.html`: protótipo do The fall v2 (queda por dentro de uma estrutura de vigas em three.js, momentos por brechas, virada para estética retrô). HTML puro, three.js via CDN. Versão viva: https://claude.ai/artifact/GiNRNckPdZp1nwjKHHDxSv
 - `prototype/my-computer.html`: protótipo do My computer (a história pelas versões do Windows, do Pentium à escolha do curso). HTML puro. Versão viva: https://claude.ai/artifact/GBwWSsau8tqyK6c7Rmf61j
+- `prototype/os-slice-2000-xp.html`: fatia vertical do My computer como pseudo-simulador em tela cheia (Windows 2000 → XP: discagem com som sintetizado, portal de 2001, mensageiro, setup com partições, tela azul, P2P e torrent). HTML puro. Versão viva: https://claude.ai/artifact/VYdAsy9n24hShjCCUwcpZ3
 - Versão viva dos dois primeiros: https://claude.ai/artifact/6tvLdr8KsgChtDpNwAdp1i (usar o Play).
 - `originals/desafio-calculadora/`: a calculadora entregue em julho de 2020.
 - `originals/python/`: os dois primeiros exercícios em Python.

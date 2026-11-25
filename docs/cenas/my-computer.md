@@ -28,6 +28,20 @@ Protótipo: `reference/prototype/my-computer.html` (versão viva: https://claude
 
 Depois do Windows 8 a história segue para a engenharia (Structures), o deserto, 2020 no Windows (já é uma cena) e o Tux: o Ubuntu em agosto de 2020 vira a grande troca de sistema da história.
 
+## Direção v2: cada versão é um pseudo-simulador (25/11/2026)
+
+O monitor no meio da página (v1, `reference/prototype/my-computer.html`) foi substituído por uma experiência imersiva, no estilo do portfólio da Arc (arcmarumo.com): **a tela cheia é a tela do computador**. Só a moldura aparece nas bordas (plástico do monitor da época, cantos curvos do vidro, escurecimento e scanlines do CRT; LCD fino nas versões mais novas).
+
+- **Pseudo-simulador por versão:** alta fidelidade, explorável por um tempo (ícones, janelas que arrastam, menu Iniciar, barra de tarefas). Referências: windows93.net, win7simu.visnalize.com. Não precisa ser completo.
+- **Narrativa por dentro:** a copy vive dentro do sistema, no estilo da época: um readme no Bloco de Notas, um portal da web de 2001, um post-it, uma notificação do mensageiro de um amigo avisando que saiu um Windows novo.
+- **Scroll conduz a história; o mouse explora.** Cada etapa tem que tirar o fôlego de algum jeito: nostalgia, imersão, narrativa e showcase.
+- **Internet discada:** a espera e a expectativa da conexão, com o som do modem gerado na hora por Web Audio (tom de linha, DTMF, chamada, tom de resposta, negociação, treinamento), nunca uma gravação.
+- **Upgrades com detalhe:** instalador em modo texto, tabela de partições, formatação NTFS, reinício, tela azul no meio, wizard gráfico com "minutos restantes".
+- **Downloads e banda:** P2P na primeira banda larga (200 kbps, aproximado), depois 300 kbps, o primeiro 1 Mbps e a troca do P2P pelo torrent.
+- **Marcas:** MSN, eMule, uTorrent, provedores (UOL, IG, BOL) e afins só como estilo: apps com nomes e ícones genéricos ("Messenger", "P2P Downloader", "Torrent Client", "Portal online"). Windows pode aparecer em texto. Sem logos (inclusive o ícone do botão Iniciar é genérico), sons ou telas copiadas.
+
+Fatia vertical (Windows 2000 → XP): `reference/prototype/os-slice-2000-xp.html` (versão viva: https://claude.ai/artifact/VYdAsy9n24hShjCCUwcpZ3).
+
 ## Para a implementação real
 
 - No protótipo do The fall a câmera atravessa vigas. No site, a geração da estrutura precisa deixar o caminho da câmera livre (poço sem vigas cruzando a trajetória, ou desvio das vigas próximas).
