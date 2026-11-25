@@ -13,11 +13,7 @@ const FILMS = [
   { s: 'V', name: 'VELVIA', filter: 'saturate(1.6) contrast(1.12)' },
   { s: 'S', name: 'ASTIA', filter: 'saturate(.95) contrast(.92) brightness(1.03)' },
   { s: 'CC', name: 'CLASSIC CHROME', filter: 'saturate(.7) contrast(1.1) sepia(.12)' },
-  {
-    s: 'NC',
-    name: 'CLASSIC NEG',
-    filter: 'saturate(.8) contrast(1.15) sepia(.1) hue-rotate(-8deg)',
-  },
+  { s: 'NC', name: 'CLASSIC NEG', filter: 'saturate(.8) contrast(1.15) sepia(.1) hue-rotate(-8deg)' },
   { s: 'ET', name: 'ETERNA', filter: 'saturate(.72) contrast(.85) brightness(1.04)' },
   { s: 'A', name: 'ACROS', filter: 'grayscale(1) contrast(1.2)' },
 ];
@@ -26,8 +22,8 @@ const FILMS = [
 ev = log2(iso / 400) + log2(250 / shutter) - 2 * log2(aperture / 5.6) + sceneEv;
 brightness = clamp(2 ** (ev * 0.25), 0.35, 2.2);
 contrast = ev > 0 ? 1 - min(ev, 5) * 0.06 : 1 + min(-ev, 5) * 0.05;
-wash = ev > 0 ? min(0.6, ev * 0.17) /* cor #f6f1e7 */ : min(0.75, -ev * 0.22); /* cor #160a02 */
-noise = [0, 0.02, 0.04, 0.07, 0.1, 0.14, 0.2, 0.28][isoIndex];
+wash = ev > 0 ? min(0.6, ev * 0.17) /* cor #f6f1e7 */ : min(0.75, -ev * 0.22) /* cor #160a02 */;
+noise = [0, .02, .04, .07, .1, .14, .2, .28][isoIndex];
 good = abs(ev) <= 0.5; // quest concluída quando good e o sol já baixou
 ```
 
@@ -40,19 +36,16 @@ Correlação, não causalidade: ISO aumenta o grão, abertura desfoca o fundo, s
 Sondagem SPT real (SP1), pontos (profundidade m, N golpes): `[[0,4],[1,6],[2,9],[3,21],[4,23]]`, interpolação linear, N = 23 abaixo de 4 m.
 
 ```ts
-sigmaAdm(d) = min(400, 20 * N(d)); // kPa
-q = P / (B * B); // kPa, sapata quadrada B x B
-concrete = 0.5 * B * B * 246; // $ (altura 0,5 m)
-excavation = (B + 0.6) ** 2 * D * 25; // $
+sigmaAdm(d) = min(400, 20 * N(d));            // kPa
+q = P / (B * B);                              // kPa, sapata quadrada B x B
+concrete = 0.5 * B * B * 246;                 // $ (altura 0,5 m)
+excavation = (B + 0.6) ** 2 * D * 25;         // $
 shoring = D > 2 ? (B + 0.6) ** 2 * (D - 2) * 60 : 0;
 cost = concrete + excavation + shoring;
 
-status =
-  q > sigmaAdm(D)
-    ? 'fail'
-    : P >= 480 && cost > optimum * 1.06
-      ? 'over' // seguro mas caro
-      : 'ok';
+status = q > sigmaAdm(D) ? 'fail'
+       : P >= 480 && cost > optimum * 1.06 ? 'over'   // seguro mas caro
+       : 'ok';
 ```
 
 - Fase 1 da cena: P = 320 kN, sapata de projeto original, tudo passa.

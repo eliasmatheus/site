@@ -7,7 +7,6 @@
 ## Para quem
 
 Recrutadores estrangeiros e pessoas técnicas. Eles precisam:
-
 - achar os projetos em 10 segundos ("Work →" sempre visível, página de projetos sem jornada);
 - sair entendendo quem o Elias é e como ele trabalha;
 - perceber, pela própria experiência, que ele domina frontend.
@@ -28,16 +27,16 @@ Contraste emocional importante: o deserto (2019 e 2020, apagado, silencioso, a s
 
 ## Cenas (ordem atual)
 
-| #   | Cena                             | Ano         | Quest                                   |
-| --- | -------------------------------- | ----------- | --------------------------------------- |
-| 0   | Prologue: o visor e a câmera     | hoje        | Expor a cena (ou AUTO)                  |
-| 1   | The Call: escolha do curso       | 2011        |                                         |
-| 2   | Structures: a sapata             | 2012 a 2020 | Dimensionar a sapata mais barata segura |
-| 3   | The Desert                       | 2019 a 2020 |                                         |
-| 4   | The Click: o primeiro Python     | 2020        | Fazer o programa dizer o seu nome       |
-| 5   | 2020 no Windows: o desafio A + B | 2020        |                                         |
-| 6   | Tux: Ubuntu e a NLW              | ago 2020    |                                         |
-| 7   | To be continued                  |             |                                         |
+| # | Cena | Ano | Quest |
+|---|------|-----|-------|
+| 0 | Prologue: o visor e a câmera | hoje | Expor a cena (ou AUTO) |
+| 1 | The Call: escolha do curso | 2011 | |
+| 2 | Structures: a sapata | 2012 a 2020 | Dimensionar a sapata mais barata segura |
+| 3 | The Desert | 2019 a 2020 | |
+| 4 | The Click: o primeiro Python | 2020 | Fazer o programa dizer o seu nome |
+| 5 | 2020 no Windows: o desafio A + B | 2020 | |
+| 6 | Tux: Ubuntu e a NLW | ago 2020 | |
+| 7 | To be continued | | |
 
 Próximos capítulos (ainda sem protótipo na v2, alguns rascunhados na v1): primeiro emprego e Interfaces (voo pela janela do avião), Method (painel estilo The Sims), Worlds (árvore de talentos estilo Dota 2), Time (estante estilo Interestelar), Epilogue (solo de guitarra com Web Audio e um mapa do site estilo Fallout Shelter). Também falta trazer o jogo do CS50 (https://scratch.mit.edu/projects/405948947/) e as pranchas CAD se desenhando.
 
