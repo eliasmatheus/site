@@ -4,12 +4,12 @@ Cada fase termina com deploy funcionando. Uma cena só conta como pronta quando 
 
 ## Fase 0 · Fundação
 
-- [ ] Projeto Astro + React + TypeScript estrito, ESLint, Prettier, Vitest, Playwright (Chromium e WebKit, viewport desktop 1440 x 900 e mobile 390 x 844).
-- [ ] Scripts `dev`, `build`, `check`, `test`, `test:e2e`.
-- [ ] CI no GitHub Actions rodando check, testes e build em cada PR.
-- [ ] Deploy de preview por PR (Cloudflare Pages ou Vercel).
-- [ ] Extrair o copy de `reference/prototype/World.dc.html` para `src/content/` (um arquivo por cena, inglês).
-- [ ] `src/models/exposure.ts` e `src/models/footing.ts` com testes (ver `docs/modelos.md`).
+- [x] Projeto Astro + React + TypeScript estrito, ESLint, Prettier, Vitest, Playwright (Chromium e WebKit, viewport desktop 1440 x 900 e mobile 390 x 844).
+- [x] Scripts `dev`, `build`, `check`, `test`, `test:e2e`.
+- [x] CI no GitHub Actions rodando check, testes e build em cada PR.
+- [ ] Deploy de preview por PR (Cloudflare Pages ou Vercel). Pendente: precisa conectar o repositório no painel do provedor (integração Git), o que dá preview por PR sem segredo no repo. Build: `npm run build`, saída `dist/`, Node 22.
+- [x] Extrair o copy de `reference/prototype/World.dc.html` para `src/content/` (um arquivo por cena, inglês).
+- [x] `src/models/exposure.ts` e `src/models/footing.ts` com testes (ver `docs/modelos.md`).
 
 ## Fase 1 · Esqueleto
 

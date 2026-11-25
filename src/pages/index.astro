@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Elias Matheus" description="Meet Elias. From civil engineering to AI engineering.">
+  <main>
+    <h1>Meet Elias.</h1>
+    <p>The journey is being built. Come back soon.</p>
+  </main>
+</Base>
+
+<style>
+  main {
+    min-height: 100svh;
+    display: grid;
+    place-content: center;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    line-height: 1.05;
+  }
+
+  p {
+    color: var(--muted);
+  }
+</style>
