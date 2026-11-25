@@ -38,7 +38,7 @@ O site é híbrido:
 |---|------|-----|-------|
 | 1 | Horizon: o wormhole, o buraco negro e a queda | hoje | (em aberto; o planeta no cursor ficou em espera) |
 | 2 | The fall: a queda por dentro da estrutura do tempo | do fim dos anos 90 a hoje | |
-| 3 | The Call: o garoto do computador e a escolha do curso | fim dos anos 90 a 2011 | |
+| 3 | My computer: a história pelas versões do Windows (95 a 8), da primeira máquina à escolha do curso | fim dos anos 90 a 2011 | |
 | 4 | Structures: a sapata | 2012 a 2020 | Dimensionar a sapata mais barata segura |
 | 5 | The Desert | 2019 a 2020 | |
 | 6 | The Click: o primeiro Python | 2020 | Fazer o programa dizer o seu nome |
@@ -48,6 +48,7 @@ O site é híbrido:
 
 - **Horizon** abre a jornada com um hobby que traduz bem para a web: o espaço (Interestelar, Star Wars, Star Trek, só como homenagem de estilo). Protótipo: Cinematic, enquadramento Off-axis, chegada por wormhole, lens flare no cursor e queda em primeira pessoa (`reference/prototype/black-hole.html`). O planeta gasoso ficou em espera.
 - **The fall** é o navegante caindo no buraco negro e entrando num espaço tridimensional onde dá para visitar o passado, assistir e interagir de leve com algumas coisas. As cenas seguintes (Call a Tux) passam a ser momentos desse espaço, cada um uma porta para a cena completa. Protótipo: `reference/prototype/the-fall.html` (queda por um poço dentro de uma estrutura de vigas, momentos vistos por brechas, e ao atravessar a última brecha o site vira uma tela de computador antigo).
+- **My computer** substitui a The Call como era: depois do The fall, a estética do espaço acaba e o computador do Elias conta a história, uma versão do Windows por capítulo (`docs/cenas/my-computer.md`).
 - **Fotografia** (o antigo Prologue, com a câmera e a quest da exposição) surgiu mais tarde na vida do Elias e sai da abertura. Volta mais adiante, no ponto certo da linha do tempo, a definir.
 - **Quests**: a do Horizon está em aberto. A sapata e o nome no Python continuam; a da exposição volta junto com a fotografia.
 
