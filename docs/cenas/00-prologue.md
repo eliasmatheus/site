@@ -27,7 +27,14 @@ Primeira impressão: o visitante está olhando pelo visor da X-T3 dele, num dese
 
 ## Aceite
 
-- [ ] LCP do panorama < 2,5 s no mobile (placeholder borrado inline enquanto carrega).
-- [ ] Exposição calcula igual ao modelo (testes) e o AUTO resolve a quest.
-- [ ] Câmera e fotômetro com contraste perfeito em qualquer EV.
-- [ ] Reduced motion: sem rotação automática do panorama.
+- [x] LCP do panorama < 2,5 s no mobile (placeholder borrado inline enquanto carrega). Lighthouse mobile em 25/11/2026: LCP 2,3 s, performance 97, acessibilidade 100.
+- [x] Exposição calcula igual ao modelo (testes) e o AUTO resolve a quest.
+- [x] Câmera e fotômetro com contraste perfeito em qualquer EV.
+- [x] Reduced motion: sem rotação automática do panorama.
+
+## Como ficou (Fase 2)
+
+- `src/scenes/prologue/`: `Prologue.astro` (markup estático no estado de chegada), `camera.ts` (dials, fases e fotômetro, puro e testado) e `controller.ts` (olhar em volta, dials, exposição).
+- Ao tirar o olho do visor, a imagem não encolhe: ela é recortada (`clip-path`) até a tela da câmera, medida a partir de `.slot`. Funciona igual no desktop e no mobile.
+- Dials: setas ‹ ›, teclado (setas) com foco, roda do mouse só com foco, arrasto horizontal (`touch-action: pan-y`, então o arrasto vertical continua rolando a página) e clique no dial (+1).
+- Ficou para depois: giroscópio no mobile (opcional no beat 1).

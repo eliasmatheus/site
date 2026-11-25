@@ -22,7 +22,7 @@ Cada fase termina com deploy funcionando. Uma cena só conta como pronta quando 
 
 ## Fase 2 · Abertura
 
-- [ ] Prologue completo, com quest.
+- [x] Prologue completo, com quest.
 - [ ] The Call.
 
 ## Fase 3 · Engenharia
