@@ -1,5 +1,4 @@
 // Scene 01 · The Call (s-call + `call` array).
-// TODO: confirm with Elias the three real course options in 2011.
 export const call = {
   kicker: '01 · THE CALL · 2011',
   groupLabel: 'Choose a path',

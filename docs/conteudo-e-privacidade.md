@@ -14,7 +14,7 @@ Regras para qualquer texto, imagem ou dado que vá para o site.
 
 - Não inventar fatos da vida do Elias. Quando o protótipo tem algo ilustrativo, isso está marcado abaixo.
 - Ilustrativo e aprovado: o texto do `primeiro.html` ("Olá! Esta é a minha primeira página."); a vírgula como causa do erro do SQLite na cena Tux.
-- Pendente de confirmação: as três opções reais de curso em 2011 (cena The Call).
+- Decidido: as três opções de curso da cena The Call ficam como estão.
 
 ## Tom
 

@@ -10,9 +10,9 @@ O chamado do herói, como o começo de um jogo de monstrinhos em que um professo
 
 Escolher um card. Se for Civil: "That is exactly what Elias picked." Senão: "Bold. Elias picked CIVIL ENGINEERING. The road to code would take a detour through the desert." Sem escolha, o scroll segue normalmente.
 
-## Pendente
+## Decidido
 
-Confirmar com o Elias quais eram as três opções reais em 2011.
+As três opções ficam como estão (decisão do Elias, 25/11/2026).
 
 ## Mobile
 

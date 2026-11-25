@@ -8,8 +8,11 @@ export const prologue = {
     // e.g. 'ISO 400 · 1/250 · F5.6 · CLASSIC CHROME'
     exif: (iso: number, shutter: number, aperture: number, film: string): string =>
       `ISO ${iso} · 1/${shutter} · F${aperture} · ${film}`,
-    // TODO: touch variant of the hint (mobile drags instead of moving the mouse).
-    hint: '00 · MOVE THE MOUSE TO LOOK AROUND · SCROLL TO MOVE FORWARD',
+    // Pick by input: `pointer` for mouse, `touch` for `pointer: coarse` (drag sideways, swipe up).
+    hint: {
+      pointer: '00 · MOVE THE MOUSE TO LOOK AROUND · SCROLL TO MOVE FORWARD',
+      touch: '00 · DRAG TO LOOK AROUND · SWIPE UP TO MOVE FORWARD',
+    },
     title: 'Meet Elias.',
     intro:
       'Engineer turned software engineer, photographer, reader of history. This is the story, told the way I lived it.',
