@@ -9,6 +9,8 @@ Material de consulta. Nada daqui vai para produção.
 - `prototype/the-fall.html`: protótipo do The fall v2 (queda por dentro de uma estrutura de vigas em three.js, momentos por brechas, virada para estética retrô). HTML puro, three.js via CDN. Versão viva: https://claude.ai/artifact/GiNRNckPdZp1nwjKHHDxSv
 - `prototype/my-computer.html`: protótipo do My computer (a história pelas versões do Windows, do Pentium à escolha do curso). HTML puro. Versão viva: https://claude.ai/artifact/GBwWSsau8tqyK6c7Rmf61j
 - `prototype/os-slice-2000-xp.html`: fatia vertical do My computer como pseudo-simulador em tela cheia (Windows 2000 → XP: discagem com som sintetizado, portal de 2001, mensageiro, setup com partições, tela azul, P2P e torrent). HTML puro. Versão viva: https://claude.ai/artifact/VYdAsy9n24hShjCCUwcpZ3
+- `prototype/os-95-98.html`: My computer do primeiro PC ao Windows 98 (tela CRT ligando, POST com teste de memória, splash, Welcome, setup do 98, o arquivo na pasta do jogo). HTML puro. Versão viva: https://claude.ai/artifact/8h4TSUesujyg8a2Qz5zNNQ
+- `prototype/os-xp-8.html`: My computer do XP ao Windows 8 em monitor LCD (UAC, tutorial e editor de imagem, scanner de memória no modo carreira, lobby de mapas personalizados, e-mail com a key beta, primeira partida, tiles do 8 com a escolha do curso). HTML puro. Versão viva: https://claude.ai/artifact/DuhPQSSVr8eu8ERxxzB46y
 - Versão viva dos dois primeiros: https://claude.ai/artifact/6tvLdr8KsgChtDpNwAdp1i (usar o Play).
 - `originals/desafio-calculadora/`: a calculadora entregue em julho de 2020.
 - `originals/python/`: os dois primeiros exercícios em Python.

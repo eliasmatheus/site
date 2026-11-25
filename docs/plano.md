@@ -40,6 +40,7 @@ Protótipos em `reference/prototype/` (`landing-orbit.html`, `black-hole.html`).
 - [x] Confirmar a linha do tempo do computador (versões, anos, specs e memórias) em `docs/cenas/my-computer.md`.
 - [x] Protótipo do My computer (`reference/prototype/my-computer.html`).
 - [x] Fatia vertical do My computer como pseudo-simulador (2000 → XP): `reference/prototype/os-slice-2000-xp.html`.
+- [x] Demais versões no mesmo formato: `reference/prototype/os-95-98.html` (primeiro PC → 98) e `reference/prototype/os-xp-8.html` (XP → 8).
 - [ ] Protótipos das outras versões (95, 98, Vista, 7, 8) no mesmo formato.
 - [ ] Cena My computer no site (substitui a The Call).
 - [ ] Prologue (fotografia) sai da abertura e fica guardado até ganhar lugar na linha do tempo.

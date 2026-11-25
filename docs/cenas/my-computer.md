@@ -42,6 +42,12 @@ O monitor no meio da página (v1, `reference/prototype/my-computer.html`) foi su
 
 Fatia vertical (Windows 2000 → XP): `reference/prototype/os-slice-2000-xp.html` (versão viva: https://claude.ai/artifact/VYdAsy9n24hShjCCUwcpZ3).
 
+Demais versões no mesmo formato:
+
+- Primeiro PC → 98: `reference/prototype/os-95-98.html` (versão viva: https://claude.ai/artifact/8h4TSUesujyg8a2Qz5zNNQ). Termina no setup em modo texto que entrega para a fatia 2000 → XP.
+- XP → Vista → 7 → 8: `reference/prototype/os-xp-8.html` (versão viva: https://claude.ai/artifact/DuhPQSSVr8eu8ERxxzB46y). Bezel de LCD a partir daqui. Vista: UAC, tutorial de texto cromado, editor com camadas, scanner de memória (career_mode.exe, 1.000.000 → 999.999.999). 7: lobby de mapas personalizados, e-mail com a key beta, "First match · that night". 8: tiles com os cursos, Civil Engineering escolhido.
+- Os três protótipos juntos cobrem a linha do tempo inteira. Na implementação real viram uma cena só, com o motor de janelas compartilhado e cada era como módulo.
+
 ## Para a implementação real
 
 - No protótipo do The fall a câmera atravessa vigas. No site, a geração da estrutura precisa deixar o caminho da câmera livre (poço sem vigas cruzando a trajetória, ou desvio das vigas próximas).
