@@ -1,0 +1,353 @@
+<title>My Computer Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,300&family=JetBrains+Mono:wght@400;500&family=VT323&family=Press+Start+2P&display=swap">
+<style>
+  /* Layout: a dark room, one monitor in the middle that changes with each upgrade; chapter and specs on the left, narration below. */
+  :root {
+    --room: #0c0b0d;
+    --ink: #ece7dc;
+    --muted: #9b968c;
+    --amber: #e8a65a;
+    --phosphor: #b6f3a1;
+    --f-display: 'Fraunces', Georgia, serif;
+    --f-mono: 'JetBrains Mono', ui-monospace, monospace;
+    --f-term: 'VT323', ui-monospace, monospace;
+    --f-pixel: 'Press Start 2P', ui-monospace, monospace;
+    --f-ui: Tahoma, Verdana, 'Segoe UI', sans-serif;
+    --t: 0;
+    color-scheme: dark;
+  }
+  html, body { background: var(--room); color: var(--ink); }
+  body { font-family: var(--f-mono); }
+  .journey { position: relative; }
+  .room {
+    position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden;
+    display: grid; grid-template-columns: minmax(200px, 280px) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; gap: 16px 32px;
+    padding-block: calc(env(safe-area-inset-top, 0px) + 24px) calc(env(safe-area-inset-bottom, 0px) + 20px);
+    padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px));
+    background: radial-gradient(ellipse at 60% 45%, #1d1a1f, var(--room) 70%);
+  }
+
+  /* ---------- left: chapter and spec sheet ---------- */
+  .side { align-self: center; display: flex; flex-direction: column; gap: 18px; }
+  .kicker { margin: 0; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--amber); }
+  .os { margin: 0; font-family: var(--f-display); font-style: italic; font-weight: 300; font-size: clamp(34px, 3.6vw, 52px); line-height: 1; }
+  .years { margin: 6px 0 0; font-size: 12px; letter-spacing: 1px; color: var(--muted); }
+  .spec { margin: 0; padding: 12px 14px; border: 1px dashed rgb(236 231 220 / 0.22); font-size: 11px; line-height: 1.8; color: var(--muted); }
+  .spec b { color: var(--ink); font-weight: 500; }
+  .spec .est { display: block; margin-top: 6px; font-size: 10px; opacity: .7; }
+  .chapters { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+  .chapters li { padding: 3px 7px; border: 1px solid rgb(236 231 220 / 0.14); font-size: 10px; letter-spacing: 1px; color: var(--muted); }
+  .chapters li.on { border-color: var(--amber); color: var(--amber); }
+  .chapters li.done { color: var(--ink); }
+
+  /* ---------- the monitor ---------- */
+  .desk { position: relative; display: grid; place-items: center; min-height: 0; }
+  .monitor {
+    --w: min(100%, 720px, calc((100dvh - 230px) * 4 / 3));
+    position: relative; width: var(--w); padding: 26px 26px 54px; border-radius: 18px;
+    background: linear-gradient(180deg, #e4ddc8, #c9c0a6); box-shadow: 0 30px 70px rgb(0 0 0 / 0.6), inset 0 -8px 0 rgb(0 0 0 / 0.08);
+    transition: width .9s ease, padding .9s ease, border-radius .9s ease, background .9s ease;
+  }
+  .monitor::after { /* brand-free badge and power light */
+    content: ""; position: absolute; right: 30px; bottom: 22px; width: 8px; height: 8px; border-radius: 50%; background: #6fd36f; box-shadow: 0 0 8px #6fd36f;
+  }
+  .monitor .stand { position: absolute; left: 50%; bottom: -46px; width: 34%; height: 46px; transform: translateX(-50%); background: linear-gradient(180deg, #c9c0a6, #a89f87); clip-path: polygon(18% 0, 82% 0, 100% 100%, 0 100%); transition: all .9s ease; }
+  .monitor .label { position: absolute; left: 30px; bottom: 18px; font-family: var(--f-ui); font-size: 10px; letter-spacing: 1px; color: #6e6650; transition: color .9s ease; }
+  .monitor.crt15 { --w: min(100%, 760px, calc((100dvh - 220px) * 4 / 3)); }
+  .monitor.crt17 { --w: min(100%, 820px, calc((100dvh - 210px) * 4 / 3)); border-radius: 14px; background: linear-gradient(180deg, #ecebe6, #cfcdc6); }
+  .monitor.lcd19, .monitor.lcd22 { padding: 14px 14px 30px; border-radius: 8px; background: linear-gradient(180deg, #2a2a2e, #141416); }
+  .monitor.lcd19 { --w: min(100%, 860px, calc((100dvh - 180px) * 16 / 10)); }
+  .monitor.lcd22 { --w: min(100%, 940px, calc((100dvh - 170px) * 16 / 9)); padding: 10px 10px 22px; border-radius: 6px; }
+  .monitor.lcd19 .label, .monitor.lcd22 .label { color: #7b7b80; bottom: 8px; }
+  .monitor.lcd19 .stand, .monitor.lcd22 .stand { width: 22%; background: linear-gradient(180deg, #232326, #0f0f11); }
+  .monitor.lcd19::after, .monitor.lcd22::after { bottom: 11px; width: 5px; height: 5px; background: #6aa8ff; box-shadow: 0 0 6px #6aa8ff; }
+
+  .screen {
+    position: relative; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 12px / 16px; background: #000;
+    box-shadow: inset 0 0 30px rgb(0 0 0 / 0.8); font-family: var(--f-ui); font-size: 12px; color: #000;
+    transition: aspect-ratio .9s ease, border-radius .9s ease;
+  }
+  .monitor.lcd19 .screen { aspect-ratio: 16 / 10; border-radius: 2px; }
+  .monitor.lcd22 .screen { aspect-ratio: 16 / 9; border-radius: 1px; }
+  .screen::after { /* CRT glass */
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 20;
+    background: repeating-linear-gradient(180deg, transparent 0 2px, rgb(0 0 0 / 0.16) 2px 3px), radial-gradient(ellipse at center, transparent 60%, rgb(0 0 0 / 0.45));
+  }
+  .monitor.lcd19 .screen::after, .monitor.lcd22 .screen::after { background: linear-gradient(135deg, rgb(255 255 255 / 0.05), transparent 40%); }
+
+  /* ---------- screen layers ---------- */
+  .layer { position: absolute; inset: 0; }
+  .boot { background: #000; color: #c7d3c0; font-family: var(--f-term); font-size: clamp(16px, 2.2vw, 24px); line-height: 1.25; padding: 5% 6%; white-space: pre-wrap; }
+  .boot.green { color: var(--phosphor); text-shadow: 0 0 6px rgb(182 243 161 / 0.5); }
+  .cursor { display: inline-block; width: .55em; background: currentColor; animation: blink 1s steps(2) infinite; }
+
+  /* Desktops (generic, era-inspired: no logos, no official art). */
+  .desktop { display: grid; grid-template-rows: 1fr auto; }
+  .os-95 .desktop, .os-98 .desktop { background: #008080; }
+  .os-2000 .desktop { background: #3a6ea5; }
+  .os-xp .desktop { background: linear-gradient(180deg, #3a7bd5 0%, #6aa8ee 55%, #7dbb5a 56%, #4f8f34 100%); }
+  .os-vista .desktop { background: radial-gradient(ellipse at 30% 70%, #1d6b5a 0%, transparent 50%), radial-gradient(ellipse at 75% 30%, #1d3f7a 0%, transparent 55%), #071a22; }
+  .os-7 .desktop { background: linear-gradient(160deg, #0f4c9c 0%, #1b74c7 45%, #0a3570 100%); }
+  .os-8 .desktop { background: #4a1d6e; }
+  .icons { display: flex; flex-direction: column; gap: 14px; padding: 12px; align-items: flex-start; }
+  .icon { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 66px; color: #fff; font-size: 10px; text-align: center; text-shadow: 1px 1px 0 #000; }
+  .icon i { width: 30px; height: 26px; background: #ffd873; border: 1px solid #a67c00; border-radius: 2px; }
+  .icon i.pc { background: linear-gradient(#d8d8d8 70%, #9a9a9a 70%); border-color: #555; }
+  .icon i.bin { background: linear-gradient(#e8e8e8, #b8b8b8); border-radius: 0 0 6px 6px; width: 22px; }
+  .taskbar { display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 4px; background: #c0c0c0; border-top: 2px solid #fff; font-size: 11px; }
+  .start { padding: 2px 8px; border: 2px outset #fff; background: #c0c0c0; font-weight: 700; }
+  .tray { margin-left: auto; padding: 2px 8px; border: 1px inset #fff; }
+  .os-xp .taskbar { background: linear-gradient(#3168d5, #1941a5); border-top: 1px solid #5a8de6; color: #fff; }
+  .os-xp .start { border: 0; border-radius: 0 10px 10px 0; background: linear-gradient(#4fb04a, #2c8a2a); color: #fff; font-style: italic; padding: 3px 16px; }
+  .os-xp .tray { border: 0; background: #0f8ae0; }
+  .os-vista .taskbar, .os-7 .taskbar { height: 32px; background: rgb(10 20 30 / 0.65); border-top: 1px solid rgb(255 255 255 / 0.25); color: #fff; backdrop-filter: blur(6px); }
+  .os-vista .start, .os-7 .start { width: 26px; height: 26px; padding: 0; border: 0; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #9fd0ff, #1c5fb0 60%, #0b2f66); font-size: 0; }
+  .os-vista .tray, .os-7 .tray { border: 0; }
+  .os-8 .taskbar { display: none; }
+  .os-8 .icons { display: none; }
+
+  /* Windows: era chrome. */
+  .win {
+    position: absolute; left: 50%; top: 46%; width: min(84%, 520px); transform: translate(-50%, -50%) scale(calc(0.9 + 0.1 * min(1, var(--t) * 6)));
+    opacity: min(1, calc(var(--t) * 8)); background: #c0c0c0; border: 2px outset #fff; box-shadow: 2px 2px 0 #000; font-size: 12px; z-index: 5;
+  }
+  .win .bar { display: flex; justify-content: space-between; align-items: center; padding: 3px 4px 3px 6px; background: #000080; color: #fff; font-weight: 700; font-size: 11px; }
+  .os-98 .win .bar, .os-2000 .win .bar { background: linear-gradient(90deg, #0a246a, #a6caf0); }
+  .win .bar span:last-child { display: inline-grid; place-items: center; width: 14px; height: 12px; background: #c0c0c0; color: #000; border: 1px outset #fff; font-size: 9px; }
+  .win .body { padding: 10px; background: #fff; border: 2px inset #fff; margin: 4px; min-height: 120px; }
+  .os-xp .win { border: 0; border-radius: 8px 8px 0 0; background: #ece9d8; box-shadow: 0 0 0 3px #0054e3, 4px 6px 14px rgb(0 0 0 / 0.4); }
+  .os-xp .win .bar { background: linear-gradient(#0a5fe8, #0042c9); border-radius: 6px 6px 0 0; padding: 5px 6px; font-size: 12px; }
+  .os-xp .win .bar span:last-child { background: #d64b2a; color: #fff; border: 1px solid #fff; border-radius: 3px; }
+  .os-vista .win, .os-7 .win { border: 1px solid rgb(255 255 255 / 0.5); border-radius: 8px; background: rgb(160 200 230 / 0.35); backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgb(0 0 0 / 0.5); padding: 4px; }
+  .os-vista .win .bar, .os-7 .win .bar { background: transparent; color: #fff; text-shadow: 0 0 6px #000; font-weight: 400; }
+  .os-vista .win .bar span:last-child, .os-7 .win .bar span:last-child { width: 34px; border: 0; border-radius: 3px; background: linear-gradient(#e8a08a, #c43c1c); color: #fff; }
+  .os-vista .win .body, .os-7 .win .body { border: 1px solid rgb(0 0 0 / 0.3); margin: 2px; }
+  .os-8 .win { border: 0; background: #2b5797; box-shadow: none; padding: 0; }
+  .os-8 .win .bar { background: #2b5797; font-weight: 400; }
+
+  /* Setup screens (upgrades). */
+  .setup { display: grid; place-items: center; background: linear-gradient(135deg, #00264d, #0a4a8a); color: #fff; font-family: var(--f-ui); }
+  .setup .box { width: 70%; display: flex; flex-direction: column; gap: 10px; font-size: clamp(11px, 1.3vw, 14px); }
+  .setup .box b { font-size: clamp(14px, 1.8vw, 20px); font-weight: 400; }
+  .setup .bar2 { height: 16px; border: 1px solid #fff; padding: 2px; }
+  .setup .bar2 span { display: block; height: 100%; width: calc(var(--t) * 100%); background: repeating-linear-gradient(90deg, #6ac46a 0 10px, transparent 10px 12px); }
+
+  /* Memory contents. */
+  .drives { display: flex; gap: 18px; flex-wrap: wrap; }
+  .drives div { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; }
+  .drives i { width: 38px; height: 24px; background: linear-gradient(#ddd, #999); border: 1px solid #555; }
+  .row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .bar3 { flex: 1; height: 14px; border: 1px inset #fff; background: #fff; padding: 1px; }
+  .bar3 span { display: block; height: 100%; width: calc(min(1, var(--t) * 1.3) * 100%); background: #000080; }
+  .os-xp .bar3 span { background: repeating-linear-gradient(90deg, #3c3 0 8px, transparent 8px 10px); }
+  .mono { font-family: var(--f-term); font-size: 16px; }
+  .table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .table td { padding: 3px 6px; border-bottom: 1px solid #ddd; }
+  .table tr.hit td { background: #ffd873; }
+  .flip .before { display: calc(1); }
+  .road { height: 150px; background: linear-gradient(#2b1b4d 0 30%, #a8406e 45%, #ff8f57 55%, #1b2a1e 56%); position: relative; image-rendering: pixelated; }
+  .road::before { content: ""; position: absolute; left: 50%; bottom: 0; width: 70%; height: 44%; transform: translateX(-50%); background: #3d3d46; clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%); }
+  .road::after { content: ""; position: absolute; left: 50%; bottom: 4%; width: 4px; height: 36%; transform: translateX(-50%); background: repeating-linear-gradient(#f4f1e6 0 10px, transparent 10px 22px); animation: road .5s steps(4) infinite; }
+  .sim { height: 150px; background: #6fa86f; position: relative; }
+  .sim .house { position: absolute; left: 22%; top: 18%; width: 56%; height: 60%; background: #e8dcc0; transform: skewY(-12deg); border: 3px solid #7a5a3a; }
+  .sim .guy { position: absolute; left: 47%; top: 44%; width: 10px; height: 18px; background: #2b5797; border-radius: 4px 4px 0 0; }
+  .needs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px 12px; margin-top: 8px; font-size: 10px; }
+  .needs span { display: flex; align-items: center; gap: 6px; }
+  .needs span i { flex: 1; height: 6px; background: linear-gradient(90deg, #3c3 calc(var(--v, 70) * 1%), #ccc 0); }
+  .format { background: #000082; color: #fff; padding: 10px; font-family: var(--f-term); font-size: 18px; min-height: 120px; }
+  .layers { display: grid; grid-template-columns: 1fr 120px; gap: 8px; }
+  .canvas { height: 130px; background: radial-gradient(circle at 50% 45%, #7a5ad8 0 18%, #3a2a7a 19% 32%, #11131c 33%); }
+  .lp { background: #3a3a42; color: #ddd; padding: 4px; font-size: 10px; display: flex; flex-direction: column; gap: 3px; }
+  .lp div { background: #50505a; padding: 3px 4px; opacity: calc(min(1, max(0, var(--t) * 6 - var(--l)))); }
+  .lobby { width: 100%; font-size: 11px; border-collapse: collapse; color: #e8e0c8; background: #14100a; }
+  .lobby td { padding: 4px 6px; border-bottom: 1px solid #3a2e1a; }
+  .lobby tr.on td { background: #3a2a10; color: #ffd873; }
+  .mail { font-size: 12px; line-height: 1.6; }
+  .mail .key { margin: 8px 0; padding: 8px; background: #111; color: #9fe39f; font-family: var(--f-term); font-size: 20px; letter-spacing: 2px; text-align: center; }
+  .loading { margin-top: 8px; padding: 10px; background: #120c0a; color: #c9a36a; font-size: 11px; text-align: center; letter-spacing: 2px; }
+  .tiles { position: absolute; inset: 10% 8%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; align-content: center; }
+  .tiles h3 { grid-column: 1 / -1; margin: 0 0 6px; color: #fff; font-family: 'Segoe UI', var(--f-ui); font-weight: 300; font-size: clamp(16px, 2.4vw, 28px); }
+  .tile { aspect-ratio: 1.3; display: flex; align-items: flex-end; padding: 8px; color: #fff; font-family: 'Segoe UI', var(--f-ui); font-size: clamp(9px, 1.1vw, 12px); }
+  .tile:nth-of-type(1) { background: #d24726; } .tile:nth-of-type(2) { background: #2b5797; } .tile:nth-of-type(3) { background: #00a300; }
+  .tile.pick { outline: 4px solid #fff; outline-offset: -4px; }
+  .tile.hover { outline: 3px dashed rgb(255 255 255 / 0.7); outline-offset: -3px; }
+
+  /* ---------- narration and toast ---------- */
+  .narr { grid-column: 2; margin: 0; min-height: 3.2em; text-align: center; font-family: var(--f-display); font-style: italic; font-weight: 300; font-size: clamp(18px, 2vw, 26px); line-height: 1.3; text-wrap: balance; }
+  .toast { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 20px); right: max(24px, env(safe-area-inset-right, 0px)); margin: 0; padding: 8px 12px; border: 3px solid var(--phosphor); background: #050805; color: var(--phosphor); font-family: var(--f-pixel); font-size: 10px; letter-spacing: 1px; opacity: 0; transition: opacity .25s steps(3); }
+  .toast.on { opacity: 1; }
+  .proto { position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 10px); left: max(24px, env(safe-area-inset-left, 0px)); margin: 0; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgb(155 150 140 / 0.6); }
+
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes road { to { background-position: 0 22px; } }
+
+  @media (max-width: 760px) {
+    .room { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; gap: 10px; padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); }
+    .side { flex-direction: row; flex-wrap: wrap; align-items: end; gap: 6px 14px; }
+    .spec, .chapters { display: none; }
+    .os { font-size: 30px; }
+    .narr { grid-column: 1; font-size: 18px; }
+    .monitor { --w: 100% !important; padding: 12px 12px 30px; border-radius: 12px; }
+    .monitor .label { left: 14px; bottom: 9px; font-size: 8px; }
+    .monitor::after { right: 14px; bottom: 11px; }
+    .monitor .stand { display: none; }
+    .win { width: 92%; font-size: 10px; }
+    .win .body { min-height: 80px; padding: 6px; }
+    .road, .sim { height: 90px; }
+    .canvas { height: 80px; }
+    .toast { top: auto; bottom: calc(env(safe-area-inset-bottom, 0px) + 96px); right: 12px; font-size: 8px; }
+    .proto { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .cursor, .road::after { animation: none; } .monitor, .monitor .stand, .screen { transition: none; } }
+</style>
+
+<div class="journey" id="journey">
+  <div class="room">
+    <aside class="side">
+      <div>
+        <p class="kicker" id="kicker">My computer</p>
+        <h1 class="os" id="os">Booting</h1>
+        <p class="years" id="years">1997</p>
+      </div>
+      <p class="spec" id="spec"></p>
+      <ul class="chapters" id="chapters" aria-label="Upgrades"></ul>
+    </aside>
+    <div class="desk">
+      <div class="monitor crt14" id="monitor">
+        <div class="screen os-95" id="screen" role="img" aria-label="The family computer's screen"></div>
+        <span class="label" id="mlabel">14" CRT</span>
+        <span class="stand"></span>
+      </div>
+    </div>
+    <p class="narr" id="narr" aria-live="polite"></p>
+    <p class="toast" id="toast"></p>
+    <p class="proto">Prototype · My computer</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+  // ---------- the story, one Windows version per chapter (specs are estimates) ----------
+  const desktop = (icons = true) => `<div class="layer desktop">${icons ? '<div class="icons"><span class="icon"><i class="pc"></i>My Computer</span><span class="icon"><i class="bin"></i>Recycle Bin</span><span class="icon"><i></i>Games</span></div>' : '<div></div>'}<div class="taskbar"><span class="start">Start</span><span class="tray" data-clock></span></div></div>`;
+  const win = (title, body) => `<div class="win"><div class="bar"><span>${title}</span><span>×</span></div><div class="body">${body}</div></div>`;
+
+  const CHAPTERS = [
+    { os: 'Windows 95', key: '95', years: '1997 to 1998', clock: '1997', pc: ['Pentium', '64 MB RAM', '8 GB disk'], mon: 'crt14', mlabel: '14" CRT',
+      memories: [
+        { narr: 'Dad brought home our first computer. I was hooked on the screen.', skill: null,
+          html: win('My Computer', '<div class="drives"><div><i></i>3½ Floppy (A:)</div><div><i></i>(C:) 8 GB</div><div><i></i>CD-ROM (D:)</div></div>') },
+      ] },
+    { os: 'Windows 98', key: '98', years: '1998 to 2000', clock: '1999', pc: ['Pentium', '64 MB RAM', '8 GB disk'], mon: 'crt14', mlabel: '14" CRT',
+      memories: [
+        { narr: 'One file in the right folder, and the game opened.', skill: 'FILE SYSTEMS',
+          html: win('Confirm File Replace', '<p style="margin:0 0 10px">This folder already contains a file with this name.<br>Replace the existing file?</p><div class="row"><span style="padding:3px 18px;border:2px outset #fff;background:#c0c0c0">Yes</span><span style="padding:3px 18px;border:2px outset #fff;background:#c0c0c0">No</span></div>') },
+      ] },
+    { os: 'Windows 2000', key: '2000', years: '2000 to 2002', clock: '2001', pc: ['Pentium', '128 MB RAM (upgraded)', '8 GB disk'], mon: 'crt15', mlabel: '15" CRT',
+      memories: [
+        { narr: 'Dial-up at night. Flash games saved to play offline.', skill: 'DIAL-UP',
+          html: win('Dial-up Connection', '<div class="row">Connecting at 56,000 bps…</div><div class="row">Saving game.swf <span class="bar3"><span></span></span></div>') },
+      ] },
+    { os: 'Windows XP', key: 'xp', years: '2002 to 2007', clock: '2004', pc: ['Pentium 4', '512 MB RAM', '80 GB disk'], mon: 'crt17', mlabel: '17" CRT',
+      memories: [
+        { narr: 'Old consoles, through emulators.', skill: 'EMULATORS', html: win('Emulator', '<div class="road"></div>') },
+        { narr: 'Hours building lives in a life simulation game.', skill: 'SYSTEMS THINKING',
+          html: win('Life simulation', '<div class="sim"><div class="house"></div><div class="guy"></div></div><div class="needs"><span>Hunger <i style="--v:40"></i></span><span>Fun <i style="--v:90"></i></span><span>Social <i style="--v:65"></i></span><span>Energy <i style="--v:25"></i></span></div>') },
+        { narr: 'Formatting, fixing, reinstalling. Mine, then everyone’s.', skill: 'TECH SUPPORT',
+          html: win('Setup', '<div class="format">Formatting C:<br><span class="bar3" style="display:block;margin-top:8px"><span></span></span></div>') },
+        { narr: 'Downloads queued overnight.', skill: 'DOWNLOADS',
+          html: win('Downloads', '<div class="row" style="font-size:11px">song.mp3 <span class="bar3"><span style="width:calc(min(1, var(--t) * 1.8) * 100%)"></span></span></div><div class="row" style="font-size:11px">game.zip <span class="bar3"><span></span></span></div><div class="row" style="font-size:11px">video.avi <span class="bar3"><span style="width:calc(min(1, var(--t) * .8) * 100%)"></span></span></div>') },
+      ] },
+    { os: 'Windows Vista', key: 'vista', years: '2007 to 2009', clock: '2008', pc: ['Core 2 Duo', '2 GB RAM', '250 GB disk'], mon: 'lcd19', mlabel: '19" LCD',
+      memories: [
+        { narr: 'An image editor and every tutorial I could find.', skill: 'IMAGE EDITING',
+          html: win('Image editor', '<div class="layers"><div class="canvas"></div><div class="lp"><div style="--l:5">Chrome text</div><div style="--l:4">Lens flare</div><div style="--l:3">Shadow</div><div style="--l:2">Glow</div><div style="--l:1">Background</div></div></div>') },
+        { narr: 'Career mode in FIFA, with a budget no club ever had. I edited the memory.', skill: 'MEMORY EDITING',
+          html: win('Memory Scanner', '<table class="table"><tr><td>Address</td><td>Value</td></tr><tr><td>0x0A41F0</td><td>23</td></tr><tr class="hit"><td>0x0A41F8 · club budget</td><td class="mono" data-flip>1,000,000</td></tr><tr><td>0x0A41FC</td><td>3</td></tr></table>') },
+      ] },
+    { os: 'Windows 7', key: '7', years: '2009 to 2011', clock: '2010', pc: ['Core 2 Duo', '4 GB RAM', '500 GB disk'], mon: 'lcd19', mlabel: '19" LCD',
+      memories: [
+        { narr: 'Custom maps in Warcraft III: The Frozen Throne. Mostly DotA.', skill: 'STRATEGY',
+          html: win('Custom games', '<table class="lobby"><tr><td>Map</td><td>Players</td></tr><tr class="on"><td>DotA Allstars</td><td>10/10</td></tr><tr><td>Tower defense</td><td>6/8</td></tr><tr><td>Hero arena</td><td>4/8</td></tr></table>') },
+        { narr: 'The day the Dota 2 beta key arrived. First match that night.', skill: 'BLEEDING EDGE',
+          html: win('Inbox', '<div class="mail"><b>Your beta invitation</b><br>Here is your key:<div class="key">XXXXX-XXXXX-XXXXX</div><div class="loading">LOADING · FIRST MATCH</div></div>') },
+      ] },
+    { os: 'Windows 8', key: '8', years: '2011 to 2012', clock: '2011', pc: ['Core i5', '4 GB RAM', '1 TB disk'], mon: 'lcd22', mlabel: '21.5" LCD',
+      memories: [
+        { narr: 'School was over. Everything pointed to computers.', skill: null, choice: 'hover',
+          html: '<div class="tiles"><h3>Choose a course</h3><span class="tile">CIVIL ENGINEERING</span><span class="tile hover">COMPUTER SCIENCE</span><span class="tile">ARCHITECTURE</span></div>' },
+        { narr: 'I wanted math. I wanted engineering. Code and design never crossed my mind.', skill: null,
+          html: '<div class="tiles"><h3>Choose a course</h3><span class="tile pick">CIVIL ENGINEERING</span><span class="tile">COMPUTER SCIENCE</span><span class="tile">ARCHITECTURE</span></div>' },
+      ] },
+  ];
+
+  // Flatten into scroll steps: boot, then per chapter a desktop, its memories and an upgrade.
+  const STEPS = [{ kind: 'boot', c: 0 }];
+  CHAPTERS.forEach((ch, c) => {
+    STEPS.push({ kind: 'desktop', c });
+    ch.memories.forEach((m, i) => STEPS.push({ kind: 'memory', c, i }));
+    if (c < CHAPTERS.length - 1) STEPS.push({ kind: 'upgrade', c });
+  });
+  const STEP_VH = 85;
+  const journey = $('journey');
+  journey.style.height = `calc(${STEPS.length * STEP_VH}vh + 100vh)`;
+
+  const screen = $('screen'), monitor = $('monitor');
+  $('chapters').innerHTML = CHAPTERS.map((c) => `<li>${c.key.toUpperCase()}</li>`).join('');
+  const chips = [...$('chapters').children];
+
+  const BOOT = 'CPU: PENTIUM\nMEMORY TEST: 65536K OK\nHDD 8 GB ........ OK\n\nStarting Windows 95...';
+  let cur = -1;
+  function render(s) {
+    const st = STEPS[s], ch = CHAPTERS[st.c];
+    screen.className = `screen os-${ch.key}`;
+    monitor.className = `monitor ${ch.mon}`;
+    $('mlabel').textContent = ch.mlabel;
+    $('os').textContent = st.kind === 'boot' ? 'Booting' : ch.os;
+    $('years').textContent = ch.years;
+    $('kicker').textContent = st.kind === 'upgrade' ? 'Upgrading' : 'My computer';
+    $('spec').innerHTML = `<b>${ch.pc[0]}</b><br>${ch.pc[1]}<br>${ch.pc[2]}<br>${ch.mlabel}<span class="est">Specs after the first PC are estimates.</span>`;
+    chips.forEach((li, i) => { li.className = i === st.c ? 'on' : i < st.c ? 'done' : ''; });
+    let html = '', narr = '', skill = null;
+    if (st.kind === 'boot') { html = '<div class="layer boot green" data-boot></div>'; narr = 'Dad brought home our first computer.'; }
+    else if (st.kind === 'desktop') { html = desktop(ch.key !== '8') + (ch.key === '8' ? '<div class="tiles"><h3>Start</h3><span class="tile">Mail</span><span class="tile">Store</span><span class="tile">Desktop</span></div>' : ''); narr = `${ch.os}. ${ch.years.replace(' to ', ' to ')}.`; }
+    else if (st.kind === 'memory') { const m = ch.memories[st.i]; html = (ch.key === '8' ? '<div class="layer desktop"></div>' : desktop(true)) + m.html; narr = m.narr; skill = m.skill; }
+    else { const nx = CHAPTERS[st.c + 1]; html = `<div class="layer setup"><div class="box"><b>Setting up ${nx.os}</b><span>Copying files. Your computer will restart several times.</span><div class="bar2"><span></span></div></div></div>`; narr = 'Always the next version, as soon as it came out.'; }
+    screen.innerHTML = html;
+    screen.querySelectorAll('[data-clock]').forEach((e) => (e.textContent = ch.clock));
+    $('narr').textContent = narr;
+    const toast = $('toast');
+    toast.textContent = skill ? `SKILL UNLOCKED · ${skill}` : '';
+    toast.classList.toggle('on', !!skill);
+  }
+
+  function frame() {
+    const max = journey.offsetHeight - innerHeight;
+    const p = clamp(scrollY / Math.max(1, max), 0, 0.99999);
+    const f = p * STEPS.length;
+    const s = Math.floor(f), t = f - s;
+    if (s !== cur) { cur = s; render(s); }
+    screen.style.setProperty('--t', t.toFixed(3));
+    const st = STEPS[s];
+    if (st.kind === 'boot') {
+      const n = Math.round(BOOT.length * Math.min(1, t * 1.3));
+      let shown = BOOT.slice(0, n);
+      const mem = BOOT.indexOf('MEMORY TEST: ') + 13;
+      if (n > mem && n < mem + 9) shown = BOOT.slice(0, mem) + Math.round(((n - mem) / 9) * 64) * 1024 + 'K';
+      const el = screen.querySelector('[data-boot]');
+      if (el) el.innerHTML = shown.replace(/</g, '&lt;') + '<span class="cursor">&nbsp;</span>';
+    }
+    const flip = screen.querySelector('[data-flip]');
+    if (flip) flip.textContent = t > 0.5 ? '999,999,999' : '1,000,000';
+  }
+  addEventListener('scroll', frame, { passive: true });
+  addEventListener('resize', frame);
+  frame();
+})();
+</script>
