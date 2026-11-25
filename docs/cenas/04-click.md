@@ -10,7 +10,7 @@ O momento em que clicou. O visitante vê a tela pelos olhos do Elias, como numa 
 
 1. Editor vazio: exercício zero, fazer o computador dizer olá.
 2. Digita `print 'Olá, Mundo!'` (sintaxe de Python 2), roda, erro vermelho de parênteses.
-3. Corrige para `print('Olá, Mundo!')`, roda: "Olá, Mundo!". Explosão: glifos de código em partículas, cores voltam, texto gigante "WAIT. WHAT?".
+3. Corrige para `print('Olá, Mundo!')`, roda: "Olá, Mundo!". Antes da explosão, o retorno da cena 01: "SAVE FILE FOUND · 2011. Continue?" e as skills guardadas voltam coloridas. Explosão: glifos de código em partículas, cores voltam, texto gigante "WAIT. WHAT?".
 4. "I CAN MAKE IT DO THAT?" Próximo exercício: perguntar o nome.
 5. Digita `nome = input('Qual o seu nome?\n')` e `print('Bem vindo, %s!' % nome)`.
 6. Quest: o terminal pergunta "Qual o seu nome?" e o visitante digita o próprio nome. "Bem vindo, <nome>!" e segunda explosão: "SOMETHING NO ONE HAS EVER DONE?" e "PIVOT 01 · ENGINEERING → CODE". Quest +1.

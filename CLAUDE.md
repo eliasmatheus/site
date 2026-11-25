@@ -36,3 +36,4 @@ Inglês simples e direto, frases curtas, tom pessoal. Sem travessões (em dash).
 - Uma cena por PR, com print ou vídeo curto do desktop e do mobile na descrição.
 - Antes de dar algo por pronto: `npm run build`, `npm run check`, testes, e Lighthouse mobile da página.
 - Commits pequenos, mensagens em inglês.
+- Build in public: tudo o que fica público no GitHub é em inglês (commits, comentários no código, títulos e descrições de PR, comentários). Sem rodapé ou trailer de IA ("Generated with Claude Code", `Co-Authored-By: Claude`, link de sessão). Os docs em `docs/` e a conversa continuam em português.
