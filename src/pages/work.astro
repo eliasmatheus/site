@@ -1,20 +1,227 @@
 ---
 import Base from '../layouts/Base.astro';
 import { site } from '../content/site';
+import { work } from '../content/work';
+
+const contacts = Object.values(work.contact.links).filter(
+  (l): l is { label: string; href: string } => l.href !== null,
+);
 ---
 
-<Base title={`Work · ${site.header.name}`} description="Selected work by Elias Matheus.">
+<Base
+  title={`${work.title} · ${site.header.name}`}
+  description={`${work.positioning.headline} ${work.positioning.text}`}
+>
+  <header class="top">
+    <a href="/">{site.header.name}</a>
+    <a href="/">{work.back}</a>
+  </header>
+
   <main>
-    <a href="/">← {site.header.name}</a>
-    <h1>Work</h1>
-    <p>Selected work is on its way.</p>
+    <section class="hero" aria-labelledby="work-title">
+      <p class="kicker">{work.positioning.kicker}</p>
+      <h1 id="work-title">{work.positioning.headline}</h1>
+      <p class="lede">{work.positioning.text}</p>
+      {contacts.length > 0 && (
+        <ul class="links" aria-label={work.contact.title}>
+          {contacts.map((l) => (
+            <li>
+              <a href={l.href}>{l.label}</a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+
+    <section aria-labelledby="projects-title">
+      <h2 id="projects-title">{work.projects.title}</h2>
+      <ul class="projects">
+        {work.projects.items.map((p) => (
+          <li class="project">
+            <p class="tag">{p.tag}</p>
+            <h3>{p.title}</h3>
+            <p>{p.description}</p>
+            <p class="meta">{p.metrics ?? p.status}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section aria-labelledby="experience-title">
+      <h2 id="experience-title">{work.experience.title}</h2>
+      <ol class="jobs">
+        {work.experience.items.map((j) => (
+          <li class="job">
+            <span class="year">{j.year}</span>
+            <div>
+              <h3>{j.org}</h3>
+              <p>{j.note}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section aria-labelledby="contact-title">
+      <h2 id="contact-title">{work.contact.title}</h2>
+      <p>{work.contact.text}</p>
+      {contacts.length > 0 && (
+        <ul class="links">
+          {contacts.map((l) => (
+            <li>
+              <a href={l.href}>{l.label}</a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   </main>
 </Base>
 
 <style>
-  main {
-    max-width: 720px;
+  .top {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: 960px;
     margin: 0 auto;
-    padding: 32px 16px;
+    padding: 8px 16px;
+  }
+
+  .top a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    text-decoration: none;
+  }
+
+  main {
+    display: grid;
+    gap: 72px;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 16px 96px;
+  }
+
+  .kicker,
+  .tag,
+  .year,
+  .meta {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+  }
+
+  .kicker {
+    margin: 0 0 16px;
+  }
+
+  h1 {
+    margin: 0;
+    max-width: 18ch;
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+  }
+
+  .lede {
+    max-width: 56ch;
+    margin: 20px 0 0;
+    font-size: clamp(17px, 2vw, 20px);
+    color: #c9ccd2;
+  }
+
+  h2 {
+    margin: 0 0 24px;
+    font-size: 14px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  ul,
+  ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .projects {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .project {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 24px;
+    border: 1px solid #23262e;
+    border-radius: 16px;
+    background: #0e1016;
+  }
+
+  .project p {
+    margin: 0;
+  }
+
+  .project .meta {
+    margin-top: auto;
+    padding-top: 8px;
+    color: var(--accent);
+  }
+
+  .jobs {
+    display: grid;
+  }
+
+  .job {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 16px;
+    padding: 20px 0;
+    border-top: 1px solid #23262e;
+  }
+
+  .job p {
+    margin: 6px 0 0;
+    color: #c9ccd2;
+  }
+
+  .year {
+    padding-top: 4px;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 22px;
+    border: 1px solid currentColor;
+    border-radius: 24px;
+    text-decoration: none;
+  }
+
+  .links a:hover {
+    background: var(--fg);
+    color: var(--bg);
   }
 </style>
