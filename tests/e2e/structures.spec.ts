@@ -80,6 +80,38 @@ test.describe('structures', () => {
     await expect(page.getByText('QUESTS 1/3')).toBeVisible();
   });
 
+  test('three.js only loads once the previous scene starts', async ({ page }) => {
+    const chunks: string[] = [];
+    page.on('request', (r) => {
+      if (/model3d/.test(r.url())) chunks.push(r.url());
+    });
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    expect(chunks).toEqual([]);
+    await page.goto('/#call');
+    await expect.poll(() => chunks.length).toBeGreaterThan(0);
+  });
+
+  test('without WebGL the cross-section stays and the quest still works', async ({ page }) => {
+    await page.addInitScript(() => {
+      const get = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function (
+        this: HTMLCanvasElement,
+        type: string,
+        ...rest: unknown[]
+      ) {
+        return /webgl/.test(type)
+          ? null
+          : (get as (...a: unknown[]) => unknown).call(this, type, ...rest);
+      } as typeof get;
+    });
+    await toQuest(page);
+    await expect(scene(page)).not.toHaveAttribute('data-3d', '');
+    await expect(scene(page).locator('[data-section]')).toBeVisible();
+    await scene(page).getByRole('button', { name: 'SHOW ME THE SWEET SPOT' }).click();
+    await expect(scene(page)).toHaveAttribute('data-state', 'ok');
+  });
+
   test('on a phone no panel covers another', async ({ page, isMobile }) => {
     test.skip(!isMobile, 'mobile layout');
     await toQuest(page);
