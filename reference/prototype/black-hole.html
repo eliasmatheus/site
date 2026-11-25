@@ -4,312 +4,194 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,300;1,9..144,400&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap">
 <style>
-  /* Layout: one sticky full-screen sky, copy floating over it, scroll = the dive. Single dark world on purpose. */
+  /* Layout: one sticky sky; scroll = wormhole, arrival, approach, fall. Copy floats bottom-left. Single dark world. */
   :root {
-    --void: #040407;
+    --void: #040508;
     --ink: #ece7dc;
     --muted: #9b968c;
-    --ember: #ff8a3d;
-    --cold: #8fb8ff;
+    --ember: #ffb46a;
+    --alert: #ff5a3c;
+    --cold: #9ec3ff;
     --line: rgb(236 231 220 / 0.14);
     --f-display: 'Fraunces', Georgia, serif;
     --f-body: 'Space Grotesk', system-ui, sans-serif;
     --f-mono: 'JetBrains Mono', ui-monospace, monospace;
     color-scheme: dark;
   }
-
   html, body { background: var(--void); color: var(--ink); }
   body { font-family: var(--f-body); }
 
-  .journey { position: relative; height: 420vh; }
+  .journey { position: relative; height: 640vh; }
   .sky { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; }
-  canvas#gl, canvas#p2d { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: pan-y; cursor: crosshair; }
-  canvas#p2d[hidden], canvas#gl[hidden] { display: none; }
+  .shake { position: absolute; inset: 0; will-change: transform; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #gl { touch-action: pan-y; }
+  #fx { pointer-events: none; }
 
-  .top {
-    position: absolute; inset: 0 0 auto; z-index: 3;
-    display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
-    padding-block: calc(env(safe-area-inset-top, 0px) + 14px) 0;
-    padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
-    font-family: var(--f-mono); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted);
-  }
-  .variants { display: flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 999px; background: rgb(4 4 7 / 0.55); backdrop-filter: blur(8px); }
-  .variants button {
-    min-height: 34px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent;
-    color: var(--muted); font: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer;
-  }
-  .variants button[aria-pressed="true"] { background: var(--ink); color: var(--void); }
-  .variants button:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+  .flash { position: absolute; inset: 0; z-index: 2; pointer-events: none; background: #fff8ee; opacity: 0; }
+  .vignette { position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: 0;
+    background: radial-gradient(ellipse at center, transparent 45%, rgb(120 10 0 / 0.55) 100%); }
 
-  .copy {
-    position: absolute; z-index: 2; left: 0; right: 0; bottom: 0;
-    padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
-    padding-block: 0 calc(env(safe-area-inset-bottom, 0px) + 96px);
-    pointer-events: none;
-  }
+  .copy { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
   .copy::before {
     content: ""; position: absolute; left: 0; bottom: 0; width: min(900px, 100%); height: 70vh;
-    background: radial-gradient(ellipse at 0% 100%, rgb(4 4 7 / 0.78), rgb(4 4 7 / 0) 70%);
+    background: radial-gradient(ellipse at 0% 100%, rgb(4 5 8 / 0.8), rgb(4 5 8 / 0) 70%);
   }
   .beat {
     position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px));
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 110px);
-    max-width: 640px; opacity: 0; transform: translateY(12px);
-    transition: opacity .7s ease, transform .7s ease;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 72px); max-width: 640px;
+    opacity: 0; transform: translateY(12px); transition: opacity .7s ease, transform .7s ease;
   }
   .beat.on { opacity: 1; transform: none; }
+  .beat.center { left: 0; right: 0; margin: 0 auto; bottom: auto; top: 50%; transform: translateY(-50%); text-align: center; max-width: 720px; padding-inline: 16px; }
+  .beat.center.on { transform: translateY(-50%); }
   .kicker { margin: 0 0 14px; font-family: var(--f-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--ember); }
-  h1, h2 {
-    margin: 0; font-family: var(--f-display); font-style: italic; font-weight: 300;
-    font-size: clamp(44px, 8vw, 104px); line-height: .95; letter-spacing: -0.02em; text-wrap: balance;
-  }
-  h2 { font-size: clamp(34px, 5.4vw, 72px); }
-  .lede { margin: 18px 0 0; max-width: 52ch; font-size: clamp(16px, 1.5vw, 19px); line-height: 1.5; color: var(--ink); opacity: .82; text-wrap: pretty; }
+  h1, h2 { text-shadow: 0 2px 24px rgb(4 5 8 / 0.7); margin: 0; font-family: var(--f-display); font-style: italic; font-weight: 300; line-height: .95; letter-spacing: -0.02em; text-wrap: balance; }
+  h1 { font-size: clamp(44px, 8vw, 104px); }
+  h2 { font-size: clamp(32px, 5vw, 68px); }
+  .lede { margin: 18px 0 0; max-width: 52ch; font-size: clamp(16px, 1.5vw, 19px); line-height: 1.5; opacity: .84; text-wrap: pretty; }
 
+  /* First-person instruments during the fall. */
   .hud {
-    position: absolute; z-index: 3; left: 0; right: 0; bottom: 0;
-    display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: end; justify-content: space-between;
-    padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
-    padding-block: 0 calc(env(safe-area-inset-bottom, 0px) + 18px);
-    font-family: var(--f-mono); font-size: 11px; letter-spacing: 1px; color: var(--muted);
-    font-variant-numeric: tabular-nums; pointer-events: none;
+    position: absolute; z-index: 3; top: calc(env(safe-area-inset-top, 0px) + 16px); right: max(16px, env(safe-area-inset-right, 0px));
+    display: flex; flex-direction: column; gap: 10px; width: min(300px, calc(100% - 32px));
+    font-family: var(--f-mono); font-size: 11px; letter-spacing: 1px; color: var(--muted); font-variant-numeric: tabular-nums;
+    opacity: 0; transition: opacity .4s ease; pointer-events: none;
+    padding: 12px 14px; border: 1px solid var(--line); background: rgb(4 5 8 / 0.72); backdrop-filter: blur(6px);
   }
-  .clocks { display: flex; gap: 22px; }
-  .clock b { display: block; margin-top: 4px; font-weight: 500; font-size: 15px; color: var(--ink); letter-spacing: .5px; }
-  .clock.far b { color: var(--cold); }
-  .rate { display: flex; flex-direction: column; gap: 6px; min-width: 180px; }
-  .bar { height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; }
-  .bar span { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, var(--ember), var(--ink)); transform-origin: left; }
-  .hint { text-transform: uppercase; letter-spacing: 1.5px; }
+  .hud.on { opacity: 1; }
+  .row { display: flex; justify-content: space-between; gap: 12px; }
+  .row b { font-weight: 500; color: var(--ink); }
+  .meter { height: 3px; background: var(--line); }
+  .meter span { display: block; height: 100%; background: var(--ink); transform-origin: left; }
+  .alerts { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+  .alert { padding: 6px 8px; border: 1px solid var(--alert); color: var(--alert); text-transform: uppercase; letter-spacing: 1.5px; animation: blink 0.9s steps(2) infinite; }
+  .bad b { color: var(--alert); }
 
-  #fx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-  #planet {
-    position: absolute; z-index: 3; left: 0; top: 0; width: 64px; height: 64px; margin: -32px 0 0 -32px;
-    border-radius: 50%; cursor: grab; touch-action: none; outline: none;
+  .hint {
+    position: absolute; z-index: 3; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); transform: translateX(-50%); margin: 0;
+    font-family: var(--f-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); pointer-events: none;
+    transition: opacity .5s ease;
   }
-  #planet:active { cursor: grabbing; }
-  #planet:focus-visible { box-shadow: 0 0 0 2px var(--ember); }
-  .flash { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(circle at 50% 50%, #fff 0, #ffd9b8 30%, rgb(255 138 61 / 0) 70%); opacity: 0; }
+  .label { position: absolute; z-index: 3; top: calc(env(safe-area-inset-top, 0px) + 16px); left: max(16px, env(safe-area-inset-left, 0px)); margin: 0; font-family: var(--f-mono); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
 
-  .fallback { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--muted); font-family: var(--f-mono); font-size: 12px; }
+  .fallback { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; padding: 24px; text-align: center; color: var(--muted); font-family: var(--f-mono); font-size: 12px;
+    background: radial-gradient(circle at 60% 40%, #2a1d12, #040508 60%); }
+  .after { position: relative; z-index: 3; min-height: 60vh; display: grid; place-items: center; text-align: center; padding-block: 80px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+    font-family: var(--f-mono); font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; background: #fff8ee; color: #3a2e22; }
 
-  .after {
-    position: relative; z-index: 2; min-height: 70vh; display: grid; place-items: center; text-align: center;
-    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 80px;
-    font-family: var(--f-mono); font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted);
-  }
-
+  @keyframes blink { 50% { opacity: .35; } }
   @media (max-width: 640px) {
-    .top { font-size: 10px; }
-    .variants button { padding: 0 10px; min-height: 36px; }
-    .label { display: none; }
-    .beat { bottom: calc(env(safe-area-inset-bottom, 0px) + 120px); }
-    .rate { min-width: 0; flex: 1 1 100%; }
+    .hud { top: calc(env(safe-area-inset-top, 0px) + 44px); width: calc(100% - 32px); }
+    .label { font-size: 10px; }
   }
   @media (prefers-reduced-motion: reduce) {
     .beat { transition: opacity .3s ease; transform: none; }
+    .alert { animation: none; }
   }
 </style>
 
 <div class="journey" id="journey">
   <div class="sky">
-    <canvas id="gl" aria-label="A black hole with a glowing disk of gas, its light bent around the dark center. A small planet can be dragged closer; its clock slows down." role="img"></canvas>
-    <canvas id="p2d" hidden aria-label="A black hole drawn with particles. A bubble of slow time follows the pointer." role="img"></canvas>
-    <canvas id="fx" aria-hidden="true"></canvas>
-    <div id="planet" role="slider" tabindex="0" aria-label="Planet. Drag it closer to the black hole, or use the arrow keys." aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" aria-valuetext="Time runs normally"></div>
-    <div class="flash" id="flash"></div>
-
-    <div class="top">
-      <span class="label">Prototype B · opening scene</span>
-      <div class="variants" role="group" aria-label="Framing">
-        <button type="button" id="v-centered" data-v="centered" aria-pressed="false">1 · Centered</button>
-        <button type="button" id="v-offaxis" data-v="offaxis" aria-pressed="true">2 · Off-axis</button>
-        <button type="button" id="v-lowpass" data-v="lowpass" aria-pressed="false">3 · Low pass</button>
-      </div>
+    <div class="shake" id="shake">
+      <canvas id="gl" role="img" aria-label="A black hole with a bright disk of gas, its light bent around the dark center. A small gas planet follows the pointer and slows down near the edge."></canvas>
+      <canvas id="fx" aria-hidden="true"></canvas>
     </div>
+    <div class="vignette" id="vignette"></div>
+    <div class="flash" id="flash"></div>
+    <p class="label">Prototype B · v4</p>
 
     <div class="copy">
-      <div class="beat on" data-from="0" data-to="0.3">
+      <div class="beat center on" data-from="0" data-to="0.19">
+        <p class="kicker">From the landing · keep scrolling</p>
+        <h2>The long version starts far from here.</h2>
+      </div>
+      <div class="beat" data-from="0.24" data-to="0.48">
         <p class="kicker">Elias Matheus · Software engineer</p>
         <h1>Meet Elias.</h1>
-        <p class="lede">Engineer turned software engineer. I like to see how things work, from a footing in the soil to a black hole. Drag the planet closer and watch its clock.</p>
+        <p class="lede">Engineer turned software engineer. I like to see how things work, from a footing in the soil to a black hole. Bring the planet closer and watch it fall behind.</p>
       </div>
-      <div class="beat" data-from="0.3" data-to="0.62">
+      <div class="beat" data-from="0.48" data-to="0.7">
         <p class="kicker">Keep scrolling</p>
         <h2>Every story has a point of no return.</h2>
       </div>
-      <div class="beat" data-from="0.62" data-to="0.9">
+      <div class="beat center" data-from="0.86" data-to="1.01">
         <p class="kicker">Event horizon</p>
         <h2>Past this line, there is only forward.</h2>
       </div>
-      <div class="beat" data-from="0.9" data-to="1.01">
-        <p class="kicker">Inside</p>
-        <h2>Here, the past is a place you can visit.</h2>
-      </div>
     </div>
 
-    <div class="hud" aria-live="off">
-      <div class="clocks">
-        <div class="clock"><span>ON THE PLANET</span><b id="c-here">00:00:00</b></div>
-        <div class="clock far"><span>FAR AWAY</span><b id="c-far">00:00:00</b></div>
-      </div>
-      <div class="rate">
-        <span class="hint" id="rate-label">Drag the planet toward the black hole</span>
-        <span class="bar" aria-hidden="true"><span id="rate-bar"></span></span>
-      </div>
+    <div class="hud" id="hud" aria-hidden="true">
+      <div class="row"><span>DISTANCE</span><b id="h-dist">—</b></div>
+      <div class="row"><span>TIME DILATION</span><b id="h-time">—</b></div>
+      <div class="row" id="h-hull-row"><span>HULL INTEGRITY</span><b id="h-hull">100%</b></div>
+      <div class="meter"><span id="h-hull-bar"></span></div>
+      <div class="alerts" id="alerts"></div>
     </div>
+    <p class="hint" id="hint">Scroll</p>
   </div>
-  <div class="after">Next: the fall, and the room where the past lives (prototype B, part 2)</div>
 </div>
+<div class="after">Next: inside, where the past is a place you can visit (prototype B, part 2)</div>
 
 <script>
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const coarse = matchMedia('(pointer: coarse)').matches;
-  const gl$ = document.getElementById('gl');
-  const p2d$ = document.getElementById('p2d');
-  const journey = document.getElementById('journey');
-  const flash = document.getElementById('flash');
+  const $ = (id) => document.getElementById(id);
+  const gl$ = $('gl'), fx = $('fx'), shakeEl = $('shake'), flash = $('flash'), vignette = $('vignette');
+  const journey = $('journey'), hint = $('hint'), hud = $('hud');
   const beats = [...document.querySelectorAll('.beat')];
-  const hereEl = document.getElementById('c-here');
-  const farEl = document.getElementById('c-far');
-  const rateLabel = document.getElementById('rate-label');
-  const rateBar = document.getElementById('rate-bar');
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+  const mix = (a, b, t) => a + (b - a) * t;
 
-  // ---------- shared state ----------
-  let variant = 'offaxis';
-  // Framing presets. shift: where the hole sits on screen (in screen heights from the center).
-  const FRAMES = {
-    centered: { dist: 26, tilt: 0.09, yaw: 0, roll: 0, shift: [0, 0], fov: 0.9 },
-    offaxis: { dist: 14.5, tilt: 0.055, yaw: 0.5, roll: -0.48, shift: [0.3, 0.12], fov: 0.95 },
-    lowpass: { dist: 13, tilt: -0.035, yaw: -0.35, roll: 0.18, shift: [-0.28, 0.1], fov: 1.05 },
-  };
-  const END = { dist: 4.2, tilt: 0.05, yaw: 0, roll: 0, shift: [0, 0], fov: 1.1 };
-  const mixN = (a, b, t) => a + (b - a) * t;
-  /** The framing now: the preset, blended toward a centered dive as the visitor scrolls. */
-  function frameNow() {
-    const base = FRAMES[variant] || FRAMES.offaxis;
-    // Narrow screens: keep the hole on screen and step back a little.
+  // ---------- story timeline (scroll 0..1) ----------
+  const WARP_END = 0.2;     // wormhole until here, then a hard stop
+  const ARRIVE_END = 0.46;  // drifting in to today's view
+  const FALL_START = 0.7;   // instruments, shake, alerts
+  let scrollP = 0;
+
+  // Framing: far after the stop, then Off-axis, then a dive to the center.
+  const FAR = { dist: 34, tilt: 0.07, yaw: 0.35, roll: -0.3, sx: 0.12, sy: 0.05, fov: 0.85 };
+  const OFF = { dist: 15, tilt: 0.055, yaw: 0.5, roll: -0.48, sx: 0.3, sy: 0.12, fov: 0.95 };
+  const DIVE = { dist: 2.4, tilt: 0.02, yaw: 0.0, roll: -0.05, sx: 0, sy: 0, fov: 1.25 };
+  function frame() {
     const aspect = innerWidth / Math.max(1, innerHeight);
     const narrow = Math.min(1, aspect / 1.2);
-    const f = { ...base, shift: [base.shift[0] * narrow, base.shift[1]], dist: base.dist * (aspect < 0.8 ? 1.2 : 1) };
-    const t = Math.pow(scrollP, 1.6);
+    const a = smooth(WARP_END, ARRIVE_END, scrollP);
+    const d = smooth(0.5, 1, scrollP);
+    const k = (key) => (d > 0 ? mix(OFF[key], DIVE[key], Math.pow(d, 1.3)) : mix(FAR[key], OFF[key], a));
     return {
-      dist: mixN(f.dist, END.dist, t), tilt: mixN(f.tilt, END.tilt, t), yaw: mixN(f.yaw, END.yaw, t),
-      roll: mixN(f.roll, END.roll, t), fov: mixN(f.fov, END.fov, t),
-      shift: [mixN(f.shift[0], 0, t), mixN(f.shift[1], 0, t)],
+      dist: k('dist') * (aspect < 0.8 ? 1.2 : 1), tilt: k('tilt'), yaw: k('yaw'), roll: k('roll'),
+      sx: k('sx') * narrow, sy: k('sy'), fov: k('fov'),
+      warp: 1 - smooth(WARP_END - 0.02, WARP_END, scrollP),
+      fall: smooth(FALL_START, 1, scrollP),
     };
   }
-  const pointer = { x: 0, y: 0, active: false }; // css px
-  let scrollP = 0;
-  let diskTime = 0, hereClock = 0, farClock = 0;
-  let rate = 1, rateShown = 1;
 
-  const fmt = (s) => {
-    const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, x = Math.floor(s) % 60;
-    return [h, m, x].map((n) => String(n).padStart(2, '0')).join(':');
-  };
-
-  const camDist = () => frameNow().dist;
-
-  /** Where the hole sits on screen right now (css px). */
-  function holeAt(w, h) {
-    const f = frameNow();
-    return { x: w / 2 + f.shift[0] * h, y: h / 2 - f.shift[1] * h, f };
-  }
-  /**
-   * Screen distance (px) to a radius in Schwarzschild radii. The edge of the shadow (impact
-   * parameter 2.6) maps to the photon sphere (1.5), so time slows hard right at the edge.
-   */
-  const toRs = (dPx, h, f) => ((dPx / h) * f.fov * f.dist) / 1.73;
-  /** Time on a clock at r, as seen from far away: sqrt(1 - rs / r). */
-  const dilation = (r) => (r <= 1 ? 0 : Math.sqrt(1 - 1 / r));
-
-  // The planet lives on a flattened orbit around the hole, in screen space.
-  const planet = { R: 0.36, ang: 2.4, drag: false, x: 0, y: 0, r: 99, k: 1, lost: 0 };
-  const FLAT = 0.3;
-  function placePlanet(w, h) {
-    const { x, y, f } = holeAt(w, h);
-    const tilt = f.roll; // the orbit follows the disk's angle on screen
-    const ox = Math.cos(planet.ang) * planet.R * h, oy = Math.sin(planet.ang) * planet.R * h * FLAT;
-    planet.x = x + ox * Math.cos(tilt) - oy * Math.sin(tilt);
-    planet.y = y + ox * Math.sin(tilt) + oy * Math.cos(tilt);
-    planet.r = toRs(Math.hypot(planet.x - x, planet.y - y), h, f);
-  }
-  /** Put the planet's orbit through a screen point (after a drag). */
-  function orbitThrough(px, py, w, h) {
-    const { x, y, f } = holeAt(w, h);
-    const tilt = f.roll;
-    const dx = px - x, dy = py - y;
-    const ux = dx * Math.cos(-tilt) - dy * Math.sin(-tilt);
-    const uy = (dx * Math.sin(-tilt) + dy * Math.cos(-tilt)) / FLAT;
-    planet.R = Math.max(0.02, Math.hypot(ux, uy) / h);
-    planet.ang = Math.atan2(uy, ux);
-  }
-
-  // ---------- scroll ----------
   function onScroll() {
     const max = journey.offsetHeight - innerHeight;
-    scrollP = Math.min(1, Math.max(0, scrollY / Math.max(1, max * 0.86)));
+    scrollP = clamp(scrollY / Math.max(1, max * 0.9), 0, 1);
     beats.forEach((b) => b.classList.toggle('on', scrollP >= +b.dataset.from && scrollP < +b.dataset.to));
-    flash.style.opacity = String(Math.max(0, (scrollP - 0.88) / 0.12) * 0.9);
+    hint.style.opacity = scrollP < 0.02 ? '1' : '0';
   }
   addEventListener('scroll', onScroll, { passive: true });
   addEventListener('resize', onScroll);
 
-  // ---------- pointer: only a gentle parallax on desktop ----------
-  const setPointer = (e) => { if (e.pointerType === 'mouse') { pointer.x = e.clientX; pointer.y = e.clientY; pointer.active = true; } };
-  addEventListener('pointermove', setPointer, { passive: true });
+  // ---------- pointer ----------
+  const pointer = { x: innerWidth * 0.3, y: innerHeight * 0.45, active: false };
+  const track = (e) => { pointer.x = e.clientX; pointer.y = e.clientY; pointer.active = true; };
+  addEventListener('pointermove', track, { passive: true });
+  addEventListener('pointerdown', track, { passive: true });
 
-  // ---------- the planet: drag it (mouse or finger) or move it with the keyboard ----------
-  const planetEl = document.getElementById('planet');
-  let grabbed = false, everGrabbed = false;
-  planetEl.addEventListener('pointerdown', (e) => {
-    grabbed = true; everGrabbed = true; planet.drag = true;
-    planetEl.setPointerCapture(e.pointerId);
-  });
-  planetEl.addEventListener('pointermove', (e) => {
-    if (!grabbed) return;
-    orbitThrough(e.clientX, e.clientY, innerWidth, innerHeight);
-  });
-  const release = () => { grabbed = false; planet.drag = false; };
-  planetEl.addEventListener('pointerup', release);
-  planetEl.addEventListener('pointercancel', release);
-  planetEl.addEventListener('keydown', (e) => {
-    const d = e.key === 'ArrowLeft' || e.key === 'ArrowDown' ? -1 : e.key === 'ArrowRight' || e.key === 'ArrowUp' ? 1 : 0;
-    if (!d) return;
-    e.preventDefault(); everGrabbed = true;
-    planet.R = Math.min(0.6, Math.max(0.03, planet.R * (d < 0 ? 0.9 : 1.1)));
-  });
-
-  // ---------- variation switch ----------
-  const buttons = [...document.querySelectorAll('.variants button')];
-  function setVariant(v) {
-    variant = v;
-    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
-    gl$.hidden = !glOk;
-    p2d$.hidden = glOk;
-    if (location.hash.slice(1) !== v) history.replaceState(null, '', '#' + v);
-  }
-  buttons.forEach((b) => b.addEventListener('click', () => setVariant(b.dataset.v)));
-
-  // ---------- WebGL: a Schwarzschild black hole, rays bent step by step ----------
+  // ---------- WebGL ----------
   const VERT = 'attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }';
   const FRAG = `
 precision highp float;
-uniform vec2 uRes;
-uniform float uTime;
-uniform float uDist;
-uniform vec2 uLook;
-uniform float uSteps;
-uniform float uTilt;
-uniform float uYaw;
-uniform float uRoll;
+uniform vec2 uRes; uniform float uTime; uniform float uClock;
+uniform float uDist, uTilt, uYaw, uRoll, uFov, uWarp, uSteps;
 uniform vec2 uShift;
-uniform float uFov;
 
 float hash(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
 float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
@@ -323,307 +205,331 @@ vec3 stars(vec3 d){
     float sc = k == 0 ? 90.0 : 220.0;
     vec3 c = floor(d * sc), f = fract(d * sc) - 0.5;
     float h = hash(c + float(k)*7.0);
-    float on = step(0.93, h);
-    float star = on * smoothstep(0.32, 0.0, length(f)) * (0.6 + 0.4*hash(c+3.0));
-    col += star * mix(vec3(1.0,0.85,0.7), vec3(0.7,0.8,1.0), hash(c+5.0)) * (k == 0 ? 1.2 : 0.6);
+    float star = step(0.94, h) * smoothstep(0.3, 0.0, length(f)) * (0.6 + 0.4*hash(c+3.0));
+    col += star * mix(vec3(1.0,0.88,0.75), vec3(0.75,0.85,1.0), hash(c+5.0)) * (k == 0 ? 1.0 : 0.5);
   }
-  float band = exp(-abs(d.y + 0.25*d.x) * 7.0);
-  col += band * mix(vec3(0.05,0.04,0.08), vec3(0.12,0.08,0.06), fbm(d.xz*6.0)) * (0.6 + 0.6*fbm(d.xy*9.0));
   return col;
 }
 
-vec3 diskColor(vec3 hit, float rr, vec3 rayDir, out float alpha){
-  // Polar texture: fine along the radius, stretched along the orbit, so the gas reads as streaks.
-  float phi = atan(hit.z, hit.x) - uTime * 1.3 / pow(rr, 1.5);
+// Gas in the disk: streaks along the orbit, fast near the hole, drifting clumps.
+vec3 disk(vec3 hit, float rr, vec3 rayDir, out float alpha){
+  float spin = uTime * 2.4 / pow(rr, 1.5);
+  float phi = atan(hit.z, hit.x) - spin;
   vec2 ring = vec2(cos(phi), sin(phi));
-  float streak = fbm(vec2(rr * 4.0, 0.0) + ring * 2.2);
-  float fine = fbm(vec2(rr * 9.0, 3.0) + ring * 5.0);
-  float clumps = fbm(ring * 6.0 + rr * 1.3);
-  float n = streak * 0.55 + fine * 0.3 + clumps * 0.35;
-  float inner = smoothstep(2.5, 3.3, rr), outer = 1.0 - smoothstep(7.5, 14.0, rr);
-  float t = pow(3.0 / rr, 0.85);
+  float streak = fbm(vec2(rr * 3.2, 0.0) + ring * 2.0);
+  float fine = fbm(vec2(rr * 8.0, 3.0) + ring * 5.5 + vec2(0.0, uTime * 0.15));
+  float clumps = fbm(ring * 7.0 + rr * 1.6 - uTime * 0.08);
+  float n = streak * 0.5 + fine * 0.35 + clumps * 0.35;
+  float inner = smoothstep(2.4, 3.2, rr), outer = 1.0 - smoothstep(7.0, 15.0, rr);
+  float t = pow(3.0 / rr, 0.8);
   vec3 orbit = normalize(vec3(-hit.z, 0.0, hit.x));
   float beta = sqrt(0.5 / rr);
   float dop = 1.0 / (1.0 - beta * dot(orbit, -normalize(rayDir)));
-  float boost = pow(clamp(dop, 0.3, 2.4), 3.0) * sqrt(max(0.0, 1.0 - 1.0 / rr));
-  vec3 hot = vec3(1.0, 0.95, 0.9), warm = vec3(1.0, 0.74, 0.52), cool = vec3(0.55, 0.27, 0.13);
-  vec3 base = mix(cool, mix(warm, hot, smoothstep(0.5, 1.0, t * (0.7 + 0.5 * n))), smoothstep(0.1, 0.55, t));
-  alpha = inner * outer * clamp(0.35 + 0.75 * n, 0.0, 1.0);
-  return base * (0.35 + 1.5 * n) * boost * t * 2.4 * alpha;
+  float boost = pow(clamp(dop, 0.35, 2.3), 3.0) * sqrt(max(0.0, 1.0 - 1.0 / rr));
+  vec3 hot = vec3(1.0, 0.97, 0.92), warm = vec3(1.0, 0.8, 0.6), cool = vec3(0.5, 0.32, 0.2);
+  vec3 base = mix(cool, mix(warm, hot, smoothstep(0.45, 1.0, t * (0.7 + 0.6 * n))), smoothstep(0.08, 0.5, t));
+  alpha = inner * outer * clamp(0.3 + 0.8 * n, 0.0, 1.0);
+  return base * (0.35 + 1.6 * n) * boost * t * 2.6 * alpha;
+}
+
+// The wormhole: a tunnel of light rushing past.
+vec3 tunnel(vec2 uv){
+  float r = length(uv), a = atan(uv.y, uv.x);
+  float z = 0.45 / (r + 0.03) + uClock * 7.0;
+  float swirl = a + z * 0.08;
+  float n = fbm(vec2(swirl * 2.6, z * 0.6));
+  float streaks = pow(fbm(vec2(a * 18.0, z * 0.25)), 4.0) * 3.0;
+  vec3 c = mix(vec3(0.02, 0.04, 0.09), vec3(0.55, 0.68, 0.95), pow(n, 2.2)) + vec3(0.9, 0.92, 1.0) * streaks;
+  c *= smoothstep(0.0, 0.35, r);
+  c += vec3(1.0, 0.95, 0.88) * exp(-r * 9.0) * 1.4;
+  return c;
 }
 
 void main(){
-  vec2 uv = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y - uShift;
-  float cr = cos(uRoll), sr = sin(uRoll);
-  uv = mat2(cr, sr, -sr, cr) * uv;
-  float tilt = uTilt + uLook.y * 0.06;
-  float yaw = uYaw + uLook.x * 0.2;
-  vec3 cam = vec3(sin(yaw) * cos(tilt), sin(tilt), -cos(yaw) * cos(tilt)) * uDist;
-  vec3 fw = normalize(-cam), rt = normalize(cross(vec3(0,1,0), fw)), up = cross(fw, rt);
-  vec3 v = normalize(fw + uFov * (uv.x * rt + uv.y * up));
-  vec3 p = cam;
-  vec3 hv = cross(p, v); float h2 = dot(hv, hv);
-  vec3 col = vec3(0.0); float a = 0.0; bool captured = false;
-  for (int i = 0; i < 260; i++){
-    if (float(i) >= uSteps) break;
-    float r2 = dot(p, p), r = sqrt(r2);
-    if (r < 1.0) { captured = true; break; }
-    if (r > uDist + 8.0 && dot(p, v) > 0.0) break;
-    float dt = clamp(0.08 * r, 0.04, 1.2);
-    vec3 acc = -1.5 * h2 * p / (r2 * r2 * r);
-    vec3 pn = p + v * dt;
-    v += acc * dt;
-    if (p.y * pn.y < 0.0) {
-      float k = p.y / (p.y - pn.y);
-      vec3 hit = mix(p, pn, k);
-      float rr = length(hit.xz);
-      if (rr > 2.4 && rr < 13.0) {
-        float al; vec3 dc = diskColor(hit, rr, v, al);
-        col += dc * (1.0 - a); a += al * (1.0 - a);
+  vec2 uv0 = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
+  vec3 col = vec3(0.0);
+  if (uWarp < 0.999) {
+    vec2 uv = uv0 - uShift;
+    float cr = cos(uRoll), sr = sin(uRoll);
+    uv = mat2(cr, sr, -sr, cr) * uv;
+    vec3 cam = vec3(sin(uYaw) * cos(uTilt), sin(uTilt), -cos(uYaw) * cos(uTilt)) * uDist;
+    vec3 fw = normalize(-cam), rt = normalize(cross(vec3(0,1,0), fw)), up = cross(fw, rt);
+    vec3 v = normalize(fw + uFov * (uv.x * rt + uv.y * up));
+    vec3 p = cam;
+    vec3 hv = cross(p, v); float h2 = dot(hv, hv);
+    float a = 0.0; bool captured = false;
+    float minR = 1e3; float haze = 0.0;
+    for (int i = 0; i < 260; i++){
+      if (float(i) >= uSteps) break;
+      float r2 = dot(p, p), r = sqrt(r2);
+      minR = min(minR, r);
+      if (r < 1.0) { captured = true; break; }
+      if (r > uDist + 10.0 && dot(p, v) > 0.0) break;
+      float dt = clamp(0.08 * r, 0.035, 1.2);
+      // Diffuse glow: light scattered by gas just above and below the disk.
+      float rr0 = length(p.xz);
+      haze += exp(-abs(p.y) * 2.2) * smoothstep(15.0, 3.0, rr0) * smoothstep(2.0, 3.2, rr0) * dt;
+      vec3 acc = -1.5 * h2 * p / (r2 * r2 * r);
+      vec3 pn = p + v * dt;
+      v += acc * dt;
+      if (p.y * pn.y < 0.0) {
+        float k = p.y / (p.y - pn.y);
+        vec3 hit = mix(p, pn, k);
+        float rr = length(hit.xz);
+        if (rr > 2.2 && rr < 15.0) {
+          float al; vec3 dc = disk(hit, rr, v, al);
+          col += dc * (1.0 - a); a += al * (1.0 - a);
+        }
       }
+      p = pn;
+      if (a > 0.98) break;
     }
-    p = pn;
-    if (a > 0.98) break;
+    vec3 bg = captured ? vec3(0.0) : stars(normalize(v));
+    col += bg * (1.0 - a);
+    // Haze: warm-white glow with a cold blue edge.
+    col += (vec3(1.0, 0.86, 0.68) * 0.06 + vec3(0.25, 0.35, 0.5) * 0.035) * haze * (1.0 - 0.6 * a);
+    // Photon ring: rays whose impact parameter sits just outside the critical one (3*sqrt(3)/2)
+    // circle the hole before escaping and draw a thin, hot line on the shadow's edge.
+    float b = sqrt(h2);
+    float ring = exp(-pow((b - 2.6) / 0.012, 2.0)) + 0.35 * exp(-pow((b - 2.62) / 0.05, 2.0));
+    col += vec3(1.0, 0.85, 0.45) * ring * (captured ? 0.0 : 1.0) * 1.8;
   }
-  vec3 bg = captured ? vec3(0.0) : stars(normalize(v));
-  col += bg * (1.0 - a);
-  // Gentle tone mapping.
-  col = 1.0 - exp(-col * 1.15);
-  col = pow(col, vec3(0.92));
+  if (uWarp > 0.001) col = mix(col, tunnel(uv0), uWarp);
+  col = 1.0 - exp(-col * 1.2);
+  col = pow(col, vec3(0.9));
   gl_FragColor = vec4(col, 1.0);
 }`;
 
-  let glOk = false, gl, prog, uni = {}, scale = coarse ? 0.55 : 0.75, steps = coarse ? 120 : 190;
+  let glOk = false, gl, uni = {}, scale = coarse ? 0.55 : 0.75, steps = coarse ? 120 : 200;
   try {
     gl = gl$.getContext('webgl', { antialias: false, powerPreference: 'high-performance' });
     if (gl) {
       const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
         if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
-      prog = gl.createProgram();
+      const prog = gl.createProgram();
       gl.attachShader(prog, sh(gl.VERTEX_SHADER, VERT));
       gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FRAG));
       gl.linkProgram(prog);
       if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
       gl.useProgram(prog);
-      const buf = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
       const loc = gl.getAttribLocation(prog, 'p');
       gl.enableVertexAttribArray(loc);
       gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-      ['uRes', 'uTime', 'uDist', 'uLook', 'uSteps', 'uTilt', 'uYaw', 'uRoll', 'uShift', 'uFov'].forEach((n) => (uni[n] = gl.getUniformLocation(prog, n)));
+      ['uRes', 'uTime', 'uClock', 'uDist', 'uTilt', 'uYaw', 'uRoll', 'uFov', 'uWarp', 'uSteps', 'uShift'].forEach((n) => (uni[n] = gl.getUniformLocation(prog, n)));
       glOk = true;
     }
-  } catch (err) {
-    console.warn(err);
-  }
+  } catch (err) { console.warn(err); }
   if (!glOk) {
     const fb = document.createElement('p');
     fb.className = 'fallback';
-    fb.textContent = 'WebGL is off in this browser. Showing a lighter particle version.';
-    gl$.after(fb);
-    gl$.hidden = true;
-    p2d$.hidden = false;
+    fb.textContent = 'This browser has no WebGL. The black hole needs it.';
+    gl$.replaceWith(fb);
   }
 
-  function resizeGl() {
-    const dpr = Math.min(devicePixelRatio || 1, 2);
-    const w = Math.round(gl$.clientWidth * dpr * scale), h = Math.round(gl$.clientHeight * dpr * scale);
-    if (gl$.width !== w || gl$.height !== h) { gl$.width = w; gl$.height = h; }
-  }
-
-  // ---------- Canvas 2D: particles and a bubble of slow time around the pointer ----------
-  const ctx = p2d$.getContext('2d');
-  const N = coarse ? 1400 : 3200;
-  const parts = Array.from({ length: N }, () => {
-    const r = 2.6 + Math.pow(Math.random(), 1.8) * 11;
-    return { r, a: Math.random() * Math.PI * 2, y: (Math.random() - 0.5) * 0.25 * (r / 6), h: Math.random() };
-  });
-  function drawParticles(dt, w, h) {
-    const dpr = Math.min(devicePixelRatio || 1, 2);
-    if (p2d$.width !== Math.round(w * dpr)) { p2d$.width = Math.round(w * dpr); p2d$.height = Math.round(h * dpr); }
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.fillStyle = 'rgba(4,4,7,0.32)';
-    ctx.fillRect(0, 0, w, h);
-    const s = Math.min(w, h) / (camDist() * 0.95);
-    const cx = w / 2, cy = h / 2, tilt = 0.22;
-    for (const q of parts) {
-      const x0 = cx + Math.cos(q.a) * q.r * s;
-      const y0 = cy + (Math.sin(q.a) * q.r * tilt + q.y) * s;
-      // Local time: particles inside the bubble around the pointer barely move.
-      let local = 1;
-      if (pointer.active) {
-        const d = Math.hypot(x0 - pointer.x, y0 - pointer.y) / Math.min(w, h);
-        local = 0.04 + 0.96 * Math.min(1, Math.pow(d / 0.16, 2));
-      }
-      q.a += dt * (reduce ? 0.25 : 1.1) * local / Math.pow(q.r, 1.5);
-      const x = cx + Math.cos(q.a) * q.r * s;
-      const y = cy + (Math.sin(q.a) * q.r * tilt + q.y) * s;
-      const behind = Math.sin(q.a) < 0 && Math.abs(x - cx) < 1.05 * s && q.r < 5;
-      if (behind) continue;
-      const heat = Math.pow(3 / q.r, 0.9);
-      const dop = 1 + 0.6 * Math.cos(q.a) * Math.sqrt(0.5 / q.r) * 2;
-      const l = Math.min(1, heat * dop);
-      ctx.fillStyle = local < 0.5
-        ? `rgba(143,184,255,${0.35 + 0.5 * l})`
-        : `rgba(255,${Math.round(120 + 120 * l)},${Math.round(40 + 160 * l * l)},${0.25 + 0.6 * l})`;
-      ctx.fillRect(x, y, 1.3, 1.3);
-    }
-    // Shadow and photon ring.
-    ctx.beginPath(); ctx.arc(cx, cy, 2.6 * s, 0, Math.PI * 2); ctx.fillStyle = '#000'; ctx.fill();
-    ctx.beginPath(); ctx.arc(cx, cy, 2.62 * s, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255,210,170,0.55)'; ctx.lineWidth = 1.2; ctx.stroke();
-    if (pointer.active) {
-      ctx.beginPath(); ctx.arc(pointer.x, pointer.y, Math.min(w, h) * 0.16, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(143,184,255,0.25)'; ctx.setLineDash([3, 6]); ctx.stroke(); ctx.setLineDash([]);
-    }
-  }
-
-  // ---------- planet: orbit, fall, clock ----------
-  const fx = document.getElementById('fx');
+  // ---------- the gas planet: follows the pointer, but its time runs slow near the hole ----------
   const fxc = fx.getContext('2d');
-  let planetClock = 0, lostMsg = 0;
-  function exchange(k) {
-    if (!everGrabbed && k > 0.9) return 'Drag the planet toward the black hole';
-    if (k <= 0.0005) return 'Time on the planet has almost stopped';
-    const far = 1 / k; // hours far away for 1 hour on the planet
-    const txt = far < 1.05 ? 'about the same' : far < 48 ? `${far.toFixed(far < 10 ? 1 : 0)} hours` : far < 24 * 400 ? `${Math.round(far / 24)} days` : `${(far / 24 / 365).toFixed(1)} years`;
-    return `1 hour on the planet = ${txt} far away`;
-  }
-  function stepPlanet(dt, w, h) {
-    // The planet stays behind once the dive starts.
-    const gone = scrollP > 0.55;
-    planetEl.hidden = gone;
-    fx.style.opacity = String(Math.max(0, 1 - Math.max(0, scrollP - 0.4) / 0.15));
-    if (gone) { planet.k = 1; return; }
-    if (planet.lost > 0) {
-      planet.lost -= dt;
-      if (planet.lost <= 0) { planet.R = 0.42; planet.ang = 2.6; planetClock = 0; hereClock = farClock; }
-      planet.k = 1;
-      return;
+  const planet = { x: innerWidth * 0.12, y: innerHeight * 0.35, spin: 0, k: 1, gas: 1, r: 99, hole: { x: 0, y: 0 } };
+  const gas = []; // particles torn off the planet, spiralling in
+  const holeOnScreen = (f, w, h) => ({ x: w / 2 + f.sx * h, y: h / 2 - f.sy * h });
+  // Screen px to a radius in Schwarzschild units (shadow edge = photon sphere 1.5).
+  const toRs = (dPx, h, f) => ((dPx / h) * f.fov * f.dist) / 1.73;
+  const shadowPx = (f, h) => (2.6 / (f.dist * f.fov)) * h;
+
+  function stepPlanet(dt, f, w, h) {
+    const hole = holeOnScreen(f, w, h);
+    // Without a pointer (phones at rest), the planet drifts on a slow orbit.
+    let tx = pointer.x, ty = pointer.y;
+    if (!pointer.active) {
+      const t = performance.now() / 9000;
+      tx = hole.x - Math.abs(Math.cos(t)) * Math.min(w * 0.42, h * 0.6); ty = hole.y + Math.sin(t) * h * 0.18;
     }
-    placePlanet(w, h);
-    if (planet.r <= 1.02 && !planet.drag) { planet.lost = 2.2; lostMsg = 2.2; return; }
-    planet.k = Math.max(0.0004, dilation(planet.r));
-    // Closer orbits are faster, as seen from far away (Kepler), and slowed by time itself.
-    if (!planet.drag && !reduce) planet.ang += dt * 1.2 * planet.k / Math.pow(Math.max(planet.r, 1.5), 1.5);
-    planetClock += dt * planet.k;
-    planetEl.style.transform = `translate(${planet.x.toFixed(1)}px, ${planet.y.toFixed(1)}px)`;
-    const pct = Math.round(planet.k * 100);
-    planetEl.setAttribute('aria-valuenow', String(pct));
-    planetEl.setAttribute('aria-valuetext', exchange(planet.k));
+    const r = Math.max(1.0001, toRs(Math.hypot(planet.x - hole.x, planet.y - hole.y), h, f));
+    planet.k = Math.max(0.004, Math.sqrt(1 - 1 / r));
+    // Its own clock runs at k: it follows the pointer late, and later still near the hole.
+    // A floor keeps it from freezing at the horizon for good: it crawls back out, very late.
+    const follow = 1 - Math.exp(-dt * 7 * Math.max(planet.k, 0.07));
+    planet.x += (tx - planet.x) * follow;
+    planet.y += (ty - planet.y) * follow;
+    planet.spin += dt * 2.2 * planet.k;
+    planet.r = r;
+    planet.hole = hole;
+    // Tidal stripping: below ~4 rs the planet loses gas to the hole.
+    if (r < 4 && !reduce && f.warp < 0.5) {
+      const rate = (4 - r) * 22 * dt;
+      for (let i = 0; i < rate; i++) {
+        const ang = Math.atan2((planet.y - hole.y) / 0.55, planet.x - hole.x) + (Math.random() - 0.5) * 0.3;
+        gas.push({ ang, rad: Math.hypot(planet.x - hole.x, (planet.y - hole.y) / 0.55), life: 1, spd: 0.6 + Math.random() * 0.6 });
+      }
+      planet.gas = Math.max(0.35, planet.gas - dt * 0.03 * (4 - r));
+    } else {
+      planet.gas = Math.min(1, planet.gas + dt * 0.02);
+    }
+    const s = shadowPx(f, h);
+    for (let i = gas.length - 1; i >= 0; i--) {
+      const g = gas[i];
+      g.ang += dt * g.spd * 1.8 * Math.pow((s * 2) / Math.max(g.rad, 1), 1.2);
+      g.rad -= dt * (18 + 90 * Math.pow(s / Math.max(g.rad, 1), 2));
+      g.life -= dt * 0.35;
+      if (g.rad < s * 0.95 || g.life <= 0) gas.splice(i, 1);
+    }
   }
-  function drawPlanet(w, h) {
+
+  function drawFx(f, w, h) {
     const dpr = Math.min(devicePixelRatio || 1, 2);
     if (fx.width !== Math.round(w * dpr) || fx.height !== Math.round(h * dpr)) { fx.width = Math.round(w * dpr); fx.height = Math.round(h * dpr); }
     fxc.setTransform(dpr, 0, 0, dpr, 0, 0);
     fxc.clearRect(0, 0, w, h);
-    if (lostMsg > 0) {
-      lostMsg -= 1 / 60;
-      const { x, y } = holeAt(w, h);
-      fxc.font = '500 11px "JetBrains Mono", monospace';
-      fxc.fillStyle = `rgba(236,231,220,${Math.min(1, lostMsg)})`;
-      fxc.textAlign = 'center';
-      fxc.fillText('LOST PAST THE HORIZON. HERE IS ANOTHER ONE.', x, y + h * 0.2);
+    const hole = holeOnScreen(f, w, h);
+    const show = 1 - f.warp;
+
+    // Lens flare from the bright, approaching side of the disk.
+    if (show > 0) {
+      const R = shadowPx(f, h) * 2.6;
+      const bx = hole.x - Math.cos(f.roll) * R, by = hole.y - Math.sin(f.roll) * R * 0.3;
+      const glow = fxc.createRadialGradient(bx, by, 0, bx, by, h * 0.5);
+      glow.addColorStop(0, `rgba(255,236,210,${0.2 * show})`); glow.addColorStop(1, 'rgba(255,236,210,0)');
+      fxc.fillStyle = glow; fxc.fillRect(0, 0, w, h);
+      // Anamorphic streak.
+      const at = clamp(bx / w, 0.01, 0.99);
+      const streak = fxc.createLinearGradient(0, by, w, by);
+      streak.addColorStop(0, 'rgba(160,190,255,0)'); streak.addColorStop(at, `rgba(255,240,220,${0.35 * show})`); streak.addColorStop(1, 'rgba(160,190,255,0)');
+      fxc.fillStyle = streak; fxc.fillRect(0, by - 1.2, w, 2.4);
+      // Ghosts along the line through the screen center.
+      const cx = w / 2, cy = h / 2;
+      [[0.6, 34, '255,150,110'], [1.25, 70, '140,170,255'], [1.7, 22, '255,210,150']].forEach(([k, r, c]) => {
+        const gx = bx + (cx - bx) * k, gy = by + (cy - by) * k;
+        const g = fxc.createRadialGradient(gx, gy, 0, gx, gy, r);
+        g.addColorStop(0, `rgba(${c},${0.1 * show})`); g.addColorStop(0.7, `rgba(${c},${0.05 * show})`); g.addColorStop(1, `rgba(${c},0)`);
+        fxc.fillStyle = g; fxc.beginPath(); fxc.arc(gx, gy, r, 0, Math.PI * 2); fxc.fill();
+      });
     }
-    if (planet.lost > 0) return;
-    const { x: hx, y: hy } = holeAt(w, h);
-    const k = planet.k;
-    const pr = coarse ? 9 : 11;
-    const dir = Math.atan2(hy - planet.y, hx - planet.x);
-    // Tidal stretch toward the hole when very close.
-    const stretch = 1 + Math.max(0, 2.4 - planet.r) * 0.7;
+
+    // Gas stream, flattened like the disk.
+    for (const g of gas) {
+      const x = hole.x + Math.cos(g.ang) * g.rad, y = hole.y + Math.sin(g.ang) * g.rad * 0.55;
+      fxc.fillStyle = `rgba(255,${Math.round(200 * g.life + 40)},${Math.round(150 * g.life)},${0.6 * g.life * show})`;
+      fxc.fillRect(x, y, 1.8, 1.8);
+    }
+
+    // Planet (hidden in the wormhole and once the fall starts).
+    const vis = show * (1 - smooth(0.6, 0.72, scrollP));
+    if (vis <= 0.01) return;
+    const k = planet.k, pr = (coarse ? 13 : 16) * (0.7 + 0.3 * planet.gas);
+    // Where it "should" be: the dotted gap is the time it lost.
+    if (pointer.active) {
+      const gap = Math.hypot(pointer.x - planet.x, pointer.y - planet.y);
+      if (gap > 8) {
+        fxc.strokeStyle = `rgba(158,195,255,${0.35 * vis})`; fxc.setLineDash([2, 5]);
+        fxc.beginPath(); fxc.moveTo(planet.x, planet.y); fxc.lineTo(pointer.x, pointer.y); fxc.stroke(); fxc.setLineDash([]);
+        fxc.beginPath(); fxc.arc(pointer.x, pointer.y, 5, 0, Math.PI * 2); fxc.stroke();
+      }
+    }
     fxc.save();
+    fxc.globalAlpha = vis * (0.35 + 0.65 * Math.min(1, k * 1.6));
     fxc.translate(planet.x, planet.y);
-    fxc.rotate(dir);
-    fxc.scale(stretch, 1 / Math.sqrt(stretch));
-    // Gravitational redshift: the planet's light reddens as its time slows.
+    const dir = Math.atan2(planet.hole.y - planet.y, planet.hole.x - planet.x);
+    const stretch = 1 + Math.max(0, 2.6 - planet.r) * 0.6;
+    fxc.rotate(dir); fxc.scale(stretch, 1 / Math.sqrt(stretch)); fxc.rotate(-dir);
+    fxc.beginPath(); fxc.arc(0, 0, pr, 0, Math.PI * 2); fxc.save(); fxc.clip();
+    // Bands roll with the planet's own (slow) time; its light reddens as it slows.
     const red = 1 - k;
-    const g = fxc.createRadialGradient(-pr * 0.35, -pr * 0.35, 1, 0, 0, pr);
-    g.addColorStop(0, `rgb(${Math.round(190 + 60 * red)},${Math.round(215 - 150 * red)},${Math.round(235 - 200 * red)})`);
-    g.addColorStop(1, `rgb(${Math.round(30 + 90 * red)},${Math.round(45 - 25 * red)},${Math.round(70 - 50 * red)})`);
-    fxc.beginPath(); fxc.arc(0, 0, pr, 0, Math.PI * 2); fxc.fillStyle = g; fxc.fill();
-    fxc.restore();
-    // Its own clock: twelve ticks and a hand that slows down with the planet's time.
-    const R = pr + 12;
-    fxc.save();
-    fxc.translate(planet.x, planet.y);
-    fxc.strokeStyle = 'rgba(236,231,220,0.35)'; fxc.lineWidth = 1;
-    for (let i = 0; i < 12; i++) {
-      const a = (i / 12) * Math.PI * 2;
-      fxc.beginPath(); fxc.moveTo(Math.cos(a) * R, Math.sin(a) * R); fxc.lineTo(Math.cos(a) * (R + 4), Math.sin(a) * (R + 4)); fxc.stroke();
+    for (let i = -6; i <= 6; i++) {
+      const y = (i / 6) * pr;
+      const wob = Math.sin(planet.spin * 2 + i * 1.7) * 0.5 + 0.5;
+      fxc.fillStyle = `rgb(${Math.round(205 + 40 * red)},${Math.round(170 - 90 * red + 30 * wob)},${Math.round(130 - 100 * red + 20 * wob)})`;
+      fxc.fillRect(-pr - 6 + ((planet.spin * 6 + i * 3) % 6), y - pr / 12, pr * 2 + 12, pr / 6 + 0.5);
     }
-    const hand = planetClock * Math.PI * 2 / 3 - Math.PI / 2;
-    fxc.strokeStyle = k < 0.5 ? '#ff8a3d' : '#ece7dc'; fxc.lineWidth = 2;
-    fxc.beginPath(); fxc.moveTo(Math.cos(hand) * (R - 3), Math.sin(hand) * (R - 3)); fxc.lineTo(Math.cos(hand) * (R + 6), Math.sin(hand) * (R + 6)); fxc.stroke();
-    if (!everGrabbed) {
-      const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 300);
-      fxc.strokeStyle = `rgba(255,138,61,${0.25 + 0.35 * pulse})`;
-      fxc.beginPath(); fxc.arc(0, 0, R + 10 + pulse * 4, 0, Math.PI * 2); fxc.stroke();
-      fxc.font = '500 10px "JetBrains Mono", monospace'; fxc.fillStyle = 'rgba(236,231,220,0.8)'; fxc.textAlign = 'center';
-      fxc.fillText('DRAG ME', 0, R + 30);
-    } else if (k < 0.97) {
-      fxc.font = '500 10px "JetBrains Mono", monospace'; fxc.fillStyle = 'rgba(236,231,220,0.85)'; fxc.textAlign = 'center';
-      fxc.fillText(`×${(1 / k).toFixed(1 / k < 10 ? 1 : 0)} SLOWER`, 0, R + 24);
+    const shade = fxc.createRadialGradient(-pr * 0.4, -pr * 0.4, pr * 0.1, 0, 0, pr);
+    shade.addColorStop(0, 'rgba(255,255,255,0.15)'); shade.addColorStop(1, 'rgba(0,0,0,0.65)');
+    fxc.fillStyle = shade; fxc.fillRect(-pr, -pr, pr * 2, pr * 2);
+    fxc.restore(); fxc.restore();
+    if (k < 0.92) {
+      fxc.font = '500 10px "JetBrains Mono", monospace'; fxc.textAlign = 'center';
+      fxc.fillStyle = `rgba(236,231,220,${0.85 * vis})`;
+      fxc.fillText(`TIME ×${k.toFixed(2)}`, planet.x, planet.y + pr + 18);
     }
-    fxc.restore();
+  }
+
+  // ---------- first-person fall ----------
+  const hDist = $('h-dist'), hTime = $('h-time'), hHull = $('h-hull'), hHullBar = $('h-hull-bar'), alerts = $('alerts');
+  const ALERTS = [
+    [0.1, 'Tidal stress rising'],
+    [0.35, 'Hull integrity critical'],
+    [0.55, 'Navigation offline'],
+    [0.75, 'Signal lost'],
+  ];
+  let shownAlerts = -1;
+  function stepFall(f) {
+    const fall = f.fall;
+    hud.classList.toggle('on', fall > 0.02 && fall < 0.97);
+    if (fall <= 0) return;
+    const r = (f.dist / 1.73) * 1.6;
+    hDist.textContent = `${r.toFixed(2)} rs`;
+    const k = Math.sqrt(Math.max(0.0001, 1 - 1 / Math.max(1.0001, r)));
+    hTime.textContent = `×${k.toFixed(3)}`;
+    const hull = Math.max(0, Math.round(100 - fall * 96));
+    hHull.textContent = `${hull}%`;
+    hHullBar.style.transform = `scaleX(${hull / 100})`;
+    $('h-hull-row').classList.toggle('bad', hull < 50);
+    const n = ALERTS.filter(([at]) => fall >= at).length;
+    if (n !== shownAlerts) {
+      shownAlerts = n;
+      alerts.innerHTML = ALERTS.slice(0, n).map(([, t]) => `<span class="alert">${t}</span>`).join('');
+    }
   }
 
   // ---------- loop ----------
-  let last = performance.now(), slowFrames = 0;
-  function frame(now) {
-    requestAnimationFrame(frame);
+  let last = performance.now(), clock = 0, diskT = 0, slowFrames = 0, prevWarp = 1, kick = 0;
+  function loop(now) {
+    requestAnimationFrame(loop);
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
     const w = innerWidth, h = innerHeight;
+    const f = frame();
+    clock += dt * (reduce ? 0.3 : 1);
+    diskT += dt * (reduce ? 0.25 : 1);
 
-    const speed = reduce ? 0.3 : 1;
-    diskTime += dt * speed;
-    stepPlanet(dt, w, h);
-    rate = planet.k;
-    rateShown += (rate - rateShown) * 0.2;
-    hereClock += dt * rateShown; farClock += dt;
-    // One real second shows as one minute, so the gap is easy to see.
-    hereEl.textContent = fmt(hereClock * 60);
-    farEl.textContent = fmt(farClock * 60);
-    rateLabel.textContent = exchange(rateShown);
-    rateBar.style.transform = `scaleX(${Math.max(0.002, rateShown).toFixed(3)})`;
-    drawPlanet(w, h);
+    // The hard stop out of the wormhole: a jolt and a flash.
+    if (prevWarp > 0.5 && f.warp <= 0.5) kick = 1;
+    prevWarp = f.warp;
+    kick = Math.max(0, kick - dt * 1.6);
+    const quake = reduce ? 0 : kick * 14 + Math.pow(f.fall, 2) * 18;
+    shakeEl.style.transform = quake > 0.2
+      ? `translate(${((Math.random() - 0.5) * quake).toFixed(1)}px, ${((Math.random() - 0.5) * quake).toFixed(1)}px)`
+      : '';
+    const endFlash = smooth(0.94, 1, scrollP);
+    flash.style.opacity = String(Math.max(reduce ? 0 : kick * 0.85, endFlash));
+    vignette.style.opacity = String(f.fall * 0.9);
 
-    if (!glOk) { drawParticles(dt, w, h); return; }
+    stepPlanet(dt, f, w, h);
+    stepFall(f);
 
-    resizeGl();
-    gl.viewport(0, 0, gl$.width, gl$.height);
-    gl.uniform2f(uni.uRes, gl$.width, gl$.height);
-    gl.uniform1f(uni.uTime, diskTime);
-    const fr = frameNow();
-    gl.uniform1f(uni.uDist, fr.dist);
-    gl.uniform1f(uni.uTilt, fr.tilt);
-    gl.uniform1f(uni.uYaw, fr.yaw);
-    gl.uniform1f(uni.uRoll, fr.roll);
-    gl.uniform2f(uni.uShift, fr.shift[0], fr.shift[1]);
-    gl.uniform1f(uni.uFov, fr.fov);
-    const lx = pointer.active && !coarse ? (pointer.x / w - 0.5) : 0;
-    const ly = pointer.active && !coarse ? (pointer.y / h - 0.5) : 0;
-    gl.uniform2f(uni.uLook, lx, ly);
-    gl.uniform1f(uni.uSteps, steps);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-
-    // Keep it smooth on slower devices: lower the resolution first, then the steps.
-    if (dt > 0.028) slowFrames++; else slowFrames = Math.max(0, slowFrames - 1);
-    if (slowFrames > 30) {
-      slowFrames = 0;
-      if (scale > 0.4) scale -= 0.1; else if (steps > 90) steps -= 30;
+    if (glOk) {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      const cw = Math.round(gl$.clientWidth * dpr * scale), ch = Math.round(gl$.clientHeight * dpr * scale);
+      if (gl$.width !== cw || gl$.height !== ch) { gl$.width = cw; gl$.height = ch; }
+      gl.viewport(0, 0, cw, ch);
+      gl.uniform2f(uni.uRes, cw, ch);
+      gl.uniform1f(uni.uTime, diskT);
+      gl.uniform1f(uni.uClock, clock);
+      gl.uniform1f(uni.uDist, f.dist);
+      gl.uniform1f(uni.uTilt, f.tilt);
+      gl.uniform1f(uni.uYaw, f.yaw);
+      gl.uniform1f(uni.uRoll, f.roll);
+      gl.uniform1f(uni.uFov, f.fov);
+      gl.uniform1f(uni.uWarp, f.warp);
+      gl.uniform1f(uni.uSteps, steps);
+      gl.uniform2f(uni.uShift, f.sx, f.sy);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      if (dt > 0.028) slowFrames++; else slowFrames = Math.max(0, slowFrames - 1);
+      if (slowFrames > 30) { slowFrames = 0; if (scale > 0.4) scale -= 0.1; else if (steps > 90) steps -= 30; }
     }
+    drawFx(f, w, h);
   }
 
-  const fromHash = location.hash.slice(1);
-  if (['centered', 'offaxis', 'lowpass'].includes(fromHash)) setVariant(fromHash);
-  addEventListener('hashchange', () => {
-    const v = location.hash.slice(1);
-    if (['centered', 'offaxis', 'lowpass'].includes(v) && v !== variant) setVariant(v);
-  });
   onScroll();
-  requestAnimationFrame(frame);
+  requestAnimationFrame(loop);
 })();
 </script>
