@@ -34,6 +34,7 @@ Inglês simples e direto, frases curtas, tom pessoal. Sem travessões (em dash).
 
 - "Para baixo e para o lado": para baixo = próxima cena da narrativa; para o lado = refinar uma cena. Não refine uma cena além do critério de aceite antes de a próxima existir.
 - Uma cena por PR, com print ou vídeo curto do desktop e do mobile na descrição.
+- Mudanças que dependem umas das outras (por exemplo, uma cena em cima da anterior) vão numa stack do GitHub (`gh stack`): `gh stack init`/`add` para as branches, `gh stack submit` para as PRs, `gh stack sync` depois de um merge. Uma PR por camada, de baixo para cima.
 - Antes de dar algo por pronto: `npm run build`, `npm run check`, testes, e Lighthouse mobile da página.
 - Commits pequenos, mensagens em inglês.
 - Build in public: tudo o que fica público no GitHub é em inglês (commits, comentários no código, títulos e descrições de PR, comentários). Sem rodapé ou trailer de IA ("Generated with Claude Code", `Co-Authored-By: Claude`, link de sessão). Os docs em `docs/` e a conversa continuam em português.

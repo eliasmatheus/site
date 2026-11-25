@@ -36,7 +36,15 @@ Montagem vertical, uma vinheta por tela, toast no topo. Cards empilhados; no lug
 
 ## Aceite
 
-- [ ] Toda posição de scroll mostra algo vivo; nenhuma vinheta fica vazia entre passos.
-- [ ] Reduced motion: vinhetas viram quadros estáticos com fade e a escolha já aparece feita.
-- [ ] Nenhum nome, logo ou asset de marca, inclusive em alt e metadados.
-- [ ] Em 390 x 844, texto e vinheta não se sobrepõem.
+- [x] Toda posição de scroll mostra algo vivo; nenhuma vinheta fica vazia entre passos.
+- [x] Reduced motion: vinhetas viram quadros estáticos com fade e a escolha já aparece feita.
+- [x] Nenhum nome, logo ou asset de marca, inclusive em alt e metadados.
+- [x] Em 390 x 844, texto e vinheta não se sobrepõem.
+
+## Como ficou (Fase 2)
+
+- `src/scenes/call/`: `Call.astro` (monitor, vinhetas em SVG com `crispEdges`, cards e disquete), `beats.ts` (progresso → beat, passo, skills, contador de memória e cursor; puro e testado) e `controller.ts`.
+- Dwell de 4400 px: boot 12%, montagem 58% (um passo por vinheta), escolha 18%, save 12%.
+- A narração fica numa caixa de diálogo com borda dupla, homenagem de estilo aos RPGs de bolso, e as skills formam um inventário ao lado do monitor (no mobile, embaixo).
+- O monitor é bege e genérico; o gabinete ligando ficou de fora por espaço. Dá para voltar a ele num refinamento.
+- O save das skills (cinza, para dentro do disquete) é o gancho para o "SAVE FILE FOUND · 2011" da cena 04.

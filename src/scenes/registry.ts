@@ -31,6 +31,15 @@ export const SCENES: readonly SceneEntry[] = [
     load: () => import('./prologue/controller'),
   },
   {
+    id: 'call',
+    label: 'The Call',
+    // Longer than the prototype's card scene: boot, seven vignettes, the choice and the save.
+    dwell: 4400,
+    x: 520,
+    y: -120,
+    load: () => import('./call/controller'),
+  },
+  {
     id: 'desert',
     label: 'The Desert',
     dwell: 1500,

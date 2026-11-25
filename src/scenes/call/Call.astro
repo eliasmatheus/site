@@ -1,0 +1,1085 @@
+---
+/**
+ * Scene 01 · The Call. Pure narrative, no quest. Scroll plays it:
+ * the first computer boots, a montage of pixel vignettes unlocks skills, the course choice
+ * (everything points to computers, he picks civil engineering), and the skills are saved
+ * for later. src/scenes/call/controller.ts maps the dwell to beats (src/scenes/call/beats.ts).
+ *
+ * Everything is SVG and CSS. No brands: old consoles, image editor, memory scanner and
+ * download queue are generic. "PENTIUM" is plain text on the boot screen (a fact).
+ */
+import { call } from '../../content/call';
+import { MONTAGE_LENGTH } from './beats';
+
+const v = call.vignettes;
+const cards = [
+  { id: 'civil', stat: 45 },
+  { id: 'cs', stat: 100 },
+  { id: 'arch', stat: 55 },
+] as const;
+const choiceStep = MONTAGE_LENGTH + 1;
+const saveStep = MONTAGE_LENGTH + 2;
+---
+
+<section class="call" data-scene="call" data-beat="boot" aria-labelledby="call-kicker">
+  <div class="stripes" aria-hidden="true"></div>
+  <div class="layout">
+    <p class="kicker" id="call-kicker">
+      {call.kicker}
+    </p>
+
+    <ul class="skills" aria-label={call.skillsLabel}>
+      {call.montage.map((m, i) => (
+        <li class="chip" data-skill={i}>
+          <span>{m.skill}</span>
+        </li>
+      ))}
+    </ul>
+
+    <div class="stage-area">
+      <!-- Boot and montage: the family computer. -->
+      <div class="monitor" aria-hidden="true">
+        <div class="bezel">
+          <div class="screen">
+            <div class="vig vig-boot" data-k="0" data-on>
+              {call.boot.screen.map((line, i) => (
+                <p class="boot-line" style={`--i: ${i}`} data-mem={i === 1 ? '' : undefined}>
+                  {line}
+                </p>
+              ))}
+            </div>
+
+            <!-- 1 · emulators: a road into the sunset, parallax hills. -->
+            <svg
+              class="vig px"
+              data-k="1"
+              viewBox="0 0 160 120"
+              preserveAspectRatio="xMidYMid slice"
+            >
+              <rect width="160" height="22" fill="#2b1b4d"></rect>
+              <rect y="22" width="160" height="14" fill="#5a2a6a"></rect>
+              <rect y="36" width="160" height="10" fill="#a8406e"></rect>
+              <rect y="46" width="160" height="8" fill="#e0566b"></rect>
+              <rect y="54" width="160" height="8" fill="#ff8f57"></rect>
+              <g class="sun">
+                <rect x="62" y="30" width="36" height="6" fill="#ffd166"></rect>
+                <rect x="58" y="38" width="44" height="6" fill="#ffd166"></rect>
+                <rect x="56" y="46" width="48" height="5" fill="#ffc15a"></rect>
+                <rect x="56" y="53" width="48" height="4" fill="#ffb04f"></rect>
+                <rect x="58" y="59" width="44" height="3" fill="#ff9e47"></rect>
+              </g>
+              <g class="hills far">
+                <path
+                  d="M-40 62h20v-6h14v-8h12v8h16v-4h20v10h18v-12h16v6h14v6h20v-4h14v4h20v-8h14v8h18v-6h14v8h20z"
+                  fill="#3b2457"
+                ></path>
+              </g>
+              <g class="hills near">
+                <path
+                  d="M-40 66h26v-8h18v4h22v-10h16v14h24v-6h18v6h22v-12h20v12h18v-4h22v4h20z"
+                  fill="#24183a"
+                ></path>
+              </g>
+              <rect y="62" width="160" height="58" fill="#1b2a1e"></rect>
+              <polygon points="74,62 86,62 150,120 10,120" fill="#3d3d46"></polygon>
+              <g class="road-lines">
+                <rect x="79" y="64" width="2" height="4" fill="#f4f1e6"></rect>
+                <rect x="78.5" y="74" width="3" height="6" fill="#f4f1e6"></rect>
+                <rect x="78" y="88" width="4" height="9" fill="#f4f1e6"></rect>
+                <rect x="77" y="106" width="6" height="14" fill="#f4f1e6"></rect>
+              </g>
+              <polygon points="74,62 76,62 22,120 10,120" fill="#c94c4c"></polygon>
+              <polygon points="84,62 86,62 150,120 138,120" fill="#c94c4c"></polygon>
+            </svg>
+
+            <!-- 2 · dial-up: modem wave and a flash game saving for offline. -->
+            <svg class="vig px" data-k="2" viewBox="0 0 160 120">
+              <rect width="160" height="120" fill="#0e1d3a"></rect>
+              <text x="14" y="22" class="t">
+                {v.modem}
+              </text>
+              <polyline
+                class="wave"
+                points="10,52 20,52 24,38 28,66 32,44 36,60 40,40 44,64 48,50 52,52 62,52 66,34 70,70 74,42 78,62 82,46 86,58 90,52 100,52 104,40 108,64 112,46 116,58 120,52 150,52"
+                fill="none"
+                stroke="#7ee2a8"
+                stroke-width="2"
+              ></polyline>
+              <text x="14" y="88" class="t">
+                {v.savingGame}
+              </text>
+              <rect
+                x="14"
+                y="94"
+                width="132"
+                height="10"
+                fill="none"
+                stroke="#f4f1e6"
+                stroke-width="1.5"
+              ></rect>
+              <rect class="fill-v" x="16" y="96" width="128" height="6" fill="#ffd166"></rect>
+            </svg>
+
+            <!-- 3 · the file in the game folder: "Replace file?" Yes. -->
+            <svg class="vig px" data-k="3" viewBox="0 0 160 120">
+              <rect width="160" height="120" fill="#2b7a78"></rect>
+              <g transform="translate(104 34)">
+                <rect y="4" width="34" height="26" fill="#e8b84a"></rect>
+                <rect width="14" height="6" fill="#e8b84a"></rect>
+                <rect y="10" width="34" height="20" fill="#f6cf62"></rect>
+                <text x="17" y="42" class="t c">
+                  {v.gameFolder}
+                </text>
+              </g>
+              <g class="file-move">
+                <rect x="20" y="38" width="20" height="26" fill="#f4f1e6"></rect>
+                <rect x="32" y="38" width="8" height="8" fill="#c9c4b4"></rect>
+                <rect x="24" y="50" width="12" height="2" fill="#8a8678"></rect>
+                <rect x="24" y="55" width="10" height="2" fill="#8a8678"></rect>
+              </g>
+              <g class="replace">
+                <rect
+                  x="30"
+                  y="66"
+                  width="100"
+                  height="44"
+                  fill="#d8d2bf"
+                  stroke="#1f2a1a"
+                  stroke-width="1.5"
+                ></rect>
+                <rect x="30" y="66" width="100" height="9" fill="#1d3f8a"></rect>
+                <text x="80" y="88" class="t c dark">
+                  {v.replaceFile}
+                </text>
+                <rect
+                  class="yes"
+                  x="64"
+                  y="94"
+                  width="32"
+                  height="11"
+                  fill="#ece7d6"
+                  stroke="#1f2a1a"
+                  stroke-width="1"
+                ></rect>
+                <text x="80" y="102.5" class="t c dark">
+                  {v.replaceYes}
+                </text>
+              </g>
+            </svg>
+
+            <!-- 4 · memory editing: the money goes from 1000 to 999999. -->
+            <svg class="vig px" data-k="4" viewBox="0 0 160 120">
+              <rect width="160" height="120" fill="#1a1a22"></rect>
+              <rect
+                x="12"
+                y="12"
+                width="136"
+                height="96"
+                fill="#d8d2bf"
+                stroke="#0d0d10"
+                stroke-width="1.5"
+              ></rect>
+              <rect x="12" y="12" width="136" height="9" fill="#5b2a86"></rect>
+              <g class="t mono dark">
+                <text x="20" y="36">
+                  0x00A4F0
+                </text>
+                <text x="20" y="50">
+                  0x00A4F4
+                </text>
+                <text x="20" y="64" class="hit">
+                  0x00A4F8
+                </text>
+                <text x="20" y="78">
+                  0x00A4FC
+                </text>
+                <text x="84" y="36">
+                  0
+                </text>
+                <text x="84" y="50">
+                  12
+                </text>
+                <text x="84" y="78">
+                  3
+                </text>
+              </g>
+              <rect class="hit-row" x="16" y="56" width="128" height="11" fill="#ffd166"></rect>
+              <text x="20" y="64" class="t mono dark">
+                0x00A4F8
+              </text>
+              <text x="84" y="64" class="t mono dark before">
+                {v.memoryBefore}
+              </text>
+              <text x="84" y="64" class="t mono dark after">
+                {v.memoryAfter}
+              </text>
+              <text x="20" y="98" class="t dark">
+                {v.memoryLabel}
+              </text>
+              <text x="140" y="98" class="t dark r before">
+                {v.memoryBefore}
+              </text>
+              <text x="140" y="98" class="t dark r after">
+                {v.memoryAfter}
+              </text>
+            </svg>
+
+            <!-- 5 · image editor: a layers panel filling up with every tutorial. -->
+            <svg class="vig px" data-k="5" viewBox="0 0 160 120">
+              <rect width="160" height="120" fill="#2a2a30"></rect>
+              <g class="canvas">
+                <rect x="8" y="10" width="86" height="100" fill="#11131c"></rect>
+                <circle class="layer" style="--l: 1" cx="51" cy="54" r="26" fill="#3a2a7a"></circle>
+                <circle class="layer" style="--l: 2" cx="51" cy="54" r="16" fill="#7a5ad8"></circle>
+                <rect
+                  class="layer"
+                  style="--l: 3"
+                  x="20"
+                  y="80"
+                  width="62"
+                  height="8"
+                  fill="#000"
+                  opacity="0.5"
+                ></rect>
+                <g class="layer" style="--l: 4">
+                  <rect x="64" y="28" width="4" height="4" fill="#fff"></rect>
+                  <rect x="60" y="29" width="12" height="2" fill="#fff"></rect>
+                  <rect x="65" y="24" width="2" height="12" fill="#fff"></rect>
+                </g>
+                <rect
+                  class="layer"
+                  style="--l: 5"
+                  x="18"
+                  y="70"
+                  width="66"
+                  height="10"
+                  fill="#c9d1dc"
+                ></rect>
+              </g>
+              <rect x="100" y="10" width="52" height="100" fill="#3a3a42"></rect>
+              <text x="104" y="20" class="t small">
+                {v.layersTitle}
+              </text>
+              {[...v.layers].reverse().map((name, i) => (
+                <g class="layer" style={`--l: ${v.layers.length - i}`}>
+                  <rect x="102" y={26 + i * 14} width="48" height="12" fill="#50505a" />
+                  <text x="105" y={34.5 + i * 14} class="t small">
+                    {name}
+                  </text>
+                </g>
+              ))}
+            </svg>
+
+            <!-- 6 · tech support: formatting, then the next computer, and the next. -->
+            <svg class="vig px" data-k="6" viewBox="0 0 160 120">
+              <rect width="160" height="120" fill="#000082"></rect>
+              <text x="14" y="26" class="t">
+                {v.formatting}
+              </text>
+              <rect
+                x="14"
+                y="34"
+                width="132"
+                height="12"
+                fill="none"
+                stroke="#f4f1e6"
+                stroke-width="1.5"
+              ></rect>
+              <rect class="fill-f" x="16" y="36" width="128" height="8" fill="#f4f1e6"></rect>
+              {[0, 1, 2].map((i) => (
+                <g class="pc" style={`--n: ${i}`} transform={`translate(${22 + i * 42} 62)`}>
+                  <rect width="30" height="22" fill="#d8d2bf" />
+                  <rect x="3" y="3" width="24" height="16" class="pc-screen" />
+                  <rect x="10" y="22" width="10" height="4" fill="#b4ad98" />
+                  <rect x="4" y="26" width="22" height="4" fill="#d8d2bf" />
+                </g>
+              ))}
+            </svg>
+
+            <!-- 7 · downloads queued overnight. -->
+            <svg class="vig px" data-k="7" viewBox="0 0 160 120">
+              <rect width="160" height="120" fill="#0b1026"></rect>
+              <circle cx="138" cy="18" r="9" fill="#f4f1e6"></circle>
+              <circle cx="134" cy="15" r="9" fill="#0b1026"></circle>
+              <text x="12" y="20" class="t small">
+                {v.downloadsTitle}
+              </text>
+              {v.downloads.map((name, i) => (
+                <g style={`--rate: ${[1.6, 1.1, 0.8, 1.3][i]}; --delay: ${[0, 0.15, 0.3, 0.1][i]}`}>
+                  <text x="12" y={40 + i * 20} class="t small">
+                    {name}
+                  </text>
+                  <rect x="62" y={33 + i * 20} width="86" height="8" fill="#22284a" />
+                  <rect class="dl" x="62" y={33 + i * 20} width="86" height="8" fill="#7ee2a8" />
+                </g>
+              ))}
+            </svg>
+          </div>
+        </div>
+        <div class="stand"></div>
+        <p class="toast" data-toast>
+          <span class="toast-label">{call.toastLabel} ·</span>
+          <span data-toast-skill></span>
+        </p>
+      </div>
+
+      <!-- The choice: three courses. Skills fill COMPUTER SCIENCE; the cursor picks CIVIL. -->
+      <div class="cards" role="group" aria-label={call.choiceLabel}>
+        {cards.map((c, i) => {
+          const o = call.options[i];
+          return (
+            <div
+              class="card"
+              data-card={c.id}
+              data-picked={o?.name === call.picked ? '' : undefined}
+              style={`--stat: ${c.stat}`}
+            >
+              <span class="orb" aria-hidden="true">
+                {o?.glyph}
+              </span>
+              <span class="name">{o?.name}</span>
+              <span class="type">{o?.type}</span>
+              <span class="stat" aria-hidden="true">
+                <span />
+              </span>
+            </div>
+          );
+        })}
+        <svg class="cursor" viewBox="0 0 12 18" aria-hidden="true">
+          <path
+            d="M0 0v15l4-4 3 7 3-1-3-7h5z"
+            fill="#fff"
+            stroke="#1f2a1a"
+            stroke-width="1.2"
+          ></path>
+        </svg>
+      </div>
+
+      <!-- The save: skills into a floppy. -->
+      <div class="floppy" aria-hidden="true">
+        <svg viewBox="0 0 32 32" class="px">
+          <rect x="2" y="2" width="28" height="28" fill="#2c3e8c"></rect>
+          <rect x="8" y="2" width="16" height="10" fill="#c9cdd8"></rect>
+          <rect x="18" y="4" width="4" height="6" fill="#2c3e8c"></rect>
+          <rect x="6" y="16" width="20" height="12" fill="#f4f1e6"></rect>
+          <rect x="8" y="19" width="16" height="1.5" fill="#9aa0b4"></rect>
+          <rect x="8" y="23" width="12" height="1.5" fill="#9aa0b4"></rect>
+        </svg>
+      </div>
+    </div>
+
+    <div class="dialog">
+      <p class="line" data-k="0" data-on>
+        {call.boot.text}
+      </p>
+      {call.montage.map((m, i) => (
+        <p class="line" data-k={i + 1}>
+          {m.text}
+        </p>
+      ))}
+      <div class="line" data-k={choiceStep}>
+        <p>{call.choice[0]}</p>
+        <p class="late late-c">{call.choice[1]}</p>
+      </div>
+      <div class="line" data-k={saveStep}>
+        <p>{call.saved}</p>
+        <p class="late late-s">{call.outro}</p>
+      </div>
+      <span class="caret" aria-hidden="true">
+        ▼
+      </span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .call {
+    --ink: #1f2a1a;
+    --leaf: #2f6b2a;
+    --v: 0;
+    --b: 1;
+    --c: 1;
+    --s: 1;
+    --f: 0;
+    --cx: 16.6667;
+    background: #e9efcf;
+    color: var(--ink);
+  }
+
+  .stripes {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, #e3ebc4 0 18px, #dbe4b8 18px 36px);
+  }
+
+  .layout {
+    position: relative;
+    height: 100%;
+    display: grid;
+    grid-template-columns: minmax(160px, 220px) minmax(0, auto);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'kicker kicker'
+      'skills stage'
+      'dialog dialog';
+    justify-content: center;
+    align-items: center;
+    gap: 24px 40px;
+    padding: 76px 32px 32px;
+  }
+
+  .kicker {
+    grid-area: kicker;
+    justify-self: center;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--leaf);
+  }
+
+  /* ---------- Inventory ---------- */
+
+  .skills {
+    grid-area: skills;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .chip {
+    min-height: 30px;
+    padding: 6px 10px;
+    border: 2px dashed rgb(31 42 26 / 0.25);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    line-height: 1.4;
+    transition:
+      transform 0.5s steps(4),
+      opacity 0.5s,
+      filter 0.5s;
+  }
+
+  .chip span {
+    visibility: hidden;
+  }
+
+  .chip[data-on] {
+    border: 2px solid var(--ink);
+    background: #fff;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  .chip[data-on] span {
+    visibility: visible;
+  }
+
+  .chip[data-new] {
+    background: #ffd166;
+  }
+
+  /* ---------- Stage area: monitor, cards and floppy share one cell ---------- */
+
+  .stage-area {
+    grid-area: stage;
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: min(600px, 48vw, calc((100dvh - 360px) * 4 / 3));
+    aspect-ratio: 4 / 3.4;
+  }
+
+  .stage-area > * {
+    grid-area: 1 / 1;
+    transition:
+      opacity 0.45s ease,
+      transform 0.45s ease;
+  }
+
+  .monitor {
+    position: relative;
+    width: 100%;
+  }
+
+  .bezel {
+    padding: 6% 6% 9%;
+    border-radius: 14px 14px 10px 10px;
+    background: linear-gradient(180deg, #e2dcc7, #c9c2a8);
+    box-shadow:
+      6px 6px 0 var(--ink),
+      inset 0 -6px 0 rgb(0 0 0 / 0.08);
+    border: 3px solid var(--ink);
+  }
+
+  .screen {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 10px / 14px;
+    background: #0b0b0b;
+    box-shadow: inset 0 0 18px rgb(0 0 0 / 0.8);
+  }
+
+  .stand {
+    width: 34%;
+    height: 14px;
+    margin: 0 auto;
+    background: #c9c2a8;
+    border: 3px solid var(--ink);
+    border-top: 0;
+  }
+
+  .vig {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .vig[data-on] {
+    opacity: 1;
+  }
+
+  .px {
+    shape-rendering: crispEdges;
+  }
+
+  .t {
+    font-family: var(--font-mono);
+    font-size: 7px;
+    fill: #f4f1e6;
+    letter-spacing: 0.4px;
+  }
+
+  .t.small {
+    font-size: 5.5px;
+  }
+
+  .t.c {
+    text-anchor: middle;
+  }
+
+  .t.r {
+    text-anchor: end;
+  }
+
+  .t.dark,
+  .dark text {
+    fill: #1f2a1a;
+  }
+
+  .vig-boot {
+    padding: 7% 8%;
+    font-family: var(--font-mono);
+    font-size: clamp(11px, 1.6vw, 16px);
+    line-height: 1.8;
+    color: #c7d3c0;
+  }
+
+  .boot-line {
+    margin: 0;
+    opacity: clamp(0, calc((var(--b) * 5 - var(--i)) * 3), 1);
+  }
+
+  .boot-line:last-child {
+    animation: blink 1s steps(2) infinite;
+  }
+
+  /* Emulators: hills drift with scroll, the road keeps coming. */
+  .far {
+    transform: translateX(calc(var(--v) * -10px));
+  }
+
+  .near {
+    transform: translateX(calc(var(--v) * -24px));
+  }
+
+  .road-lines {
+    animation: road 0.5s steps(4) infinite;
+  }
+
+  .wave {
+    stroke-dasharray: 220;
+    animation: wave 1.2s steps(12) infinite;
+  }
+
+  .fill-v {
+    transform-box: fill-box;
+    transform-origin: left;
+    transform: scaleX(var(--v));
+  }
+
+  .file-move {
+    transform: translateX(calc(min(var(--v) * 2, 1) * 86px));
+    opacity: clamp(0, calc((0.75 - var(--v)) * 8), 1);
+  }
+
+  .replace {
+    opacity: clamp(0, calc((var(--v) - 0.35) * 8), 1);
+  }
+
+  .yes {
+    fill: color-mix(in srgb, #ece7d6, #9aa0b4 calc(clamp(0, (var(--v) - 0.7) * 20, 1) * 100%));
+  }
+
+  .before {
+    opacity: clamp(0, calc((0.5 - var(--v)) * 20), 1);
+  }
+
+  .after {
+    opacity: clamp(0, calc((var(--v) - 0.5) * 20), 1);
+  }
+
+  .hit-row {
+    opacity: clamp(0, calc((var(--v) - 0.2) * 6), 0.8);
+  }
+
+  .layer {
+    opacity: clamp(0, calc((var(--v) * 6 - var(--l) + 1) * 2), 1);
+  }
+
+  .fill-f {
+    transform-box: fill-box;
+    transform-origin: left;
+    transform: scaleX(var(--f));
+  }
+
+  .pc-screen {
+    fill: color-mix(
+      in srgb,
+      #000082,
+      #7ee2a8 calc(clamp(0, (var(--v) * 3 - var(--n)) * 4, 1) * 100%)
+    );
+  }
+
+  .dl {
+    transform-box: fill-box;
+    transform-origin: left;
+    transform: scaleX(clamp(0, calc((var(--v) - var(--delay)) * var(--rate)), 1));
+  }
+
+  .toast {
+    position: absolute;
+    left: 50%;
+    top: -18px;
+    display: flex;
+    gap: 10px;
+    margin: 0;
+    padding: 8px 14px;
+    border: 3px solid var(--ink);
+    background: #ffd166;
+    box-shadow: 4px 4px 0 var(--ink);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translate(-50%, -8px);
+    transition:
+      opacity 0.25s steps(3),
+      transform 0.25s steps(3);
+  }
+
+  [data-toast-on] .toast {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  /* ---------- The choice ---------- */
+
+  .cards {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    width: 100%;
+    opacity: 0;
+    transform: translateY(16px);
+    pointer-events: none;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 8px 16px;
+    border: 3px solid var(--ink);
+    border-radius: 10px;
+    background: #f7f9ec;
+    box-shadow: 5px 5px 0 var(--ink);
+    font-family: var(--font-mono);
+    text-align: center;
+    transition:
+      transform 0.2s steps(3),
+      background 0.2s steps(2),
+      opacity 0.3s;
+  }
+
+  .orb {
+    display: grid;
+    place-items: center;
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 28%, #fff 0 10%, var(--c1) 32%, var(--c2) 100%);
+    box-shadow:
+      0 10px 0 rgb(31 42 26 / 0.25),
+      inset 0 -8px 14px rgb(0 0 0 / 0.25);
+    font-size: 26px;
+    color: #fff;
+    text-shadow: 2px 2px 0 rgb(0 0 0 / 0.35);
+  }
+
+  [data-card='civil'] {
+    --c1: #e8a33d;
+    --c2: #a85a1c;
+  }
+
+  [data-card='cs'] {
+    --c1: #4fb3e8;
+    --c2: #1c5aa8;
+  }
+
+  [data-card='arch'] {
+    --c1: #d86a9a;
+    --c2: #8a2a5c;
+  }
+
+  .name {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .type {
+    font-size: 10px;
+    color: #4d5a3f;
+  }
+
+  .stat {
+    width: 80%;
+    height: 8px;
+    border: 2px solid var(--ink);
+    background: #fff;
+  }
+
+  .stat span {
+    display: block;
+    height: 100%;
+    background: var(--leaf);
+    transform-origin: left;
+    transform: scaleX(calc(var(--stat) / 100));
+  }
+
+  /* Every skill pours into COMPUTER SCIENCE first. */
+  [data-card='cs'] .stat span {
+    background: #1c5aa8;
+    transform: scaleX(clamp(0, calc(var(--c) / 0.3), 1));
+  }
+
+  .card[data-over] {
+    transform: translateY(-6px);
+    background: #fff;
+  }
+
+  .card[data-over='cs'] {
+    animation: pulse 0.6s steps(2) infinite;
+  }
+
+  [data-chosen] .card[data-picked] {
+    background: #ffd166;
+    transform: translateY(-6px);
+  }
+
+  [data-chosen] .card:not([data-picked]) {
+    opacity: 0.55;
+  }
+
+  .cursor {
+    position: absolute;
+    left: calc(var(--cx) * 1%);
+    top: 62%;
+    width: 22px;
+    filter: drop-shadow(2px 2px 0 rgb(31 42 26 / 0.4));
+    transition: left 0.12s linear;
+  }
+
+  [data-chosen] .cursor {
+    transform: scale(0.85);
+  }
+
+  /* ---------- The save ---------- */
+
+  .floppy {
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  .floppy svg {
+    width: clamp(96px, 14vw, 160px);
+    filter: drop-shadow(6px 6px 0 var(--ink));
+  }
+
+  /* ---------- Beat visibility ---------- */
+
+  [data-beat='choice'] .monitor,
+  [data-beat='save'] .monitor {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+
+  [data-beat='choice'] .cards {
+    opacity: 1;
+    transform: none;
+  }
+
+  [data-beat='save'] .cards {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+
+  [data-beat='save'] .floppy {
+    opacity: 1;
+    transform: none;
+  }
+
+  [data-beat='save'] .chip {
+    filter: grayscale(1);
+    opacity: clamp(0.15, calc(1 - var(--s) * 1.2), 1);
+    transform: scale(clamp(0.6, calc(1 - var(--s) * 0.5), 1));
+  }
+
+  /* ---------- Dialog box (the narration) ---------- */
+
+  .dialog {
+    grid-area: dialog;
+    justify-self: center;
+    position: relative;
+    display: grid;
+    width: min(860px, 100%);
+    min-height: calc(2 * 2em + 44px);
+    padding: 18px 44px 18px 24px;
+    border: 4px double var(--ink);
+    border-radius: 4px;
+    background: #fff;
+    box-shadow: 8px 8px 0 var(--ink);
+    font-family: var(--font-mono);
+    font-size: clamp(14px, 1.3vw, 17px);
+    line-height: 1.7;
+  }
+
+  .line {
+    grid-area: 1 / 1;
+    margin: 0;
+    opacity: 0;
+    visibility: hidden;
+    /* The old line goes, then the new one types in: the box is never blank for long. */
+    transition:
+      opacity 0.2s steps(2),
+      visibility 0s linear 0.2s;
+  }
+
+  .line[data-on] {
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity 0.3s steps(3) 0.1s,
+      visibility 0s;
+  }
+
+  .line p {
+    margin: 0;
+  }
+
+  .late-c {
+    opacity: clamp(0, calc((var(--c) - 0.45) * 6), 1);
+  }
+
+  .late-s {
+    opacity: clamp(0, calc((var(--s) - 0.4) * 6), 1);
+  }
+
+  .caret {
+    position: absolute;
+    right: 16px;
+    bottom: 10px;
+    font-size: 12px;
+    animation: blink 0.8s steps(2) infinite;
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes road {
+    to {
+      transform: translateY(6px);
+    }
+  }
+
+  @keyframes wave {
+    from {
+      stroke-dashoffset: 220;
+    }
+
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes pulse {
+    50% {
+      transform: translateY(-2px);
+    }
+  }
+
+  /* ---------- Mobile: one vignette per screen, cards stacked ---------- */
+
+  @media (max-width: 767px) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr) auto auto;
+      grid-template-areas: 'kicker' 'stage' 'skills' 'dialog';
+      gap: 18px;
+      padding: 64px 16px max(16px, env(safe-area-inset-bottom));
+    }
+
+    .kicker {
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    .stage-area {
+      align-self: center;
+      width: 100%;
+      aspect-ratio: auto;
+      min-height: 300px;
+      padding-top: 18px;
+    }
+
+    .vig-boot {
+      font-size: 13px;
+    }
+
+    .toast {
+      top: -6px;
+      font-size: 11px;
+    }
+
+    .skills {
+      flex-flow: row wrap;
+      align-content: flex-start;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .chip {
+      min-height: 0;
+      padding: 3px 6px;
+      font-size: 10px;
+    }
+
+    .chip:not([data-on]) {
+      width: 44px;
+      min-height: 22px;
+    }
+
+    .cards {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    .card {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      grid-template-areas:
+        'orb name'
+        'orb type'
+        'orb stat';
+      justify-items: start;
+      gap: 4px 12px;
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    .orb {
+      grid-area: orb;
+      width: 48px;
+      height: 48px;
+      font-size: 18px;
+      box-shadow: 0 5px 0 rgb(31 42 26 / 0.25);
+    }
+
+    .name {
+      grid-area: name;
+    }
+
+    .type {
+      grid-area: type;
+    }
+
+    .stat {
+      grid-area: stat;
+      width: 100%;
+    }
+
+    /* No cursor on touch: a highlight jumps from card to card instead. */
+    .cursor {
+      display: none;
+    }
+
+    .card[data-over] {
+      transform: translateX(4px);
+      outline: 3px solid #ffd166;
+      outline-offset: 2px;
+    }
+
+    [data-chosen] .card[data-picked] {
+      transform: translateX(4px);
+    }
+
+    .dialog {
+      min-height: calc(3 * 1.6em + 36px);
+      padding: 14px 36px 14px 16px;
+      font-size: 15px;
+      line-height: 1.6;
+      box-shadow: 5px 5px 0 var(--ink);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .road-lines,
+    .wave,
+    .boot-line:last-child,
+    .caret,
+    .card[data-over='cs'] {
+      animation: none;
+    }
+
+    .vig,
+    .stage-area > *,
+    .chip,
+    .card,
+    .cursor {
+      transition: opacity 0.4s ease;
+    }
+  }
+
+  /* Without JS the scene is a still: boot screen, the choice made, the save line. */
+  :global(html:not(.js)) .call .chip span {
+    visibility: visible;
+  }
+</style>
