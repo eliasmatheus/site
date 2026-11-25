@@ -33,8 +33,8 @@ Cada fase termina com deploy funcionando. Uma cena só conta como pronta quando 
 
 Protótipos em `reference/prototype/` (`landing-orbit.html`, `black-hole.html`).
 
-- [ ] Landing TL;DR "Orbit" em `/`, com o conteúdo da `/work` e a porta para a jornada no fim. `/work` passa a redirecionar para ela.
-- [ ] Horizon: wormhole na chegada, buraco negro em WebGL (shader próprio, sem three.js) no enquadramento Off-axis, planeta gasoso no cursor e queda em primeira pessoa. Fallback sem WebGL.
+- [ ] Landing TL;DR "Orbit" em `/`, com a nebulosa revelada pelo cursor, o conteúdo da `/work` e a porta para a jornada no fim. `/work` passa a redirecionar para ela.
+- [ ] Horizon: wormhole na chegada, buraco negro em WebGL (shader próprio, sem three.js) no enquadramento Off-axis, lens flare no cursor e queda em primeira pessoa. Fallback sem WebGL. (Planeta no cursor em espera.)
 - [ ] Protótipo e depois cena da queda e do espaço do passado (The fall).
 - [ ] Prologue (fotografia) sai da abertura e fica guardado até ganhar lugar na linha do tempo.
 - [ ] Sapata: nova interação (protótipo C). O arrasto no 3D é impreciso: perto do ângulo errado aumentar e diminuir quase não se diferenciam, e chegar ao sweet spot leva umas três tentativas. Referência de fluxo: grail-app.com (o scroll continua, a interação é opcional).

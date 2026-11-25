@@ -95,12 +95,12 @@
 <div class="journey" id="journey">
   <div class="sky">
     <div class="shake" id="shake">
-      <canvas id="gl" role="img" aria-label="A black hole with a bright disk of gas, its light bent around the dark center. A small gas planet follows the pointer and slows down near the edge."></canvas>
+      <canvas id="gl" role="img" aria-label="A black hole with a bright disk of gas, its light bent around the dark center. The pointer casts a lens flare."></canvas>
       <canvas id="fx" aria-hidden="true"></canvas>
     </div>
     <div class="vignette" id="vignette"></div>
     <div class="flash" id="flash"></div>
-    <p class="label">Prototype B · v4</p>
+    <p class="label">Prototype B · v5</p>
 
     <div class="copy">
       <div class="beat center on" data-from="0" data-to="0.19">
@@ -110,7 +110,7 @@
       <div class="beat" data-from="0.24" data-to="0.48">
         <p class="kicker">Elias Matheus · Software engineer</p>
         <h1>Meet Elias.</h1>
-        <p class="lede">Engineer turned software engineer. I like to see how things work, from a footing in the soil to a black hole. Bring the planet closer and watch it fall behind.</p>
+        <p class="lede">Engineer turned software engineer. I like to see how things work, from a footing in the soil to a black hole.</p>
       </div>
       <div class="beat" data-from="0.48" data-to="0.7">
         <p class="kicker">Keep scrolling</p>
@@ -328,6 +328,9 @@ void main(){
     gl$.replaceWith(fb);
   }
 
+  // Pinned for now (25/11/2026): the gas planet stays in the code but off. The pointer drives a lens flare.
+  const PLANET = false;
+
   // ---------- the gas planet: follows the pointer, but its time runs slow near the hole ----------
   const fxc = fx.getContext('2d');
   const planet = { x: innerWidth * 0.12, y: innerHeight * 0.35, spin: 0, k: 1, gas: 1, r: 99, hole: { x: 0, y: 0 } };
@@ -338,6 +341,7 @@ void main(){
   const shadowPx = (f, h) => (2.6 / (f.dist * f.fov)) * h;
 
   function stepPlanet(dt, f, w, h) {
+    if (!PLANET) return;
     const hole = holeOnScreen(f, w, h);
     // Without a pointer (phones at rest), the planet drifts on a slow orbit.
     let tx = pointer.x, ty = pointer.y;
@@ -384,26 +388,15 @@ void main(){
     const hole = holeOnScreen(f, w, h);
     const show = 1 - f.warp;
 
-    // Lens flare from the bright, approaching side of the disk.
+    // Lens flare: the pointer is the light. Without a pointer it rests on the disk's bright side.
     if (show > 0) {
-      const R = shadowPx(f, h) * 2.6;
-      const bx = hole.x - Math.cos(f.roll) * R, by = hole.y - Math.sin(f.roll) * R * 0.3;
-      const glow = fxc.createRadialGradient(bx, by, 0, bx, by, h * 0.5);
-      glow.addColorStop(0, `rgba(255,236,210,${0.2 * show})`); glow.addColorStop(1, 'rgba(255,236,210,0)');
-      fxc.fillStyle = glow; fxc.fillRect(0, 0, w, h);
-      // Anamorphic streak.
-      const at = clamp(bx / w, 0.01, 0.99);
-      const streak = fxc.createLinearGradient(0, by, w, by);
-      streak.addColorStop(0, 'rgba(160,190,255,0)'); streak.addColorStop(at, `rgba(255,240,220,${0.35 * show})`); streak.addColorStop(1, 'rgba(160,190,255,0)');
-      fxc.fillStyle = streak; fxc.fillRect(0, by - 1.2, w, 2.4);
-      // Ghosts along the line through the screen center.
-      const cx = w / 2, cy = h / 2;
-      [[0.6, 34, '255,150,110'], [1.25, 70, '140,170,255'], [1.7, 22, '255,210,150']].forEach(([k, r, c]) => {
-        const gx = bx + (cx - bx) * k, gy = by + (cy - by) * k;
-        const g = fxc.createRadialGradient(gx, gy, 0, gx, gy, r);
-        g.addColorStop(0, `rgba(${c},${0.1 * show})`); g.addColorStop(0.7, `rgba(${c},${0.05 * show})`); g.addColorStop(1, `rgba(${c},0)`);
-        fxc.fillStyle = g; fxc.beginPath(); fxc.arc(gx, gy, r, 0, Math.PI * 2); fxc.fill();
-      });
+      let lx, ly, power;
+      if (pointer.active) { lx = pointer.x; ly = pointer.y; power = 1; }
+      else {
+        const R = shadowPx(f, h) * 2.6;
+        lx = hole.x - Math.cos(f.roll) * R; ly = hole.y - Math.sin(f.roll) * R * 0.3; power = 0.6;
+      }
+      drawFlare(lx, ly, w, h, show * power, performance.now());
     }
 
     // Gas stream, flattened like the disk.
@@ -414,6 +407,7 @@ void main(){
     }
 
     // Planet (hidden in the wormhole and once the fall starts).
+    if (!PLANET) return;
     const vis = show * (1 - smooth(0.6, 0.72, scrollP));
     if (vis <= 0.01) return;
     const k = planet.k, pr = (coarse ? 13 : 16) * (0.7 + 0.3 * planet.gas);
@@ -450,6 +444,64 @@ void main(){
       fxc.fillStyle = `rgba(236,231,220,${0.85 * vis})`;
       fxc.fillText(`TIME ×${k.toFixed(2)}`, planet.x, planet.y + pr + 18);
     }
+  }
+
+  // ---------- lens flare (warm amber core, teal ghosts, anamorphic streak, gold dust) ----------
+  const dust = Array.from({ length: 70 }, () => ({ a: Math.random() * Math.PI * 2, r: Math.random(), s: 0.2 + Math.random() * 0.8, o: Math.random() }));
+  function drawFlare(lx, ly, w, h, k, now) {
+    if (k <= 0.01) return;
+    const cx = w / 2, cy = h / 2;
+    fxc.save();
+    fxc.globalCompositeOperation = 'lighter';
+    // Bloom around the source.
+    const bloom = fxc.createRadialGradient(lx, ly, 0, lx, ly, h * 0.55);
+    bloom.addColorStop(0, `rgba(255,196,120,${0.32 * k})`);
+    bloom.addColorStop(0.25, `rgba(220,140,60,${0.12 * k})`);
+    bloom.addColorStop(1, 'rgba(40,110,120,0)');
+    fxc.fillStyle = bloom; fxc.fillRect(0, 0, w, h);
+    // Hot core.
+    const core = fxc.createRadialGradient(lx, ly, 0, lx, ly, 26);
+    core.addColorStop(0, `rgba(255,250,235,${0.95 * k})`); core.addColorStop(0.4, `rgba(255,200,120,${0.5 * k})`); core.addColorStop(1, 'rgba(255,170,80,0)');
+    fxc.fillStyle = core; fxc.beginPath(); fxc.arc(lx, ly, 26, 0, Math.PI * 2); fxc.fill();
+    // Anamorphic streak: long, thin, teal at the ends.
+    const at = clamp(lx / w, 0.01, 0.99);
+    const streak = fxc.createLinearGradient(0, ly, w, ly);
+    streak.addColorStop(0, 'rgba(70,190,200,0)');
+    streak.addColorStop(Math.max(0, at - 0.25), `rgba(70,190,200,${0.18 * k})`);
+    streak.addColorStop(at, `rgba(255,236,200,${0.75 * k})`);
+    streak.addColorStop(Math.min(1, at + 0.25), `rgba(70,190,200,${0.18 * k})`);
+    streak.addColorStop(1, 'rgba(70,190,200,0)');
+    fxc.fillStyle = streak; fxc.fillRect(0, ly - 1, w, 2);
+    fxc.globalAlpha = 0.35; fxc.fillRect(0, ly - 7, w, 14); fxc.globalAlpha = 1;
+    // Ghosts along the line through the screen center, mirrored past it.
+    const ghosts = [
+      [-0.35, 14, '120,210,220', 0.35],
+      [0.55, 40, '255,170,90', 0.12],
+      [1.2, 90, '60,150,160', 0.1],
+      [1.55, 26, '255,220,160', 0.22],
+      [1.9, 150, '50,120,130', 0.06],
+    ];
+    for (const [t, r, c, a] of ghosts) {
+      const gx = lx + (cx - lx) * t, gy = ly + (cy - ly) * t;
+      const g = fxc.createRadialGradient(gx, gy, r * 0.2, gx, gy, r);
+      g.addColorStop(0, `rgba(${c},${a * 0.6 * k})`); g.addColorStop(0.85, `rgba(${c},${a * k})`); g.addColorStop(1, `rgba(${c},0)`);
+      fxc.fillStyle = g; fxc.beginPath(); fxc.arc(gx, gy, r, 0, Math.PI * 2); fxc.fill();
+    }
+    // A thin chromatic sliver (the teal bar in the reference).
+    const sx = lx + (cx - lx) * 1.35, sy = ly + (cy - ly) * 1.35;
+    const sliver = fxc.createLinearGradient(sx - 3, 0, sx + 3, 0);
+    sliver.addColorStop(0, 'rgba(80,220,230,0)'); sliver.addColorStop(0.5, `rgba(140,240,240,${0.55 * k})`); sliver.addColorStop(1, 'rgba(80,220,230,0)');
+    fxc.fillStyle = sliver; fxc.fillRect(sx - 3, sy - 22, 6, 44);
+    // Gold dust drifting in the light.
+    for (const d of dust) {
+      const rr = (0.08 + d.r * 0.35) * h;
+      const ang = d.a + now / 9000 * d.s;
+      const x = lx + Math.cos(ang) * rr, y = ly + Math.sin(ang) * rr * 0.7 - ((now / 40 * d.s) % (h * 0.3)) * 0.2;
+      const tw = 0.5 + 0.5 * Math.sin(now / 500 + d.o * 20);
+      fxc.fillStyle = `rgba(255,205,120,${0.5 * tw * k * (1 - d.r * 0.6)})`;
+      fxc.fillRect(x, y, 1.4, 1.4);
+    }
+    fxc.restore();
   }
 
   // ---------- first-person fall ----------

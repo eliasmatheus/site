@@ -36,7 +36,7 @@ O site é híbrido:
 
 | # | Cena | Ano | Quest |
 |---|------|-----|-------|
-| 1 | Horizon: o wormhole, o buraco negro e a queda | hoje | Levar o planeta gasoso (que segue o cursor) até perto do horizonte |
+| 1 | Horizon: o wormhole, o buraco negro e a queda | hoje | (em aberto; o planeta no cursor ficou em espera) |
 | 2 | The fall: a queda e o espaço onde o passado vive | | |
 | 3 | The Call: o garoto do computador e a escolha do curso | fim dos anos 90 a 2011 | |
 | 4 | Structures: a sapata | 2012 a 2020 | Dimensionar a sapata mais barata segura |
@@ -46,10 +46,10 @@ O site é híbrido:
 | 8 | Tux: Ubuntu e a NLW | ago 2020 | |
 | 9 | To be continued | | |
 
-- **Horizon** abre a jornada com um hobby que traduz bem para a web: o espaço (Interestelar, Star Wars, Star Trek, só como homenagem de estilo). Protótipo: Cinematic, enquadramento Off-axis, chegada por wormhole, planeta gasoso no cursor e queda em primeira pessoa (`reference/prototype/black-hole.html`).
+- **Horizon** abre a jornada com um hobby que traduz bem para a web: o espaço (Interestelar, Star Wars, Star Trek, só como homenagem de estilo). Protótipo: Cinematic, enquadramento Off-axis, chegada por wormhole, lens flare no cursor e queda em primeira pessoa (`reference/prototype/black-hole.html`). O planeta gasoso ficou em espera.
 - **The fall** é o navegante caindo no buraco negro e entrando num espaço tridimensional onde dá para visitar o passado, assistir e interagir de leve com algumas coisas. As cenas seguintes (Call a Tux) passam a ser lugares desse espaço. Ainda sem protótipo.
 - **Fotografia** (o antigo Prologue, com a câmera e a quest da exposição) surgiu mais tarde na vida do Elias e sai da abertura. Volta mais adiante, no ponto certo da linha do tempo, a definir.
-- **Quests**: continuam três (`QUESTS n/3`): o planeta no Horizon, a sapata e o nome no Python. A da exposição volta junto com a fotografia.
+- **Quests**: a do Horizon está em aberto. A sapata e o nome no Python continuam; a da exposição volta junto com a fotografia.
 
 Próximos capítulos (ainda sem protótipo na v2, alguns rascunhados na v1): primeiro emprego e Interfaces (voo pela janela do avião), Method (painel estilo The Sims), Worlds (árvore de talentos estilo Dota 2), Time (estante estilo Interestelar), Epilogue (solo de guitarra com Web Audio e um mapa do site estilo Fallout Shelter). Também falta trazer o jogo do CS50 (https://scratch.mit.edu/projects/405948947/) e as pranchas CAD se desenhando.
 

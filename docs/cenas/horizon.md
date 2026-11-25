@@ -1,6 +1,6 @@
 # Horizon: o buraco negro
 
-Protótipo: `reference/prototype/black-hole.html` (v4: wormhole, Cinematic Off-axis, planeta no cursor, queda em primeira pessoa).
+Protótipo: `reference/prototype/black-hole.html` (v5: wormhole, Cinematic Off-axis, lens flare no cursor, queda em primeira pessoa).
 
 ## Intenção
 
@@ -20,13 +20,15 @@ Abrir a jornada com algo de tirar o fôlego e que mostre o tom do site: um burac
 - Anel de fótons: uma linha fina, quente e brilhante colada na borda da sombra, calculada pelo parâmetro de impacto de cada raio.
 - Flares de lente: brilho, risco anamórfico horizontal e reflexos fantasmas a partir do lado mais brilhante do disco.
 
-## Interação: o planeta gasoso no cursor
+## Interação no cursor: lens flare
 
-- Um planeta gasoso pequeno segue o cursor (ou o dedo) com atraso. O atraso é o tempo dele: o relógio do planeta anda a sqrt(1 - rs/r) do relógio de quem olha, então perto do buraco ele fica cada vez mais para trás. Uma linha pontilhada liga o planeta ao cursor e mostra esse atraso.
-- Perto do buraco ele gira mais devagar, avermelha, estica em direção ao horizonte e perde gás, que cai em espiral no disco. Mostra "TIME ×0.05".
-- Ele nunca cruza o horizonte: perto dele quase congela, mas volta a se mexer bem devagar quando o cursor se afasta.
-- Sem cursor (celular parado), o planeta faz uma órbita lenta e larga sozinho.
-- Ainda sem quest definida. Ideia: concluir ao deixar o relógio do planeta 10 vezes mais lento.
+- O cursor é a fonte de luz de um lens flare no estilo dos títulos de Duna (só a estética): núcleo âmbar quente, bloom largo, risco anamórfico horizontal com pontas verde-azuladas, reflexos fantasmas espelhados pelo centro da tela, uma lâmina ciano e poeira dourada flutuando.
+- Sem cursor (celular), o flare descansa no lado mais brilhante do disco.
+
+## Em espera (pin, 25/11/2026)
+
+- **Planeta gasoso no cursor:** segue o cursor com atraso proporcional à dilatação do tempo, perde gás para o buraco, gira devagar e avermelha perto do horizonte. Não ficou bom na prática. O código está no protótipo atrás de `PLANET = false`.
+- Sem quest no Horizon por enquanto.
 
 ## Técnica
 
@@ -38,11 +40,10 @@ Abrir a jornada com algo de tirar o fôlego e que mostre o tom do site: um burac
 ## Mobile
 
 - Buraco menos deslocado para não sair da tela, câmera um pouco mais longe.
-- O planeta segue o dedo enquanto ele toca a tela; o arrasto vertical continua rolando a página.
+- O flare segue o dedo enquanto ele toca a tela; o arrasto vertical continua rolando a página.
 
 ## Aceite
 
 - [ ] LCP < 2,5 s no mobile (texto aparece antes do shader).
 - [ ] 50 fps num celular médio, ou a qualidade cai sozinha.
-- [ ] Quest resolvível com mouse, toque e teclado.
 - [ ] Nenhuma marca, nome ou imagem de filme.

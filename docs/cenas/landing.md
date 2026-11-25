@@ -15,7 +15,7 @@ Quem está com pressa resolve tudo aqui em 10 segundos: quem é, o que faz, onde
 ## Tempero
 
 - Céu escuro com estrelas discretas e leve paralaxe.
-- Brilho suave que segue o cursor.
+- Nebulosa por baixo (WebGL, gás com distorção de domínio em verde-azulado e âmbar, estética dos títulos de Duna): quase invisível em repouso, revelada onde o cursor passa, com um rastro que se apaga em ~2,5 s. Sem cursor (celular), uma janela lenta vagueia sozinha. Renderizada em meia resolução.
 - Um satélite pequeno orbitando ao lado do nome.
 - Itens da lista se destacam ao passar o mouse (os outros esmaecem).
 
