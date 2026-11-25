@@ -1,4 +1,8 @@
 ---
+import '@fontsource-variable/space-grotesk';
+import '@fontsource-variable/jetbrains-mono';
+import '@fontsource-variable/fraunces/wght-italic.css';
+
 interface Props {
   title: string;
   description: string;
@@ -14,7 +18,13 @@ const { title, description } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="description" content={description} />
     <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#07080c" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>{title}</title>
+    <!-- Before first paint: with JS the journey is staged; without it, scenes stay in flow. -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
   </head>
   <body>
     <slot />
@@ -23,10 +33,13 @@ const { title, description } = Astro.props;
 
 <style is:global>
   :root {
-    --bg: #0d0d0d;
-    --fg: #f2efe9;
+    --bg: #07080c;
+    --fg: #e8eaee;
     --muted: #a29e97;
     --accent: #ff6a3d;
+    --font-sans: 'Space Grotesk Variable', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+    --font-serif: 'Fraunces Variable', Georgia, serif;
     color-scheme: dark;
   }
 
@@ -41,8 +54,30 @@ const { title, description } = Astro.props;
     margin: 0;
     background: var(--bg);
     color: var(--fg);
-    font-family: system-ui, sans-serif;
+    font-family: var(--font-sans);
     font-size: 16px;
     line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  a {
+    color: inherit;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 </style>
