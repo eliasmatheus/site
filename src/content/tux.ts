@@ -12,8 +12,7 @@ export const tux = {
     clock: 'ago 10  22:04',
     power: '⏻',
   },
-  // TODO: prototype says '08 · TUX'; scene order now makes this 06. Confirm the number.
-  kicker: '08 · TUX · AUGUST 2020',
+  kicker: '06 · TUX · AUGUST 2020',
   beats: {
     code: {
       title: 'So excited I installed Ubuntu.',
@@ -59,6 +58,6 @@ export const tux = {
       "  { id: 1, subject: 'Química', cost: '20', proffy_id: 1, name: 'Ana', bio: 'Loves explaining chemistry...' }",
       ']',
     ],
-    prompt: 'ematheus23 in nlw on master ❯ _',
+    prompt: 'elias in nlw on master ❯ _',
   },
 } as const;
