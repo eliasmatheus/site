@@ -17,7 +17,7 @@ Cada fase termina com deploy funcionando. Uma cena só conta como pronta quando 
 - [x] Palco, header (nome, progresso, QUESTS n/3, "Work →"), registro de cenas, lazy load por proximidade.
 - [x] Duas cenas simples para provar o voo: Desert e To be continued.
 - [x] Modo mobile da engine e modo reduced motion.
-- [ ] Página `/work` simples e completa (projetos, experiência, contato). Dá para publicar o domínio já aqui. Feita; falta o e-mail, o LinkedIn e o PDF do currículo.
+- [x] Página `/work` simples e completa (projetos, experiência, contato). Dá para publicar o domínio já aqui. Feita, com e-mail, LinkedIn e GitHub. O PDF do currículo fica para depois.
 - [x] Lighthouse mobile ≥ 90. (Home: 98 performance, 100 acessibilidade, LCP 2,1 s, CLS 0,002.)
 
 ## Fase 2 · Abertura
@@ -37,7 +37,8 @@ Cada fase termina com deploy funcionando. Uma cena só conta como pronta quando 
 
 ## Depois
 
-Próximos capítulos (primeiro emprego, Interfaces, Method, Worlds, Time, Epilogue), jogo do CS50, pranchas se desenhando, assistente RAG sobre o próprio site.
+- Currículo em PDF gerado pelo próprio site (um gerador, ou um PDF regenerado a cada atualização do currículo), linkado na página `/work`.
+- Próximos capítulos (primeiro emprego, Interfaces, Method, Worlds, Time, Epilogue), jogo do CS50, pranchas se desenhando, assistente RAG sobre o próprio site.
 
 ## Como pedir ao Claude Code
 

@@ -27,7 +27,7 @@ export const work = {
   back: '← The journey',
   positioning: {
     kicker: 'ELIAS MATHEUS · SOFTWARE ENGINEER',
-    headline: 'I build software for ideas that move things forward.',
+    headline: 'From load-bearing structures to load-bearing software.',
     text: 'Civil engineer turned software engineer. I am looking for ambitious teams, new problems and work that reaches a lot of people.',
   },
   projects: {
@@ -98,12 +98,10 @@ export const work = {
     title: 'Contact',
     text: 'Building something new? I would like to hear about it.',
     links: {
-      // TODO: email address to publish (pending from Elias).
-      email: { label: 'Email', href: null },
-      // TODO: LinkedIn URL (pending from Elias).
-      linkedin: { label: 'LinkedIn', href: null },
+      email: { label: 'Email', href: 'mailto:eliasmatheus@hotmail.com' },
+      linkedin: { label: 'LinkedIn', href: 'https://www.linkedin.com/in/eliasmatheus/' },
       github: { label: 'GitHub', href: 'https://github.com/eliasmatheus' },
-      // TODO: add the PDF to public/ and point here (pending from Elias).
+      // Hidden for now: the résumé PDF will be generated from the site later (docs/plano.md).
       resume: { label: 'Résumé (PDF)', href: null },
     } satisfies Record<string, ContactLink>,
   },
