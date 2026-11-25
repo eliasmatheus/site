@@ -1,0 +1,944 @@
+---
+/**
+ * Scene 00 · Prologue. Beat 1: looking through the X-T3 viewfinder at the dunes.
+ * Beat 2 (scroll): the eye leaves the viewfinder and the camera comes in, seen from above.
+ * Beat 3: the sun goes down (-3 EV) and the visitor can fix the exposure, or press AUTO.
+ *
+ * The markup is static and renders the arrival state. src/scenes/prologue/controller.ts
+ * drives the look-up (--a), the dials and the exposure. Only the image (viewfinder and
+ * screen) is ever affected by exposure, film and grain; the camera UI never is.
+ */
+import { prologue } from '../../content/prologue';
+import { site } from '../../content/site';
+import { INITIAL_SETTINGS, type DialKey } from '../../models/exposure';
+import { SCENES } from '../registry';
+import { DIALS, dialDisplay, dialRotation, exposureView, TICK_DEG } from './camera';
+
+interface Props {
+  /** Blurred inline preview painted while the panorama loads. */
+  placeholder: string;
+}
+
+const { placeholder } = Astro.props;
+const s = INITIAL_SETTINGS;
+const view = exposureView(s, false);
+const next = SCENES[1]?.id ?? '';
+const vf = prologue.viewfinder;
+const cam = prologue.camera;
+const ex = prologue.exposure;
+const round: DialKey[] = ['iso', 'shutter', 'film'];
+---
+
+<section
+  class="prologue"
+  data-scene="prologue"
+  data-phase="0"
+  data-tone={view.tone}
+  aria-labelledby="prologue-title"
+  style={`--ph: url(${placeholder})`}
+>
+  <div class="vf" data-vf>
+    <div class="pano" data-pano style={`filter: ${view.fx.filter}`}></div>
+    <div
+      class="wash"
+      data-wash
+      style={`background: ${view.fx.washColor}; opacity: ${view.fx.wash}`}
+    ></div>
+    <div class="grain" data-grain style={`opacity: ${view.fx.noise}`}></div>
+    <div class="vignette"></div>
+    <div class="evf" aria-hidden="true">
+      <div class="thirds"></div>
+      <div class="focus"></div>
+      <div class="evf-top">
+        <span>{vf.hud}</span>
+        <span data-exif>{view.exif}</span>
+      </div>
+      <div class="evf-bottom" data-ev>
+        {view.fx.evLabel}
+      </div>
+    </div>
+  </div>
+
+  <div class="hero" data-hero>
+    <p class="hint">
+      <span class="hint-pointer">{vf.hint.pointer}</span>
+      <span class="hint-touch">{vf.hint.touch}</span>
+    </p>
+    <h1 id="prologue-title">{vf.title}</h1>
+    <p class="intro">{vf.intro}</p>
+    <a class="hurry" href="/work">
+      {site.hurry}
+    </a>
+  </div>
+
+  <div class="cam-ui" data-cam-ui inert>
+    <div class="copy">
+      <p class="kicker" data-kicker>
+        {view.kicker}
+      </p>
+      <h2>{ex.title}</h2>
+      <p class="text">{ex.text}</p>
+    </div>
+
+    <div class="slot" data-slot aria-hidden="true"></div>
+
+    <div class="camera">
+      <div class="lens">
+        <div class="aperture" role="group" aria-label={cam.apertureGroup} data-dial="aperture">
+          <button type="button" class="step" data-step="-1" aria-label={cam.decrease('APERTURE')}>
+            ‹
+          </button>
+          <div
+            class="ring-strip knob"
+            role="slider"
+            tabindex="0"
+            aria-label="APERTURE"
+            aria-valuemin="0"
+            aria-valuemax={DIALS.aperture.ticks.length - 1}
+            aria-valuenow={s.aperture}
+            aria-valuetext={dialDisplay('aperture', s.aperture)}
+          >
+            <div class="cells" style={`--i: ${s.aperture}`}>
+              {DIALS.aperture.ticks.map((t, i) => (
+                <span class="tick" data-on={i === s.aperture ? '' : undefined}>
+                  {t}
+                </span>
+              ))}
+            </div>
+            <span class="index-mark" aria-hidden="true"></span>
+          </div>
+          <button type="button" class="step" data-step="1" aria-label={cam.increase('APERTURE')}>
+            ›
+          </button>
+        </div>
+      </div>
+
+      <div class="body">
+        {round.map((key, n) => (
+          <>
+            {n === 2 && (
+              <div class="brand" aria-hidden="true">
+                <span class="prism" />
+                <span>{cam.body}</span>
+              </div>
+            )}
+            <div class={`dial dial-${key}`} data-dial={key}>
+              <button
+                type="button"
+                class="step dec"
+                data-step="-1"
+                aria-label={cam.decrease(DIALS[key].label)}
+              >
+                ‹
+              </button>
+              <div
+                class="knob round"
+                role="slider"
+                tabindex="0"
+                aria-label={DIALS[key].label}
+                aria-valuemin="0"
+                aria-valuemax={DIALS[key].ticks.length - 1}
+                aria-valuenow={s[key]}
+                aria-valuetext={DIALS[key].values[s[key]]}
+              >
+                <span class="knurl" aria-hidden="true" />
+                <span class="face" aria-hidden="true" />
+                <span class="ring" aria-hidden="true" style={`--rot: ${dialRotation(s[key])}deg`}>
+                  {DIALS[key].ticks.map((t, i) => (
+                    <span
+                      class="tick"
+                      style={`--deg: ${i * TICK_DEG}deg`}
+                      data-on={i === s[key] ? '' : undefined}
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </span>
+                <span class="cap" aria-hidden="true" />
+              </div>
+              <button
+                type="button"
+                class="step inc"
+                data-step="1"
+                aria-label={cam.increase(DIALS[key].label)}
+              >
+                ›
+              </button>
+              <span class="value" data-value>
+                {cam.dialValue(DIALS[key].label, dialDisplay(key, s[key]))}
+              </span>
+            </div>
+          </>
+        ))}
+      </div>
+    </div>
+
+    <div class="meter-panel">
+      <div class="meter" aria-hidden="true">
+        <span class="scale"></span>
+        {[-3, -2, -1, 0, 1, 2, 3].map((v) => (
+          <span class:list={['mark', { zero: v === 0 }]} style={`--x: ${((v + 3) / 6) * 100}%`} />
+        ))}
+        <span class="needle" data-needle style={`--x: ${view.meter}%`}></span>
+      </div>
+      <p class="status" data-status aria-live="polite">
+        {view.status}
+      </p>
+      <button type="button" class="auto" data-auto>
+        {ex.auto}
+      </button>
+      <p class="auto-hint">{ex.autoHint}</p>
+      <a class="done" href={`#${next}`} data-done-link>
+        {ex.done}
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .prologue {
+    --a: 0;
+    --good: #7ee2a8;
+    --warn: #ff9a52;
+    --ink: #e8e5df;
+    --muted: #a29e97;
+    background: #0d0d0d;
+    color: var(--ink);
+  }
+
+  /* ---------- Viewfinder (the only thing exposure touches) ---------- */
+
+  .vf {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    touch-action: pan-y;
+    cursor: crosshair;
+    /* Shrinks into the camera's screen as the visitor looks up (--c* measured from .slot). */
+    clip-path: inset(
+      calc(var(--a) * var(--ct, 0px)) calc(var(--a) * var(--cr, 0px))
+        calc(var(--a) * var(--cb, 0px)) calc(var(--a) * var(--cl, 0px)) round calc(var(--a) * 14px)
+    );
+  }
+
+  .pano {
+    position: absolute;
+    inset: 0;
+    background-color: #5a3a22;
+    background-image: url('/assets/prologue/dunes-360.webp'), var(--ph);
+    background-repeat: repeat-x;
+    background-size: auto 125%;
+    background-position: var(--yaw, 0px) calc(70% - var(--a) * 40%);
+    transition:
+      background-position 0.6s cubic-bezier(0.2, 0.7, 0.2, 1),
+      filter 0.6s ease;
+  }
+
+  .wash {
+    position: absolute;
+    inset: 0;
+    transition:
+      opacity 1s ease,
+      background-color 1s ease;
+  }
+
+  .grain {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgb(255 255 255 / 0.5) 1px, transparent 1px);
+    background-size: 3px 3px;
+  }
+
+  .vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 55%, rgb(0 0 0 / 0.6) 100%);
+  }
+
+  .evf {
+    position: absolute;
+    inset: 0;
+    opacity: clamp(0, calc(1 - var(--a) * 3), 1);
+    font-family: var(--font-mono);
+    color: #fff;
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.7);
+  }
+
+  .thirds {
+    position: absolute;
+    inset: 0;
+    --line: rgb(255 255 255 / 0.16);
+    background-image:
+      linear-gradient(
+        90deg,
+        transparent calc(33.33% - 0.5px),
+        var(--line) 33.33%,
+        transparent calc(33.33% + 0.5px)
+      ),
+      linear-gradient(
+        90deg,
+        transparent calc(66.66% - 0.5px),
+        var(--line) 66.66%,
+        transparent calc(66.66% + 0.5px)
+      ),
+      linear-gradient(
+        180deg,
+        transparent calc(33.33% - 0.5px),
+        var(--line) 33.33%,
+        transparent calc(33.33% + 0.5px)
+      ),
+      linear-gradient(
+        180deg,
+        transparent calc(66.66% - 0.5px),
+        var(--line) 66.66%,
+        transparent calc(66.66% + 0.5px)
+      );
+  }
+
+  .focus {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 84px;
+    height: 60px;
+    margin: -30px 0 0 -42px;
+    border: 2px solid var(--good);
+    border-radius: 3px;
+  }
+
+  .evf-top {
+    position: absolute;
+    inset: 0 0 auto;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 76px 32px 0;
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  .evf-bottom {
+    position: absolute;
+    inset: auto 0 0;
+    padding: 12px 32px;
+    text-align: right;
+    font-size: 13px;
+    background: linear-gradient(180deg, transparent, rgb(0 0 0 / 0.5));
+    color: var(--good);
+  }
+
+  [data-tone='over'] .evf-bottom,
+  [data-tone='under'] .evf-bottom {
+    color: var(--warn);
+  }
+
+  /* ---------- Beat 1: the hero over the viewfinder ---------- */
+
+  .hero {
+    position: absolute;
+    inset: auto 0 0;
+    padding: 120px 56px 72px;
+    color: #fff;
+    text-shadow: 0 2px 18px rgb(0 0 0 / 0.45);
+    /* A fixed scrim keeps the title readable at any exposure. */
+    background: linear-gradient(180deg, transparent, rgb(0 0 0 / 0.5));
+    opacity: clamp(0, calc(1 - var(--a) * 3), 1);
+  }
+
+  .hint {
+    margin: 0 0 18px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+
+  .hint-touch {
+    display: none;
+  }
+
+  @media (pointer: coarse) {
+    .hint-pointer {
+      display: none;
+    }
+
+    .hint-touch {
+      display: inline;
+    }
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(56px, 8vw, 112px);
+    line-height: 0.95;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+
+  .intro {
+    margin: 22px 0 0;
+    max-width: 700px;
+    font-size: clamp(18px, 1.6vw, 22px);
+    line-height: 1.4;
+  }
+
+  .hurry {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 28px;
+    min-height: 48px;
+    padding: 0 24px;
+    border: 1px solid currentColor;
+    border-radius: 24px;
+    background: rgb(0 0 0 / 0.25);
+    text-decoration: none;
+    font-size: 15px;
+    text-shadow: none;
+  }
+
+  /* ---------- Beats 2 to 4: the camera seen from above ---------- */
+
+  .cam-ui {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(0, 44vw) minmax(220px, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas:
+      'camera camera camera'
+      'copy slot meter';
+    gap: 28px 3vw;
+    padding: 72px 3vw 4vh;
+    pointer-events: none;
+  }
+
+  .cam-ui > * {
+    pointer-events: auto;
+  }
+
+  .copy {
+    grid-area: copy;
+    align-self: center;
+    opacity: clamp(0, calc(var(--a) * 2 - 1), 1);
+  }
+
+  .kicker {
+    margin: 0 0 14px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+
+  h2 {
+    margin: 0;
+    font-size: clamp(26px, 2.4vw, 34px);
+    line-height: 1.08;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .text {
+    margin: 14px 0 0;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  .slot {
+    grid-area: slot;
+    min-height: 160px;
+    border-radius: 14px;
+    box-shadow:
+      0 0 0 10px #1b1b1b,
+      0 30px 60px rgb(0 0 0 / 0.6);
+    opacity: var(--a);
+    pointer-events: none;
+  }
+
+  .camera {
+    grid-area: camera;
+    justify-self: center;
+    width: min(780px, 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: var(--a);
+    transform: translateY(calc((1 - var(--a)) * -120%));
+  }
+
+  .lens {
+    position: relative;
+    width: 250px;
+    height: 92px;
+    border-radius: 10px 10px 0 0;
+    background: repeating-linear-gradient(90deg, #1b1b1b 0 4px, #2b2b2b 4px 8px);
+    box-shadow: inset 0 -6px 10px rgb(0 0 0 / 0.5);
+  }
+
+  .aperture {
+    position: absolute;
+    left: -54px;
+    right: -54px;
+    bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ring-strip {
+    position: relative;
+    width: 250px;
+    height: 34px;
+    overflow: hidden;
+    background: #151515;
+    border-block: 1px solid #3a3a3a;
+    touch-action: pan-y;
+    cursor: ew-resize;
+  }
+
+  .cells {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    /* Center the current cell (52 px wide) under the mark in the middle of the strip. */
+    transform: translateX(calc(-26px - var(--i) * 52px));
+    transition: transform 0.35s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+
+  .cells .tick {
+    width: 52px;
+    flex: none;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: #8f8b84;
+  }
+
+  .index-mark {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 2px;
+    height: 6px;
+    margin-left: -1px;
+    background: var(--accent);
+  }
+
+  .body {
+    width: 100%;
+    min-height: 190px;
+    padding: 18px 28px;
+    border-radius: 18px 18px 30px 30px;
+    background: linear-gradient(180deg, #dcdbd5, #b4b3ad 60%, #9d9c96);
+    border: 1px solid #85847e;
+    box-shadow:
+      0 24px 50px rgb(0 0 0 / 0.55),
+      inset 0 2px 0 rgb(255 255 255 / 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .brand {
+    order: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #3c3b37;
+  }
+
+  .prism {
+    display: block;
+    width: 120px;
+    height: 70px;
+    clip-path: polygon(14% 0, 86% 0, 100% 100%, 0 100%);
+    background: linear-gradient(180deg, #2c2c2c, #151515);
+  }
+
+  .dial {
+    --d: 112px;
+    display: grid;
+    grid-template-columns: 44px var(--d) 44px;
+    grid-template-areas:
+      'dec knob inc'
+      'value value value';
+    align-items: center;
+    justify-items: center;
+    gap: 6px 2px;
+  }
+
+  .dial-iso {
+    order: 0;
+  }
+
+  .dial-shutter {
+    order: 2;
+  }
+
+  .dial-film {
+    --d: 84px;
+    order: 3;
+  }
+
+  .dec {
+    grid-area: dec;
+  }
+
+  .inc {
+    grid-area: inc;
+  }
+
+  .value {
+    grid-area: value;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: #3c3b37;
+    white-space: nowrap;
+  }
+
+  .step {
+    width: 44px;
+    height: 44px;
+    flex: none;
+    border: 0;
+    border-radius: 22px;
+    background: rgb(0 0 0 / 0.08);
+    color: #2a2a28;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  .aperture .step {
+    background: rgb(255 255 255 / 0.08);
+    color: var(--ink);
+  }
+
+  .knob.round {
+    grid-area: knob;
+    position: relative;
+    width: var(--d);
+    height: var(--d);
+    border-radius: 50%;
+    box-shadow: 0 6px 14px rgb(0 0 0 / 0.45);
+    touch-action: pan-y;
+    cursor: ew-resize;
+  }
+
+  .knurl,
+  .face,
+  .ring,
+  .cap {
+    position: absolute;
+    border-radius: 50%;
+  }
+
+  .knurl {
+    inset: 0;
+    background: repeating-conic-gradient(#3b3b3b 0deg 3deg, #1e1e1e 3deg 6deg);
+  }
+
+  .face {
+    inset: 7px;
+    background: #111;
+    box-shadow: inset 0 2px 6px rgb(0 0 0 / 0.8);
+  }
+
+  .ring {
+    inset: 0;
+    transform: rotate(var(--rot, 0deg));
+    transition: transform 0.35s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+
+  .ring .tick {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    font-family: var(--font-mono);
+    font-size: calc(var(--d) * 0.09);
+    color: var(--muted);
+    transform: translate(-50%, -50%) rotate(var(--deg)) translateY(calc(var(--d) * -0.34));
+  }
+
+  .tick[data-on] {
+    color: var(--accent);
+  }
+
+  .cap {
+    left: 50%;
+    top: 50%;
+    width: calc(var(--d) * 0.2);
+    height: calc(var(--d) * 0.2);
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle at 35% 35%, #555, #1c1c1c);
+  }
+
+  .knob:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .meter-panel {
+    grid-area: meter;
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    font-family: var(--font-mono);
+    opacity: clamp(0, calc(var(--a) * 2 - 1), 1);
+  }
+
+  .meter {
+    position: relative;
+    height: 26px;
+  }
+
+  .scale {
+    position: absolute;
+    inset: 12px 0 auto;
+    height: 1px;
+    background: var(--muted);
+  }
+
+  .mark {
+    position: absolute;
+    top: 9px;
+    left: var(--x);
+    width: 1px;
+    height: 8px;
+    background: var(--muted);
+  }
+
+  .mark.zero {
+    top: 6px;
+    height: 14px;
+  }
+
+  .needle {
+    position: absolute;
+    top: 0;
+    left: var(--x);
+    width: 4px;
+    height: 26px;
+    margin-left: -2px;
+    background: var(--accent);
+    transition: left 0.3s ease;
+  }
+
+  .status {
+    margin: 0;
+    font-size: 12px;
+    color: var(--good);
+  }
+
+  [data-tone='over'] .status,
+  [data-tone='under'] .status {
+    color: var(--warn);
+  }
+
+  .auto {
+    align-self: flex-start;
+    min-height: 52px;
+    padding: 0 28px;
+    border: 0;
+    border-radius: 26px;
+    background: var(--accent);
+    color: #140a05;
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+  }
+
+  .auto-hint {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    color: var(--muted);
+  }
+
+  .done {
+    display: none;
+    align-items: center;
+    min-height: 44px;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-decoration: none;
+    color: var(--good);
+  }
+
+  [data-done] .done {
+    display: inline-flex;
+  }
+
+  /* ---------- Mobile: one column, controls you can hit with a thumb ---------- */
+
+  @media (max-width: 767px) {
+    /* The screen sits high on a phone: slide the image up so the dunes fill it. */
+    .pano {
+      background-position: var(--yaw, 0px) calc(70% + var(--a) * 30%);
+    }
+
+    .evf-top {
+      padding: 68px 16px 0;
+      font-size: 11px;
+    }
+
+    .evf-bottom {
+      padding: 12px 16px;
+    }
+
+    .hero {
+      padding: 120px 20px max(40px, env(safe-area-inset-bottom));
+    }
+
+    .intro {
+      font-size: 18px;
+    }
+
+    .cam-ui {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto minmax(120px, 1fr) auto auto;
+      grid-template-areas: 'copy' 'slot' 'camera' 'meter';
+      gap: 14px;
+      padding: 60px 16px max(16px, env(safe-area-inset-bottom));
+    }
+
+    .copy {
+      align-self: end;
+    }
+
+    .kicker {
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      font-size: 22px;
+    }
+
+    .text {
+      display: none;
+    }
+
+    .slot {
+      min-height: 120px;
+      box-shadow: 0 0 0 6px #1b1b1b;
+    }
+
+    .camera {
+      transform: translateY(calc((1 - var(--a)) * 40px));
+    }
+
+    .lens {
+      width: 100%;
+      height: auto;
+      padding: 6px 0;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .aperture {
+      position: static;
+      padding: 0 4px;
+    }
+
+    .ring-strip {
+      flex: 1;
+      width: auto;
+      margin: 0 4px;
+    }
+
+    .body {
+      min-height: 0;
+      padding: 12px 6px 10px;
+      border-radius: 0 0 22px 22px;
+      justify-content: space-around;
+      gap: 4px;
+    }
+
+    .brand {
+      display: none;
+    }
+
+    .dial,
+    .dial-film {
+      --d: 64px;
+      grid-template-columns: 44px minmax(0, 1fr) 44px;
+      grid-template-areas:
+        'knob knob knob'
+        'dec . inc'
+        'value value value';
+      gap: 0;
+      width: 33%;
+    }
+
+    .dec,
+    .inc {
+      margin-top: -10px;
+    }
+
+    .value {
+      max-width: 100%;
+      font-size: 10px;
+      letter-spacing: 0;
+      line-height: 1.25;
+      text-align: center;
+      white-space: normal;
+    }
+
+    .meter-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas:
+        'meter status'
+        'cta cta'
+        'hint hint';
+      align-items: center;
+      gap: 10px 16px;
+    }
+
+    .meter {
+      grid-area: meter;
+    }
+
+    .status {
+      grid-area: status;
+    }
+
+    .auto {
+      grid-area: cta;
+      width: 100%;
+    }
+
+    .auto-hint,
+    .done {
+      grid-area: hint;
+      justify-self: center;
+    }
+
+    .auto-hint {
+      font-size: 16px;
+    }
+
+    [data-done] .auto-hint {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pano,
+    .wash,
+    .ring,
+    .cells,
+    .needle {
+      transition: none;
+    }
+  }
+</style>

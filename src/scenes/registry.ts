@@ -23,6 +23,14 @@ export interface SceneEntry extends ScenePlacement {
 // Positions and dwells from the prototype (World.dc.html, this.SC).
 export const SCENES: readonly SceneEntry[] = [
   {
+    id: 'prologue',
+    label: 'Prologue',
+    dwell: 2800,
+    x: 0,
+    y: 0,
+    load: () => import('./prologue/controller'),
+  },
+  {
     id: 'desert',
     label: 'The Desert',
     dwell: 1500,

@@ -22,6 +22,7 @@ const { title, description } = Astro.props;
     <meta name="theme-color" content="#07080c" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>{title}</title>
+    <slot name="head" />
     <!-- Before first paint: with JS the journey is staged; without it, scenes stay in flow. -->
     <script is:inline>
       document.documentElement.classList.add('js');
