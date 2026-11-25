@@ -1,0 +1,116 @@
+---
+/**
+ * The world: a tall scroll root with a sticky full-screen stage. Each scene is one layer,
+ * placed and moved by the engine (src/engine). Without JS, layers fall back to plain
+ * full-height sections in document order.
+ */
+import { createTimeline } from '../engine/timeline';
+import { MODE_CONFIG } from '../engine/engine';
+import { SCENES } from '../scenes/registry';
+
+const length = createTimeline(SCENES, MODE_CONFIG.fly).length;
+---
+
+<div class="journey" data-journey style={`--journey-length: ${length}px`}>
+  <div class="stage" data-stage data-mode="fly">
+    <div class="stars" aria-hidden="true"></div>
+    <slot />
+  </div>
+</div>
+
+<script>
+  import { createEngine } from '../engine/engine';
+  import { SCENES } from '../scenes/registry';
+
+  const root = document.querySelector<HTMLElement>('[data-journey]');
+  const stage = document.querySelector<HTMLElement>('[data-stage]');
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  if (root && stage) {
+    const layers = SCENES.map((s) => stage.querySelector<HTMLElement>(`[data-scene="${s.id}"]`));
+    if (layers.every((l): l is HTMLElement => l !== null)) {
+      const engine = createEngine({
+        root,
+        stage,
+        layers,
+        placements: SCENES,
+        onJourney(progress) {
+          header?.style.setProperty('--journey', progress.toFixed(4));
+        },
+      });
+      SCENES.forEach((scene, j) => {
+        const load = scene.load;
+        const el = layers[j];
+        if (!load || !el) return;
+        engine.register(scene.id, {
+          onNear() {
+            void load().then((m) =>
+              engine.register(scene.id, m.default({ el, mode: engine.mode() })),
+            );
+          },
+        });
+      });
+    }
+  }
+</script>
+
+<style>
+  .stage {
+    position: relative;
+    background: radial-gradient(ellipse at 50% 40%, #161a26 0%, #07080c 70%);
+  }
+
+  .stars {
+    display: none;
+  }
+
+  :global(html.js) .journey {
+    position: relative;
+    height: calc(var(--journey-length) + 100vh);
+  }
+
+  :global(html.js) .stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 480px;
+    overflow: hidden;
+    perspective: 1000px;
+    perspective-origin: 50% 50%;
+  }
+
+  :global(html.js) .stars {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1.5px 1.5px at 12% 18%, rgb(228 236 255 / 0.5) 50%, transparent 51%),
+      radial-gradient(1px 1px at 38% 72%, rgb(228 236 255 / 0.4) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 64% 30%, rgb(160 150 255 / 0.5) 50%, transparent 51%),
+      radial-gradient(1px 1px at 82% 64%, rgb(228 236 255 / 0.4) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 22% 88%, rgb(94 230 255 / 0.4) 50%, transparent 51%);
+  }
+
+  /* Scene layers. The engine writes visibility, opacity, transform, filter, --r and --p. */
+  .stage > :global([data-scene]) {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  :global(html.js) .stage > :global([data-scene]) {
+    position: absolute;
+    inset: 0;
+    min-height: 0;
+    border-radius: var(--r, 0);
+    visibility: hidden;
+    backface-visibility: hidden;
+    will-change: transform, opacity;
+    contain: layout paint;
+  }
+
+  /* The first scene paints before the engine runs (LCP, no flash). */
+  :global(html.js) .stage > :global([data-scene]:first-of-type) {
+    visibility: visible;
+  }
+</style>

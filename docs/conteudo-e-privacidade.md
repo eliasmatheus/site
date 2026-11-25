@@ -4,7 +4,7 @@ Regras para qualquer texto, imagem ou dado que vá para o site.
 
 ## Nomes e marcas
 
-- **Escola do bootcamp de 2020**: não usar o nome no site. No anúncio, conta genérica "frontend.bootcamp". (Pendente: decidir se o nome pode aparecer como empregador na página de trabalho; a v1 cita.)
+- **Escola do bootcamp de 2020**: não usar o nome no site. No anúncio, conta genérica "frontend.bootcamp". Na página `/work` o nome pode aparecer como empregador (decisão do Elias, 25/11/2026); na jornada, nunca.
 - **Amigo do chat de 2020**: sempre "[a friend]". O uso das mensagens está autorizado, o nome não.
 - **Clientes e obras de engenharia**: sem nome de cliente, igreja, cidade, número de CREA ou carimbo nas pranchas. As imagens em `public/assets/engineering/` já estão limpas; qualquer nova passa pela mesma limpeza.
 - **Marcas e obras de terceiros** (Duna, Fallout Shelter, Dota 2, The Sims, Interestelar, Guns N' Roses, Bastardos Inglórios, Pokémon, Instagram, Windows, Chrome, Sublime, PyCharm, VS Code, Ubuntu): só homenagem de estilo e texto. Nada de logos, personagens, ícones oficiais, capturas ou trilhas.

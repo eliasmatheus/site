@@ -1,30 +1,19 @@
 ---
+import Header from '../components/Header.astro';
+import Stage from '../components/Stage.astro';
 import Base from '../layouts/Base.astro';
+import Desert from '../scenes/desert/Desert.astro';
+import ToBeContinued from '../scenes/to-be-continued/ToBeContinued.astro';
+import { site } from '../content/site';
 ---
 
-<Base title="Elias Matheus" description="Meet Elias. From civil engineering to AI engineering.">
+<Base title={site.title} description="Meet Elias. From civil engineering to AI engineering.">
+  <Header />
   <main>
-    <h1>Meet Elias.</h1>
-    <p>The journey is being built. Come back soon.</p>
+    <h1 class="visually-hidden">Meet Elias.</h1>
+    <Stage>
+      <Desert />
+      <ToBeContinued />
+    </Stage>
   </main>
 </Base>
-
-<style>
-  main {
-    min-height: 100svh;
-    display: grid;
-    place-content: center;
-    padding: 1rem;
-    text-align: center;
-  }
-
-  h1 {
-    margin: 0;
-    font-size: clamp(2.5rem, 8vw, 5rem);
-    line-height: 1.05;
-  }
-
-  p {
-    color: var(--muted);
-  }
-</style>

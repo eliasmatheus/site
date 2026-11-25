@@ -42,4 +42,4 @@ Próximos capítulos (ainda sem protótipo na v2, alguns rascunhados na v1): pri
 
 ## Página de trabalho
 
-Separada da jornada, rápida e escaneável: posicionamento ("Product engineer building AI features for fintech"), 3 projetos-âncora, experiência, contato. É a primeira coisa a ficar pronta depois do esqueleto.
+Separada da jornada, rápida e escaneável: posicionamento amplo, que mostra a vontade de trabalhar em empresas e projetos interessantes, inovadores e de grande impacto (a frase "Product engineer building AI features for fintech" ficou específica demais). Em uso: "From load-bearing structures to load-bearing software." Opção registrada: "I build software for ideas that move things forward.", 3 projetos-âncora, experiência, contato. É a primeira coisa a ficar pronta depois do esqueleto.
