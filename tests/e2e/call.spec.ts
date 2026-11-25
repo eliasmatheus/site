@@ -13,7 +13,16 @@ const at = async (page: Page, p: number) => {
   const mode = ((await page.locator('[data-stage]').getAttribute('data-mode')) ??
     'fly') as StageMode;
   const start = createTimeline(SCENES, MODE_CONFIG[mode]).starts[index] ?? 0;
-  await page.evaluate((y) => window.scrollTo(0, y), Math.round(start + dwell * p));
+  const y = Math.round(start + dwell * p);
+  // Re-apply until it sticks: WebKit can restore an older position after load.
+  await expect
+    .poll(() =>
+      page.evaluate((top) => {
+        window.scrollTo(0, top);
+        return Math.round(window.scrollY);
+      }, y),
+    )
+    .toBe(y);
   await expect.poll(() => page.locator('[data-stage]').getAttribute('data-active')).toBe('call');
   // Let the engine paint the new position before reading the scene's state.
   await page.evaluate(
