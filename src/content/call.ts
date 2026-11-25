@@ -2,9 +2,10 @@
 // Brands only as style (old consoles, image editor, memory scanner, download queue). No names.
 export const call = {
   kicker: '01 · THE CALL · LATE 90S TO 2011',
-  // Beat 1: the first computer boots. Only the disk size is a known fact; no RAM figure.
+  // Beat 1: the first computer boots. Facts: Pentium, 8 GB disk. The 64 MB of RAM is an
+  // estimate for a 1997 to 1999 Pentium; the memory test counts up to it in KB.
   boot: {
-    screen: ['HDD 8 GB ........ OK', 'LOADING...'],
+    screen: ['CPU: PENTIUM', 'MEMORY TEST: 65536K OK', 'HDD 8 GB ........ OK', 'LOADING...'],
     text: 'Dad brought home our first computer. I was hooked on the screen.',
   },
   // Beat 2: the montage, one vignette per scroll step, each with a "skill unlocked" toast.

@@ -6,11 +6,11 @@ Copy: `src/content/call.ts`. A versão do protótipo (cards clicáveis com profe
 
 Narrativa pura, sem quest e sem interação obrigatória. A ironia é o centro: tudo apontava para o computador, e ele escolheu outra coisa. Isso prepara a virada da cena 04.
 
-Fatos (contados pelo Elias, 25/11/2026): o pai comprou o primeiro computador por volta de 1997 a 1999, com 8 GB de HD (não usar número de memória RAM). Ele jogava consoles antigos em emuladores, usava internet discada e salvava jogos flash para jogar off-line, fazia jogos abrirem copiando um arquivo para a pasta do jogo, editava a memória dos jogos com um scanner de memória, fez todos os tutoriais de editor de imagem que achou, formatava e consertava computadores, baixava coisas por P2P e torrent. Ao terminar o ensino médio, quis exatas e engenharia; design e programação nem passavam pela cabeça. Na engenharia civil também passou longe da programação.
+Fatos (contados pelo Elias, 25/11/2026): o pai comprou o primeiro computador por volta de 1997 a 1999, com processador Pentium e 8 GB de HD. A memória de 64 MB é estimativa (típica de um Pentium da época), aprovada pelo Elias; na tela de boot ela aparece em KB, como o teste de memória da BIOS mostrava. Ele jogava consoles antigos em emuladores, usava internet discada e salvava jogos flash para jogar off-line, fazia jogos abrirem copiando um arquivo para a pasta do jogo, editava a memória dos jogos com um scanner de memória, fez todos os tutoriais de editor de imagem que achou, formatava e consertava computadores, baixava coisas por P2P e torrent. Ao terminar o ensino médio, quis exatas e engenharia; design e programação nem passavam pela cabeça. Na engenharia civil também passou longe da programação.
 
 ## Beats (por scroll)
 
-1. **Boot**: gabinete bege genérico liga; tela de boot com "HDD 8 GB ... OK". "Dad brought home our first computer."
+1. **Boot**: gabinete bege genérico liga; tela de boot com "CPU: PENTIUM", o teste de memória contando até "65536K OK" e "HDD 8 GB ... OK". "Dad brought home our first computer."
 2. **Montagem**: uma vinheta em pixel art por passo de scroll, cada uma com um toast "SKILL UNLOCKED":
    - emuladores: carrinho em estrada com pôr do sol e parallax (homenagem de estilo a Top Gear, sem carro, nome ou música);
    - internet discada: onda do modem e barra salvando um jogo flash;
@@ -26,7 +26,7 @@ Retorno na cena 04: quando o primeiro `print` funciona, "SAVE FILE FOUND · 2011
 
 ## Regras
 
-- Nenhuma marca: "old consoles", editor de imagem, scanner de memória e fila de downloads genéricos. Top Gear, The Sims, Nintendo, Photoshop, Cheat Engine e eMule só como estilo.
+- Nenhuma marca: "old consoles", editor de imagem, scanner de memória e fila de downloads genéricos. Top Gear, The Sims, Nintendo, Photoshop, Cheat Engine e eMule só como estilo. Exceção: "PENTIUM" aparece como texto puro na tela de boot, sem logo, porque é fato da história.
 - Tudo em SVG e CSS com pixel art leve; sem three.js nem imagens pesadas.
 - As três opções de curso ficam como estão (decisão do Elias, 25/11/2026).
 
