@@ -17,4 +17,4 @@ Partículas reduzidas; texto centralizado com bastante respiro.
 
 ## Aceite
 
-- [ ] Partículas pausam fora da cena e somem com reduced motion.
+- [x] Partículas pausam fora da cena e somem com reduced motion.

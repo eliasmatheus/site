@@ -13,12 +13,12 @@ Cada fase termina com deploy funcionando. Uma cena só conta como pronta quando 
 
 ## Fase 1 · Esqueleto
 
-- [ ] Engine de scroll (`src/engine/`) com testes da timeline (`locate`, progresso, cena ativa).
-- [ ] Palco, header (nome, progresso, QUESTS n/3, "Work →"), registro de cenas, lazy load por proximidade.
-- [ ] Duas cenas simples para provar o voo: Desert e To be continued.
-- [ ] Modo mobile da engine e modo reduced motion.
+- [x] Engine de scroll (`src/engine/`) com testes da timeline (`locate`, progresso, cena ativa).
+- [x] Palco, header (nome, progresso, QUESTS n/3, "Work →"), registro de cenas, lazy load por proximidade.
+- [x] Duas cenas simples para provar o voo: Desert e To be continued.
+- [x] Modo mobile da engine e modo reduced motion.
 - [ ] Página `/work` simples e completa (projetos, experiência, contato). Dá para publicar o domínio já aqui.
-- [ ] Lighthouse mobile ≥ 90.
+- [x] Lighthouse mobile ≥ 90. (Home: 98 performance, 100 acessibilidade, LCP 2,1 s, CLS 0,002.)
 
 ## Fase 2 · Abertura
 

@@ -20,8 +20,14 @@ O protótipo (`World.dc.html`, função `frame()` e `locate()`) já resolve o mo
 - Um único loop `requestAnimationFrame` lê `scrollY`, calcula T, e escreve só CSS custom properties e transforms: `--p` (progresso 0 a 1 dentro da cena), `--r` (aproximação), transform, opacidade, visibility.
 - A cena ativa fica com `transform: none` e `pointer-events: auto` (no protótipo, transforms 3D no pai quebravam os cliques; não repita). Cenas distantes ficam `visibility: hidden`.
 - Cenas se inscrevem na engine com `{ id, dwell, position, onEnter, onLeave, onProgress }`. O React de cada cena só re-renderiza em mudanças de passo (beat), nunca a cada frame.
+- Implementado (Fase 1): `src/engine/timeline.ts` (TS puro: `locate`, progresso, câmera), `src/engine/layers.ts` (estilo de cada camada por modo) e `src/engine/engine.ts` (loop). Ganchos: `onNear` (uma vez, quando a câmera chega a uma cena de distância: carregar código e assets), `onShow`/`onHide` (camada visível ou não: ligar e desligar loops de render), `onEnter`/`onLeave` (cena ativa) e `onProgress` (a cada frame, só enquanto visível).
+- As cenas ficam em `src/scenes/registry.ts` (ordem, `dwell`, posição e `load` opcional com import dinâmico). O markup de cada cena é um componente Astro estático; só o controlador (`load`) roda no cliente.
+- As camadas são irmãs sem `preserve-3d`, então o navegador pinta na ordem do DOM. A engine dá `z-index` decrescente (cenas anteriores ficam mais perto da câmera, logo por cima).
+- Camadas que não são a ativa recebem `inert` (sem foco nem clique).
+- Sem JS, as cenas viram seções normais em sequência (classe `js` no `<html>` liga o palco antes da primeira pintura).
 - `onEnter` antecipado (uma cena antes) é o gatilho do lazy load de assets e código pesado.
-- Hash/âncora por cena (`/#structures`) e header com progresso.
+- Hash/âncora por cena (`/#structures`) e header com progresso. A primeira cena fica sem hash.
+- Modos do palco: `fly` (desktop, voo 3D, travel 1000 px), `stack` (mobile, scale + blur + fade, travel 600 px) e `fade` (reduced motion, só crossfade, travel 400 px). Trocar de modo mantém o visitante no mesmo ponto da jornada.
 
 ## Mobile
 
