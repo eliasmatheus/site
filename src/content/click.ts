@@ -2,6 +2,9 @@
 // The code is shown in Portuguese on purpose: it is what Elias really typed.
 export const click = {
   kicker: '04 · THE CLICK · 2020',
+  // Callback to scene 01: shown when the first print works, right before the burst.
+  // The skills saved in The Call come back in color.
+  saveFile: { found: 'SAVE FILE FOUND · 2011', prompt: 'Continue?' },
   // Panel copy per beat. `gloss` is the small translation/aside line ('' = none).
   beats: {
     empty: {

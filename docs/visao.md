@@ -30,7 +30,7 @@ Contraste emocional importante: o deserto (2019 e 2020, apagado, silencioso, a s
 | # | Cena | Ano | Quest |
 |---|------|-----|-------|
 | 0 | Prologue: o visor e a câmera | hoje | Expor a cena (ou AUTO) |
-| 1 | The Call: escolha do curso | 2011 | |
+| 1 | The Call: o garoto do computador e a escolha do curso | fim dos anos 90 a 2011 | |
 | 2 | Structures: a sapata | 2012 a 2020 | Dimensionar a sapata mais barata segura |
 | 3 | The Desert | 2019 a 2020 | |
 | 4 | The Click: o primeiro Python | 2020 | Fazer o programa dizer o seu nome |
