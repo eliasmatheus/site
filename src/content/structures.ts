@@ -63,6 +63,21 @@ export const structures = {
     done: 'Sweet spot. +25 XP',
   },
   showMe: 'SHOW ME THE SWEET SPOT',
+  // Controls: sliders are the main way to resize, on every device (and the keyboard path).
+  controls: {
+    width: 'WIDTH',
+    depth: 'DEPTH',
+    widthValue: (m: number): string => `${m.toFixed(2)} m`,
+    depthValue: (m: number): string => `${m.toFixed(2)} m deep`,
+    soilToggle: 'SOIL',
+  },
+  // The 2D cross-section (and the fallback when WebGL is not available).
+  section: {
+    label: 'Cross-section of the central footing, its pit and the soil layers',
+    load: (kn: number): string => `${kn} kN`,
+    widthHandle: 'Footing width. Drag sideways',
+    depthHandle: 'Footing depth. Drag up or down',
+  },
   soil: {
     title: 'SOIL · REAL BOREHOLE',
     depth: (d: number): string => `${d.toFixed(1)} m`,
