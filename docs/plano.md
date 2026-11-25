@@ -29,7 +29,17 @@ Cada fase termina com deploy funcionando. Uma cena só conta como pronta quando 
 
 - [ ] Structures com a sapata guiada e o layout mobile novo.
 
-## Fase 4 · A virada
+## Fase 4 · Nova abertura (decidida em 25/11/2026, ver `docs/visao.md#estrutura`)
+
+Protótipos em `reference/prototype/` (`landing-orbit.html`, `black-hole.html`).
+
+- [ ] Landing TL;DR "Orbit" em `/`, com o conteúdo da `/work` e a porta para a jornada no fim. `/work` passa a redirecionar para ela.
+- [ ] Horizon: buraco negro em WebGL (shader próprio, sem three.js), enquadramento Off-axis, mergulho no scroll, planeta arrastável com relógio. Fallback em partículas 2D sem WebGL.
+- [ ] Protótipo e depois cena da queda e do espaço do passado (The fall).
+- [ ] Prologue (fotografia) sai da abertura e fica guardado até ganhar lugar na linha do tempo.
+- [ ] Sapata: nova interação (protótipo C). O arrasto no 3D é impreciso: perto do ângulo errado aumentar e diminuir quase não se diferenciam, e chegar ao sweet spot leva umas três tentativas. Referência de fluxo: grail-app.com (o scroll continua, a interação é opcional).
+
+## Fase 5 · A virada
 
 - [ ] The Click (com placeholders de vídeo até os clipes existirem).
 - [ ] 2020 no Windows (e versão celular no mobile).
