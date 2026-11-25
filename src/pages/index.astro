@@ -2,6 +2,7 @@
 import Header from '../components/Header.astro';
 import Stage from '../components/Stage.astro';
 import Base from '../layouts/Base.astro';
+import Call from '../scenes/call/Call.astro';
 import Desert from '../scenes/desert/Desert.astro';
 import Prologue from '../scenes/prologue/Prologue.astro';
 import { DUNES_PLACEHOLDER } from '../scenes/prologue/placeholder';
@@ -21,6 +22,7 @@ import { site } from '../content/site';
   <main>
     <Stage>
       <Prologue placeholder={DUNES_PLACEHOLDER} />
+      <Call />
       <Desert />
       <ToBeContinued />
     </Stage>

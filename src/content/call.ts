@@ -6,10 +6,13 @@ export const call = {
   // estimate for a 1997 to 1999 Pentium; the memory test counts up to it in KB.
   boot: {
     screen: ['CPU: PENTIUM', 'MEMORY TEST: 65536K OK', 'HDD 8 GB ........ OK', 'LOADING...'],
+    // The memory line while the test counts up (screen[1] is the final state).
+    memoryLine: (kb: number, done: boolean): string => `MEMORY TEST: ${kb}K${done ? ' OK' : ''}`,
     text: 'Dad brought home our first computer. I was hooked on the screen.',
   },
   // Beat 2: the montage, one vignette per scroll step, each with a "skill unlocked" toast.
   toastLabel: 'SKILL UNLOCKED',
+  skillsLabel: 'Skills',
   montage: [
     { id: 'emulators', skill: 'EMULATORS', text: 'Old consoles, through emulators.' },
     {
@@ -39,6 +42,14 @@ export const call = {
     memoryBefore: '1000',
     memoryAfter: '999999',
     formatting: 'Formatting C:',
+    modem: 'CONNECTING · 56K',
+    savingGame: 'SAVING GAME.SWF',
+    gameFolder: 'GAME',
+    memoryLabel: 'MONEY',
+    layersTitle: 'LAYERS',
+    layers: ['Background', 'Glow', 'Shadow', 'Lens flare', 'Chrome text'],
+    downloadsTitle: 'DOWNLOADS · 02:47 AM',
+    downloads: ['song.mp3', 'game.zip', 'video.avi', 'driver.exe'],
   },
   // Beat 3: the choice. Skills fly into COMPUTER SCIENCE, the cursor hesitates, then picks CIVIL.
   options: [
@@ -47,6 +58,7 @@ export const call = {
     { name: 'ARCHITECTURE', type: 'CREATIVE TYPE', glyph: '◆' },
   ],
   picked: 'CIVIL ENGINEERING',
+  choiceLabel: 'Choose a course',
   choice: [
     'School was over. Everything pointed to computers.',
     'I wanted math. I wanted engineering. Code and design never crossed my mind.',
