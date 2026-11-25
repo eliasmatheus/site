@@ -6,16 +6,25 @@ if (!prologue) throw new Error('No prologue in the registry.');
 const dwell = prologue.dwell;
 const scene = (page: Page) => page.locator('[data-scene="prologue"]');
 
-/** Scroll to a point of the Prologue dwell (0 to 1). The Prologue is the first scene. */
+/**
+ * Scroll to a point of the Prologue dwell (0 to 1). The Prologue is the first scene.
+ * Re-applies the scroll until it sticks: WebKit can restore an older position after load.
+ */
 const at = async (page: Page, p: number) => {
-  await page.evaluate((y) => window.scrollTo(0, y), Math.round(dwell * p));
+  const y = Math.round(dwell * p);
+  await expect
+    .poll(() =>
+      page.evaluate((top) => {
+        window.scrollTo(0, top);
+        return Math.round(window.scrollY);
+      }, y),
+    )
+    .toBe(y);
 };
 
-/** Look up from the viewfinder until the sun goes down. */
+/** Look up from the viewfinder until the sun goes down. Each test has fresh storage. */
 const toCamera = async (page: Page) => {
   await page.goto('/');
-  await page.evaluate(() => localStorage.clear());
-  await page.reload();
   await at(page, 0.75);
   await expect(scene(page)).toHaveAttribute('data-phase', '2');
 };
