@@ -19,3 +19,7 @@ Regras para qualquer texto, imagem ou dado que vá para o site.
 ## Tom
 
 Inglês simples, frases curtas, primeira pessoa, honesto. Sem travessões. Sem jargão de marketing.
+
+## Dados de visitantes
+
+- Métricas só pelo Vercel Web Analytics (`@vercel/analytics`, no `src/layouts/Base.astro`): sem cookies e sem dado pessoal, por isso não há banner de consentimento. Qualquer outra ferramenta de rastreamento precisa de decisão do Elias antes.
