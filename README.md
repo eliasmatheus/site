@@ -19,4 +19,4 @@ Astro (static), React islands, strict TypeScript, three.js loaded on demand. Vit
 | `npm run test:e2e` | Builds, serves and runs Playwright               |
 | `npm run format`   | Formats everything with Prettier                 |
 
-Node 22.12 or newer (see `.nvmrc`). First e2e run: `npx playwright install chromium webkit`.
+Node 22 (see `.nvmrc`; Vercel builds with 22.x). First e2e run: `npx playwright install chromium webkit`.
