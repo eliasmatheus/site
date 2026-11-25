@@ -1,0 +1,1371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Meet Elias: a world in 3D</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Press+Start+2P&display=swap">
+<style>
+body{margin:0;background:#07080c}
+.scene{backface-visibility:hidden;will-change:transform,opacity}
+a{color:inherit;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}a:hover{opacity:.75}
+.mood{transition-property:background-color,color,filter;transition-timing-function:ease}
+.photo-a{background:radial-gradient(circle at 70% 36%, #ffd77a 0 54px, rgba(255,196,110,.55) 56px, rgba(255,160,90,0) 190px),linear-gradient(168deg, rgba(0,0,0,0) 58%, #3e6b58 58.3%, #2c5546 100%),linear-gradient(180deg, #f39a62 0%, #c4465f 46%, #5d2a6e 82%, #2a1a40 100%)}
+.ph2{background:radial-gradient(circle at 30% 30%, #9fe0ff 0 30px, rgba(0,0,0,0) 120px),linear-gradient(200deg, #1f6f8b 0%, #0f3b57 60%, #f2c14e 60.4%, #d98c2b 100%)}
+.ph3{background:radial-gradient(ellipse at 50% 110%, #e94f37 0 120px, rgba(0,0,0,0) 260px),linear-gradient(180deg, #393e41 0%, #44bba4 70%, #e7e5df 100%)}
+.ph4{background:conic-gradient(from 210deg at 60% 60%, #f6ae2d, #f26419, #86bbd8, #2f4858, #f6ae2d)}
+.ph5{background:linear-gradient(135deg, #e8d5b7 0%, #0e2431 50%, #fc3a52 100%)}
+.ph6{background:radial-gradient(circle at 40% 60%, #ffe66d 0 40px, rgba(0,0,0,0) 140px),linear-gradient(180deg, #4ecdc4 0%, #1a535c 100%)}
+.stars{background-image:radial-gradient(1.5px 1.5px at 12% 18%, rgba(228,236,255,.7) 50%, transparent 51%),radial-gradient(1px 1px at 38% 72%, rgba(228,236,255,.6) 50%, transparent 51%),radial-gradient(2px 2px at 64% 30%, rgba(160,150,255,.7) 50%, transparent 51%),radial-gradient(1px 1px at 82% 64%, rgba(228,236,255,.6) 50%, transparent 51%),radial-gradient(1.5px 1.5px at 22% 88%, rgba(94,230,255,.6) 50%, transparent 51%),radial-gradient(1px 1px at 92% 12%, rgba(228,236,255,.5) 50%, transparent 51%);background-size:420px 420px}
+.cadwin{border:1px solid #2a2f38;border-radius:6px;overflow:hidden;background:#1a1d23;color:#9aa1ad}
+.cadbar{display:flex;justify-content:space-between;gap:12px;padding:7px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;white-space:pre}
+.sheet{padding:16px;box-sizing:border-box;cursor:crosshair;background-color:#0b0c0f}
+.ink{filter:invert(1) hue-rotate(180deg)}
+.lblwrap{display:inline-grid}.lblwrap>span{grid-area:1/1}
+.lbl-paper{opacity:0}.lbl-model{color:#ffd84a}
+.caret{animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+@keyframes toDark{from{background-color:#f4f1ea}to{background-color:#0b0c0f}}
+@keyframes inkDark{from{filter:none}to{filter:invert(1) hue-rotate(180deg)}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.grid-bp{background-image:linear-gradient(rgba(210,220,235,.05) 1px, transparent 1px),linear-gradient(90deg, rgba(210,220,235,.05) 1px, transparent 1px);background-size:24px 24px}
+.knurl{background:repeating-conic-gradient(#3b3b3b 0deg 3deg, #1e1e1e 3deg 6deg)}
+.ring{transition:transform .35s cubic-bezier(.3,1.4,.5,1)}
+.dofx{transition:filter .4s ease}
+@supports (animation-timeline: view()){
+.reveal{animation:rise linear both;animation-timeline:view();animation-range:entry 0% cover 28%}
+.dev{animation:develop linear both;animation-timeline:view();animation-range:entry 15% cover 50%}
+.draw{animation:draw linear both;animation-timeline:view();animation-range:entry 10% cover 40%}
+.sheet{animation:toDark linear both;animation-timeline:view();animation-range:cover 30% cover 55%}
+.ink{animation:plot linear both,inkDark linear both;animation-timeline:view(),view();animation-range:entry 5% cover 35%,cover 30% cover 55%}
+.lbl-paper{animation:fadeOut linear both;animation-timeline:view();animation-range:cover 30% cover 55%}
+.lbl-model{animation:fadeIn linear both;animation-timeline:view();animation-range:cover 30% cover 55%}
+}
+@keyframes rise{from{opacity:0;transform:translateY(48px)}to{opacity:1;transform:none}}
+@keyframes develop{from{filter:grayscale(1) contrast(1.25) brightness(.7)}to{filter:none}}
+@keyframes plot{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-1%)}100%{transform:translate(1%,3%)}}
+.grain{animation:grain .5s steps(4) infinite}
+.calc2020{font-family:"Times New Roman",Times,serif;font-size:16px;line-height:normal}
+.calc2020 #warp{width:960px;margin:auto;padding:10px 20px}
+.calc2020 #content{width:420px;padding:10px 20px 10px 10px;margin-top:30px;background:#CCCCCC;box-shadow:5px 10px 18px #888888}
+.calc2020 h1{margin:0;font-size:40px;font-weight:bold;letter-spacing:normal;font-family:inherit}
+.calc2020 p.sub{margin-top:0;margin-bottom:16px}
+.calc2020 p.form{text-align:center;margin:16px 0}
+.calc2020 input,.calc2020 button{font-family:system-ui,sans-serif;font-size:13px;color:#000}
+@supports (animation-timeline: view()){.step{animation:stepIn linear both;animation-timeline:view();animation-range:entry 10% cover 35%}}
+@keyframes stepIn{from{opacity:0}to{opacity:.9}}
+.cloud{position:absolute;border-radius:50%;background:radial-gradient(ellipse at center, rgba(255,255,255,.95) 0%, rgba(255,255,255,.6) 40%, rgba(255,255,255,0) 70%);filter:blur(4px);animation:drift linear infinite}
+@keyframes drift{from{transform:translateX(0)}to{transform:translateX(170vw)}}
+@media (prefers-reduced-motion: reduce){.cloud{animation:none}}
+.face{transition:transform .5s cubic-bezier(.3,1.4,.5,1)}
+.face .hand,.face .spark1{opacity:0;transition:opacity .3s ease}
+.face-focused{transform:translateY(-4px) scale(1.06)}
+.face-confused{transform:rotate(-7deg)}
+.face-confused .hand{opacity:1;animation:scratch .35s ease-in-out infinite alternate}
+.face-smile{animation:nod 1.2s ease-in-out infinite}
+.face-waiting{transform:translateY(-6px) scale(1.04)}
+.face-eureka{animation:nod .7s ease-in-out infinite}
+.face-eureka .spark1{opacity:1;animation:twinkle .8s ease-in-out infinite}
+@keyframes scratch{from{transform:translate(0,0) rotate(-10deg)}to{transform:translate(-4px,4px) rotate(10deg)}}
+@keyframes nod{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes twinkle{0%,100%{transform:scale(.8);opacity:.6}50%{transform:scale(1.2);opacity:1}}
+@media (prefers-reduced-motion: reduce){.face,.face *{animation:none !important}}
+.cbtn{width:44px;height:44px;border:0;border-radius:22px;background:rgba(0,0,0,.08);color:#2a2a28;font-size:18px;cursor:pointer}
+.spark{position:absolute;top:50%;width:4px;height:4px;margin-top:-2px;border-radius:50%;background:#ffd36b;box-shadow:0 0 6px 2px #ff8a2a;animation:spark .6s ease-out infinite}
+@keyframes spark{from{transform:translate(0,0);opacity:1}to{transform:translate(var(--dx),var(--dy));opacity:0}}
+.blackout{animation:bo 2.8s linear forwards}
+@keyframes bo{0%{opacity:1}5%{opacity:.15}9%{opacity:1}13%{opacity:.4}17%{opacity:1}85%{opacity:1}100%{opacity:0}}
+.flash{animation:fl 1s linear forwards}
+@keyframes fl{0%{opacity:.4}10%{opacity:0}20%{opacity:.3}30%{opacity:0}45%{opacity:.2}100%{opacity:0}}
+@supports (animation-timeline: view()){.sun{animation:sunset linear both;animation-timeline:view();animation-range:entry 20% exit 60%}}
+@keyframes sunset{from{transform:translateY(-35%);filter:hue-rotate(15deg) saturate(.8)}to{transform:translateY(85%);filter:hue-rotate(-12deg) saturate(1.4)}}
+@media (prefers-reduced-motion: reduce){.reveal,.dev,.draw,.sheet,.ink,.lbl-paper,.lbl-model,.caret,.grain,.spark,.blackout,.flash,.sun{animation:none}.mood,.ring,.dofx{transition:none}}
+</style>
+</helmet>
+<div id="w-root" style="position: relative; height: calc(32700px + 100vh); background: #07080c; font-family: 'Space Grotesk', system-ui, sans-serif; color: #e8eaee">
+<div id="w-stage" style="position: sticky; top: 0; height: 100vh; min-height: 600px; overflow: hidden; perspective: 1000px; perspective-origin: 50% 50%; background: radial-gradient(ellipse at 50% 40%, #161a26 0%, #07080c 70%)">
+<div aria-hidden="true" style="position: absolute; inset: 0; background-image: radial-gradient(1.5px 1.5px at 12% 18%, rgba(228,236,255,.5) 50%, transparent 51%), radial-gradient(1px 1px at 38% 72%, rgba(228,236,255,.4) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 64% 30%, rgba(160,150,255,.5) 50%, transparent 51%), radial-gradient(1px 1px at 82% 64%, rgba(228,236,255,.4) 50%, transparent 51%), radial-gradient(1px 1px at 92% 12%, rgba(228,236,255,.35) 50%, transparent 51%); background-size: 520px 520px"></div>
+<div id="w-world" style="position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform">
+<div id="s-pro" class="scene" data-i="0" style="position: absolute; inset: 0; overflow: hidden; border-radius: var(--r, 24px); background: #0d0d0d; transform: translate3d(0px, 0px, 0px); visibility: hidden; opacity: 0; --p: 0; --a: 0; --cs: 1">
+<div id="em-vf" onPointerMove="{{ vfMove }}" onPointerDown="{{ vfDown }}" style="position: absolute; left: 50%; top: 50%; width: 100%; height: 100%; overflow: hidden; cursor: crosshair; touch-action: pan-y; border-radius: calc(var(--a) * 26px); box-shadow: 0 0 0 calc(var(--a) * 10px) #1b1b1b, 0 30px 60px rgba(0,0,0,calc(var(--a) * .6)); transform: translate(-50%, -50%) translateY(calc(var(--a) * 21vh)) scale(calc(1 - var(--a) * 0.56))">
+<div id="em-pano" aria-hidden="true" style="position: absolute; inset: 0; background-image: url(../../public/assets/prologue/dunes-360.webp); background-repeat: repeat-x; background-size: auto 125%; background-position: var(--yaw, 0px) calc(70% - var(--a) * 60%); filter: {{ fx.panoFilter }} sepia(calc(var(--a) * .45)); transition: background-position .6s cubic-bezier(.2,.7,.2,1), filter .6s ease"></div>
+<div aria-hidden="true" style="position: absolute; inset: 0; background: {{ fx.washColor }}; opacity: {{ fx.wash }}; transition: opacity 1s ease"></div>
+<div aria-hidden="true" style="position: absolute; inset: 0; opacity: {{ fx.noise }}; background-image: radial-gradient(rgba(255,255,255,.5) 1px, transparent 1px); background-size: 3px 3px"></div>
+<div aria-hidden="true" style="position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,.6) 100%)"></div>
+<div aria-hidden="true" style="position: absolute; inset: 0; background-image: linear-gradient(90deg, transparent calc(33.33% - .5px), rgba(255,255,255,.16) 33.33%, transparent calc(33.33% + .5px), transparent calc(66.66% - .5px), rgba(255,255,255,.16) 66.66%, transparent calc(66.66% + .5px)), linear-gradient(180deg, transparent calc(33.33% - .5px), rgba(255,255,255,.16) 33.33%, transparent calc(33.33% + .5px), transparent calc(66.66% - .5px), rgba(255,255,255,.16) 66.66%, transparent calc(66.66% + .5px))"></div>
+<div aria-hidden="true" style="position: absolute; left: 50%; top: 50%; width: 84px; height: 60px; margin: -30px 0 0 -42px; border: 2px solid #7ee2a8; border-radius: 3px"></div>
+<div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0; padding: 84px 32px 0; display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 1px; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6)"><span>EVF · AF-S · X-T3</span><span>{{ fx.exif }}</span></div>
+<div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 32px; display: flex; justify-content: flex-end; background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.5)); font-family: 'JetBrains Mono', monospace; font-size: 13px; color: {{ ix.statusColor }}">{{ fx.evLabel }}</div>
+<div style="position: absolute; left: 0; right: 0; bottom: 72px; padding: 0 56px; color: #fff; text-shadow: 0 2px 18px rgba(0,0,0,.45); opacity: clamp(0, calc(1 - var(--a) * 3), 1); pointer-events: {{ stagePe }}">
+<p style="margin: 0 0 18px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 2px">00 · MOVE THE MOUSE TO LOOK AROUND · SCROLL TO MOVE FORWARD</p>
+<h1 style="margin: 0; font-size: clamp(56px, 8vw, 112px); line-height: .95; font-weight: 600; letter-spacing: -3px">Meet Elias.</h1>
+<p style="margin: 22px 0 0; max-width: 700px; font-size: 22px; line-height: 1.4">Engineer turned software engineer, photographer, reader of history. This is the story, told the way I lived it.</p>
+<a href="Journey.dc.html" style="display: inline-flex; align-items: center; margin-top: 28px; min-height: 48px; padding: 0 24px; border: 1px solid currentColor; border-radius: 24px; background: rgba(0,0,0,.25); text-decoration: none; font-size: 15px">In a hurry? See the work</a>
+</div>
+</div>
+<div style="position: absolute; inset: 0; pointer-events: none; color: #e8e5df">
+
+<div style="position: absolute; left: 50%; top: 84px; width: 780px; margin-left: -390px; pointer-events: {{ stagePe2 }}; transform-origin: top center; transform: translateY(calc((1 - var(--a)) * -130%)) scale(var(--cs)); opacity: var(--a)">
+<div style="position: relative; display: flex; flex-direction: column; align-items: center">
+<div style="position: relative; width: 250px; height: 92px; border-radius: 10px 10px 0 0; background: repeating-linear-gradient(90deg, #1b1b1b 0 4px, #2b2b2b 4px 8px); box-shadow: inset 0 -6px 10px rgba(0,0,0,.5)">
+<div role="group" aria-label="Aperture ring" style="position: absolute; left: -54px; right: -54px; bottom: 10px; display: flex; align-items: center; justify-content: space-between">
+<button type="button" aria-label="{{ cam.ap.downLabel }}" onClick="{{ cam.ap.down }}" class="cbtn">‹</button>
+<div aria-hidden="true" style="position: relative; width: 250px; height: 34px; overflow: hidden; background: #151515; border-top: 1px solid #3a3a3a; border-bottom: 1px solid #3a3a3a">
+<div style="position: absolute; left: 0; top: 0; height: 34px; display: flex; align-items: center; transform: translateX({{ cam.apShift }}); transition: transform .35s cubic-bezier(.3,1.4,.5,1)">
+<sc-for list="{{ cam.apCells }}" as="c" hint-placeholder-count="8">
+<span style="width: 52px; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: {{ c.color }}">{{ c.t }}</span>
+</sc-for>
+</div>
+<span style="position: absolute; left: 50%; top: 0; width: 2px; height: 6px; margin-left: -1px; background: #ff6a3d"></span>
+</div>
+<button type="button" aria-label="{{ cam.ap.upLabel }}" onClick="{{ cam.ap.up }}" class="cbtn">›</button>
+</div>
+</div>
+<div style="position: relative; width: 780px; height: 190px; box-sizing: border-box; padding: 18px 28px; border-radius: 18px 18px 30px 30px; background: linear-gradient(180deg, #dcdbd5, #b4b3ad 60%, #9d9c96); border: 1px solid #85847e; box-shadow: 0 24px 50px rgba(0,0,0,.55), inset 0 2px 0 rgba(255,255,255,.6); display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+<div style="display: flex; align-items: center; gap: 2px">
+<button type="button" aria-label="{{ cam.iso.downLabel }}" onClick="{{ cam.iso.down }}" class="cbtn">‹</button>
+<button type="button" aria-label="{{ cam.iso.aria }}" onClick="{{ cam.iso.up }}" style="position: relative; width: 112px; height: 112px; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; box-shadow: 0 6px 14px rgba(0,0,0,.45)">
+<span class="knurl" aria-hidden="true" style="position: absolute; inset: 0; border-radius: 50%"></span>
+<span aria-hidden="true" style="position: absolute; inset: 7px; border-radius: 50%; background: #111; box-shadow: inset 0 2px 6px rgba(0,0,0,.8)"></span>
+<span class="ring" aria-hidden="true" style="position: absolute; inset: 0; transform: rotate({{ cam.iso.rot }}deg)">
+<sc-for list="{{ cam.iso.ticks }}" as="k" hint-placeholder-count="8">
+<span style="position: absolute; left: 50%; top: 50%; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: {{ k.color }}; transform: translate(-50%, -50%) rotate({{ k.deg }}deg) translateY(-38px)">{{ k.t }}</span>
+</sc-for>
+</span>
+<span aria-hidden="true" style="position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #555, #1c1c1c)"></span>
+</button>
+<button type="button" aria-label="{{ cam.iso.upLabel }}" onClick="{{ cam.iso.up }}" class="cbtn">›</button>
+</div>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1.5px; color: #3c3b37">ISO · {{ cam.iso.display }}</span>
+</div>
+<div aria-hidden="true" style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+<span style="display: block; width: 120px; height: 70px; clip-path: polygon(14% 0, 86% 0, 100% 100%, 0 100%); background: linear-gradient(180deg, #2c2c2c, #151515)"></span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; color: #3c3b37">X-T3</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+<div style="display: flex; align-items: center; gap: 2px">
+<button type="button" aria-label="{{ cam.sh.downLabel }}" onClick="{{ cam.sh.down }}" class="cbtn">‹</button>
+<button type="button" aria-label="{{ cam.sh.aria }}" onClick="{{ cam.sh.up }}" style="position: relative; width: 112px; height: 112px; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; box-shadow: 0 6px 14px rgba(0,0,0,.45)">
+<span class="knurl" aria-hidden="true" style="position: absolute; inset: 0; border-radius: 50%"></span>
+<span aria-hidden="true" style="position: absolute; inset: 7px; border-radius: 50%; background: #111; box-shadow: inset 0 2px 6px rgba(0,0,0,.8)"></span>
+<span class="ring" aria-hidden="true" style="position: absolute; inset: 0; transform: rotate({{ cam.sh.rot }}deg)">
+<sc-for list="{{ cam.sh.ticks }}" as="k" hint-placeholder-count="8">
+<span style="position: absolute; left: 50%; top: 50%; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: {{ k.color }}; transform: translate(-50%, -50%) rotate({{ k.deg }}deg) translateY(-38px)">{{ k.t }}</span>
+</sc-for>
+</span>
+<span aria-hidden="true" style="position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #555, #1c1c1c)"></span>
+</button>
+<button type="button" aria-label="{{ cam.sh.upLabel }}" onClick="{{ cam.sh.up }}" class="cbtn">›</button>
+</div>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1.5px; color: #3c3b37">SHUTTER · {{ cam.sh.display }}</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+<div style="display: flex; align-items: center; gap: 2px">
+<button type="button" aria-label="{{ cam.film.downLabel }}" onClick="{{ cam.film.down }}" class="cbtn">‹</button>
+<button type="button" aria-label="{{ cam.film.aria }}" onClick="{{ cam.film.up }}" style="position: relative; width: 84px; height: 84px; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; box-shadow: 0 6px 14px rgba(0,0,0,.45)">
+<span class="knurl" aria-hidden="true" style="position: absolute; inset: 0; border-radius: 50%"></span>
+<span aria-hidden="true" style="position: absolute; inset: 7px; border-radius: 50%; background: #111; box-shadow: inset 0 2px 6px rgba(0,0,0,.8)"></span>
+<span class="ring" aria-hidden="true" style="position: absolute; inset: 0; transform: rotate({{ cam.film.rot }}deg)">
+<sc-for list="{{ cam.film.ticks }}" as="k" hint-placeholder-count="8">
+<span style="position: absolute; left: 50%; top: 50%; font-family: 'JetBrains Mono', monospace; font-size: 8px; color: {{ k.color }}; transform: translate(-50%, -50%) rotate({{ k.deg }}deg) translateY(-27px)">{{ k.t }}</span>
+</sc-for>
+</span>
+<span aria-hidden="true" style="position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #555, #1c1c1c)"></span>
+</button>
+<button type="button" aria-label="{{ cam.film.upLabel }}" onClick="{{ cam.film.up }}" class="cbtn">›</button>
+</div>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1.5px; color: #3c3b37">FILM · {{ cam.film.display }}</span>
+</div>
+</div>
+</div>
+</div>
+
+<div style="position: absolute; left: 3%; top: 56%; width: 21%; min-width: 220px; opacity: clamp(0, calc(var(--a) * 2 - 1), 1); pointer-events: {{ stagePe2 }}">
+<p style="margin: 0 0 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 2px; color: {{ m.muted }}">{{ ix.kicker }}</p>
+<h2 style="margin: 0; font-size: 34px; line-height: 1.08; font-weight: 600; letter-spacing: -.6px">Before we go, you may want to adjust the exposure.</h2>
+<p style="margin: 14px 0 0; font-size: 17px; line-height: 1.5; color: {{ m.muted }}">Lighting conditions are changing. The sun is going down. Turn the dials on the camera.</p>
+</div>
+<div style="position: absolute; right: 3%; top: 56%; width: 21%; min-width: 220px; display: flex; flex-direction: column; gap: 16px; opacity: clamp(0, calc(var(--a) * 2 - 1), 1); pointer-events: {{ stagePe2 }}; font-family: 'JetBrains Mono', monospace">
+<div aria-hidden="true" style="position: relative; height: 26px">
+<div style="position: absolute; left: 0; right: 0; top: 12px; height: 1px; background: {{ m.muted }}"></div>
+<sc-for list="{{ meterTicks }}" as="t" hint-placeholder-count="7">
+<span style="position: absolute; top: 6px; left: {{ t.left }}; width: 1px; height: {{ t.h2 }}; background: {{ m.muted }}"></span>
+</sc-for>
+<span style="position: absolute; top: 0; left: {{ fx.meterLeft }}; width: 4px; height: 26px; margin-left: -2px; background: #ff6a3d; transition: left .3s ease"></span>
+</div>
+<p aria-live="polite" style="margin: 0; font-size: 12px; color: {{ ix.statusColor }}">{{ ix.status }}</p>
+<button type="button" onClick="{{ reset }}" style="align-self: flex-start; min-height: 52px; padding: 0 28px; border: 0; border-radius: 26px; background: #ff6a3d; color: #140a05; font-family: inherit; font-size: 13px; letter-spacing: 1.5px; cursor: pointer">AUTO</button>
+<span style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; color: {{ m.muted }}">Or choose AUTO mode, like real pros.</span>
+<sc-if value="{{ ix.done }}" hint-placeholder-val="{{ false }}">
+<a href="#structures" style="font-size: 12px; letter-spacing: 1.5px; text-decoration: none; color: #7ee2a8">GOOD LIGHT. LET'S GO ↓</a>
+</sc-if>
+</div>
+
+</div>
+</div>
+<div id="s-call" class="scene" data-i="1" style="position: absolute; inset: 0; overflow: hidden; border-radius: var(--r, 24px); background: #e9efcf; transform: translate3d(520px, -120px, -3000px); visibility: hidden; opacity: 0; --p: 0; --a: 0; --cs: 1">
+
+<div style="position: absolute; inset: 0; background: repeating-linear-gradient(0deg, #e3ebc4 0 18px, #dbe4b8 18px 36px)"></div>
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; padding: 80px 32px 40px; box-sizing: border-box">
+<p style="margin: 0; font-family: 'Press Start 2P', monospace; font-size: 12px; line-height: 1.8; color: #2f6b2a; text-align: center">01 · THE CALL · 2011</p>
+<div role="group" aria-label="Choose a path" style="display: grid; grid-template-columns: repeat(3, minmax(0, 220px)); gap: 28px">
+<sc-for list="{{ call.orbs }}" as="o" hint-placeholder-count="3">
+<button type="button" onClick="{{ o.pick }}" aria-pressed="{{ o.pressed }}" style="display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px 8px; border: 0; border-radius: 14px; background: {{ o.bg }}; cursor: pointer; font-family: 'Press Start 2P', monospace; font-size: 11px; line-height: 1.6; color: #1f2a1a">
+<span aria-hidden="true" style="position: relative; display: block; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle at 32% 28%, #ffffff 0 10%, {{ o.c1 }} 32%, {{ o.c2 }} 100%); box-shadow: 0 14px 0 rgba(31,42,26,.25), inset 0 -10px 18px rgba(0,0,0,.25); transform: translateY({{ o.lift }}); transition: transform .25s steps(3)"><span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #ffffff; text-shadow: 2px 2px 0 rgba(0,0,0,.35)">{{ o.glyph }}</span></span>
+<span>{{ o.name }}</span>
+<span style="font-size: 9px; color: #4d5a3f">{{ o.type }}</span>
+</button>
+</sc-for>
+</div>
+<div aria-live="polite" style="width: min(860px, 92%); padding: 22px 26px; border: 4px double #1f2a1a; border-radius: 4px; background: #ffffff; font-family: 'Press Start 2P', monospace; font-size: 13px; line-height: 2; color: #1f2a1a; box-shadow: 8px 8px 0 #1f2a1a; box-sizing: border-box"><span style="white-space: pre-line">{{ call.text }}</span><span class="caret" aria-hidden="true"> ▼</span></div>
+</div>
+
+</div>
+<div id="s-eng" class="scene" data-i="2" style="position: absolute; inset: 0; overflow: hidden; border-radius: var(--r, 24px); background: #0c0e12; transform: translate3d(-480px, 80px, -6000px); visibility: hidden; opacity: 0; --p: 0; --a: 0; --cs: 1">
+
+<div aria-hidden="true" style="position: absolute; inset: 0; background-color: #0c0e12; background-image: linear-gradient(rgba(210,220,235,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(210,220,235,.05) 1px, transparent 1px); background-size: 24px 24px"></div>
+<canvas id="ft-canvas" role="img" aria-label="Interactive 3D model of a church frame, its footings and the soil layers" style="position: absolute; inset: 0; width: 100%; height: 100%; touch-action: pan-y"></canvas>
+<div aria-hidden="true" id="ft-label" style="position: absolute; left: 0; top: 0; transform: translate(-200px, -200px); padding: 6px 10px; border-radius: 4px; background: {{ ft.color }}; color: #0c0e12; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1px; white-space: nowrap; pointer-events: none">{{ ft.tag }}</div>
+<div style="position: absolute; left: 40px; top: 96px; width: 380px; max-width: calc(100% - 80px); display: flex; flex-direction: column; gap: 12px; pointer-events: none">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 2px; color: #ffd84a">02 · STRUCTURES · 2012 TO 2020</p>
+<h2 style="margin: 0; font-size: 40px; line-height: 1.05; font-weight: 600; color: #e8eaee">{{ ft.title }}</h2>
+<p style="margin: 0; font-size: 17px; line-height: 1.5; color: #a3a9b4">{{ ft.text }}</p>
+</div>
+<div aria-live="polite" style="position: absolute; right: 40px; bottom: 36px; width: 290px; padding: 16px 18px; border: 1px solid #2a2f38; border-radius: 12px; background: rgba(12,14,18,.85); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #a3a9b4; display: flex; flex-direction: column; gap: 8px">
+<span style="display: flex; justify-content: space-between"><span>FOOTING</span><span style="color: #e8eaee">{{ ft.dims }}</span></span>
+<span style="display: flex; justify-content: space-between"><span>SOIL PRESSURE</span><span style="color: {{ ft.color }}">{{ ft.press }}</span></span>
+<span aria-hidden="true" style="position: relative; display: block; height: 6px; border-radius: 3px; background: #22262e"><span style="position: absolute; left: 0; top: 0; bottom: 0; width: {{ ft.pressW }}; border-radius: 3px; background: {{ ft.color }}"></span></span>
+<span style="display: flex; justify-content: space-between"><span>COST</span><span style="color: #e8eaee">{{ ft.cTot }}</span></span>
+<span style="display: flex; justify-content: space-between"><span>VS CHEAPEST SAFE</span><span style="color: {{ ft.relColor }}">{{ ft.rel }}</span></span>
+<span style="font-family: 'Space Grotesk', sans-serif; font-size: 15px; color: {{ ft.color }}">{{ ft.verdict }}</span>
+<sc-if value="{{ ft.showGuide }}" hint-placeholder-val="{{ false }}">
+<span style="padding: 10px 12px; border-radius: 8px; background: rgba(255,216,74,.12); border: 1px solid #ffd84a; font-family: 'Space Grotesk', sans-serif; font-size: 14px; line-height: 1.45; color: #ffe9a3">{{ ft.step }}</span>
+<button type="button" onClick="{{ ft.showMe }}" style="min-height: 40px; border: 1px solid #3a404b; border-radius: 20px; background: transparent; color: #e8eaee; font-family: inherit; font-size: 11px; letter-spacing: 1px; cursor: pointer">SHOW ME THE SWEET SPOT</button>
+</sc-if>
+</div>
+<div style="position: absolute; left: 40px; bottom: 36px; width: 210px; padding: 12px 14px; border: 1px solid #2a2f38; border-radius: 12px; background: rgba(12,14,18,.85); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #a3a9b4; display: flex; flex-direction: column; gap: 5px">
+<span style="color: #e8eaee">SOIL · REAL BOREHOLE</span>
+<sc-for list="{{ ft.soil }}" as="sl" hint-placeholder-count="7">
+<span style="display: grid; grid-template-columns: 36px 1fr 56px; gap: 6px; align-items: center; padding: 1px 4px; border-radius: 3px; background: {{ sl.rowBg }}; color: {{ sl.fg }}"><span>{{ sl.d }}</span><span aria-hidden="true" style="display: block; height: 7px; width: {{ sl.w }}; background: {{ sl.c }}; border-radius: 2px"></span><span style="text-align: right">{{ sl.s }}</span></span>
+</sc-for>
+</div>
+
+</div>
+<div id="s-des" class="scene" data-i="3" style="position: absolute; inset: 0; overflow: hidden; border-radius: var(--r, 24px); background: #24140a; transform: translate3d(380px, 140px, -9000px); visibility: hidden; opacity: 0; --p: 0; --a: 0; --cs: 1">
+
+<div aria-hidden="true" style="position: absolute; inset: 0; background-image: url(../../public/assets/prologue/dunes-360.webp); background-size: auto 150%; background-position: 30% calc(90% - var(--p) * 20%); filter: sepia(.45) brightness(.75)"></div>
+<div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(36,20,10,.55), rgba(36,20,10,.1) 40%, rgba(36,20,10,.75))"></div>
+<canvas id="desert-canvas" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none"></canvas>
+<div style="position: absolute; left: 0; right: 0; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; gap: 28px; padding: 0 9vw; color: #f4e4cc">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 2px; color: #cfb592">03 · THE DESERT · 2019 TO 2020</p>
+<h2 style="margin: 0; font-family: 'Fraunces', Georgia, serif; font-size: clamp(52px, 7vw, 96px); line-height: 1; font-weight: 400; font-style: italic">Then came the desert.</h2>
+<p style="margin: 0; max-width: 640px; font-size: 24px; line-height: 1.5; opacity: clamp(0, calc((var(--p) - 0.15) * 5), 1)">I was good at the work, and I still loved designing.</p>
+<p style="margin: 0; max-width: 640px; font-size: 24px; line-height: 1.5; color: #cfb592; opacity: clamp(0, calc((var(--p) - 0.4) * 5), 1)">But I kept feeling I could do more. What I was best at and what I did all day were drifting apart.</p>
+<p style="margin: 0; max-width: 640px; font-size: 24px; line-height: 1.5; opacity: clamp(0, calc((var(--p) - 0.65) * 5), 1)">Deserts are quiet. That is where you hear the question you have been avoiding.</p>
+</div>
+
+</div>
+<div id="s-click" class="scene" data-i="4" style="position: absolute; inset: 0; overflow: hidden; border-radius: var(--r, 24px); background: #17130f; transform: translate3d(-360px, -100px, -12000px); visibility: hidden; opacity: 0; --p: 0; --a: 0; --cs: 1">
+
+<div id="py-stage" style="position: absolute; inset: 0; box-sizing: border-box; padding: 80px 40px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 40px; background-color: {{ py.bg }}; transition: background-color 1.2s ease">
+<div aria-hidden="true" style="position: absolute; inset: 0; background: radial-gradient(circle at 62% 62%, rgba(86,168,245,.38), transparent 48%), radial-gradient(circle at 28% 30%, rgba(255,106,94,.28), transparent 44%), radial-gradient(circle at 84% 18%, rgba(255,216,74,.22), transparent 38%), radial-gradient(circle at 12% 85%, rgba(199,146,234,.22), transparent 40%); opacity: {{ py.bloom }}; transition: opacity 1.4s ease"></div>
+<div aria-hidden="true" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 0 4vw; text-align: center; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: {{ py.bigSize }}; line-height: .92; letter-spacing: -3px; color: transparent; -webkit-text-stroke: 1.5px {{ py.bigStroke }}; opacity: {{ py.bigOp }}; transform: scale({{ py.bigScale }}); transition: opacity .8s ease, transform 1.2s cubic-bezier(.2,.8,.2,1)">{{ py.big }}</div>
+<canvas id="py-burst" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3"></canvas>
+<div style="position: relative; z-index: 2; flex: 0 1 340px; display: flex; flex-direction: column; gap: 14px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 2px; color: {{ m.muted }}">04 · THE CLICK · 2020</p>
+<h2 id="h-click" style="margin: 0; font-size: 44px; line-height: 1.05; font-weight: 600; letter-spacing: -1px">{{ py.title }}</h2>
+<p style="margin: 0; font-size: 18px; line-height: 1.55; color: {{ m.muted }}">{{ py.text }}</p>
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.6; color: {{ m.muted }}">{{ py.gloss }}</p>
+</div>
+<div id="py-ide" style="position: relative; z-index: 2; flex: 1 1 560px; max-width: 860px; height: min(600px, calc(100vh - 140px)); display: flex; flex-direction: column; border: 1px solid #393b40; border-radius: 10px; overflow: hidden; background: #1e1f22; box-shadow: {{ py.ideShadow }}; filter: {{ py.ideFilter }}; transition: filter 1s ease, box-shadow 1.2s ease; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #bcbec4">
+<div style="flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 14px; background: #1f9d55; color: #06210f; font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600">
+<span>● You are viewing Elias's screen</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500">2020 · LATE NIGHT</span>
+</div>
+<div aria-hidden="true" style="position: absolute; inset: 0; z-index: 4; pointer-events: none; mix-blend-mode: screen; opacity: .07">
+<div class="face face-{{ py.face }}" style="position: absolute; left: 50%; bottom: -12%; width: 46%; height: 82%; margin-left: -23%; transform: scaleX(-1)">
+<span style="position: absolute; left: 50%; top: 4%; width: 44%; height: 50%; margin-left: -22%; border-radius: 50%; background: #ffffff; filter: blur(14px)"></span>
+<span style="position: absolute; left: 0; right: 0; bottom: 0; height: 44%; border-radius: 48% 48% 0 0; background: #ffffff; filter: blur(18px)"></span>
+</div>
+</div>
+<div style="position: absolute; top: 46px; right: 14px; z-index: 5; width: 210px; height: 140px; border-radius: 10px; overflow: hidden; background: radial-gradient(circle at 50% 30%, #3a3f4c, #15171c); box-shadow: 0 10px 30px rgba(0,0,0,.5), 0 0 0 {{ py.camRing }}; transition: box-shadow .5s ease">
+<div aria-hidden="true" class="face face-{{ py.face }}" style="position: absolute; left: 50%; bottom: -6px; width: 120px; height: 126px; margin-left: -60px">
+<span style="position: absolute; left: 50%; top: 8px; width: 52px; height: 62px; margin-left: -26px; border-radius: 50% 50% 46% 46%; background: #8a8f9c"></span>
+<span style="position: absolute; left: 0; right: 0; bottom: 0; height: 52px; border-radius: 50% 50% 0 0; background: #5c616d"></span>
+<span class="hand" style="position: absolute; left: 82px; top: 2px; width: 20px; height: 26px; border-radius: 10px; background: #8a8f9c"></span>
+<span class="spark1" style="position: absolute; left: 6px; top: 6px; font-size: 18px; color: #ffd84a">✦</span>
+</div>
+<span style="position: absolute; left: 8px; bottom: 8px; padding: 3px 8px; border-radius: 4px; background: rgba(0,0,0,.55); color: #e8eaee; font-family: 'Space Grotesk', sans-serif; font-size: 12px">Elias</span>
+<span style="position: absolute; right: 8px; top: 8px; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,.55); color: #a3a6ad; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .5px">{{ py.clipLabel }}</span>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 14px; background: #2b2d30; border-bottom: 1px solid #1e1f22; font-size: 12px">
+<span style="display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 11px; height: 11px; border-radius: 50%; background: #ff5f57"></span><span aria-hidden="true" style="width: 11px; height: 11px; border-radius: 50%; background: #febc2e"></span><span aria-hidden="true" style="width: 11px; height: 11px; border-radius: 50%; background: #28c840"></span><span style="margin-left: 10px">pythonProject · {{ py.file }}</span></span>
+<span style="display: flex; align-items: center; gap: 10px"><span style="color: #9da0a8">{{ py.file }}</span><span aria-hidden="true" style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 24px; border-radius: 4px; background: {{ py.runBg }}; color: #5fb865; font-size: 13px; box-shadow: {{ py.runGlow }}; transition: box-shadow .3s ease, background-color .3s ease">▶</span></span>
+</div>
+<div style="flex: 1; min-height: 0; display: flex">
+<div style="flex: none; width: 170px; padding: 10px 0; background: #2b2d30; border-right: 1px solid #1e1f22; font-size: 12px; display: flex; flex-direction: column; gap: 2px">
+<span style="padding: 4px 12px; color: #dfe1e5">▾ pythonProject</span>
+<sc-for list="{{ py.files }}" as="pf" hint-placeholder-count="2">
+<span style="padding: 4px 12px 4px 30px; background: {{ pf.bg }}; color: {{ pf.fg }}">{{ pf.name }}</span>
+</sc-for>
+</div>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+<div style="display: flex; background: #2b2d30; font-size: 12px"><span style="padding: 7px 14px; background: #1e1f22; border-top: 2px solid #3574f0; color: #dfe1e5">{{ py.file }}</span></div>
+<div style="flex: 1; min-height: 0; padding: 14px 0; overflow: hidden; line-height: 1.8">
+<sc-for list="{{ py.lines }}" as="ln" hint-placeholder-count="3">
+<div style="display: flex; white-space: pre"><span style="flex: none; width: 44px; padding-right: 14px; text-align: right; color: #6f737a">{{ ln.n }}</span><span><sc-for list="{{ ln.segs }}" as="sg" hint-placeholder-count="3"><span style="color: {{ sg.c }}; text-decoration: {{ sg.u }}; text-decoration-color: #f75464">{{ sg.t }}</span></sc-for><sc-if value="{{ ln.caret }}" hint-placeholder-val="{{ false }}"><span class="caret" style="color: #dfe1e5">▏</span></sc-if></span></div>
+</sc-for>
+</div>
+<div style="flex: none; height: 38%; min-height: 150px; display: flex; flex-direction: column; border-top: 1px solid #393b40; background: #1e1f22">
+<div style="padding: 6px 14px; background: #2b2d30; font-size: 12px; color: #9da0a8">Run: {{ py.runName }}</div>
+<div aria-live="polite" style="flex: 1; min-height: 0; overflow: hidden; padding: 10px 14px; line-height: 1.7; white-space: pre-wrap">
+<sc-for list="{{ py.out }}" as="o" hint-placeholder-count="2"><div style="color: {{ o.c }}">{{ o.t }}</div></sc-for>
+<sc-if value="{{ py.ask }}" hint-placeholder-val="{{ false }}">
+<label style="display: flex; align-items: center; gap: 6px; color: #5fb865">› <input aria-label="Answer the program: type your name and press Enter" value="{{ py.name }}" onChange="{{ py.setName }}" onKeyDown="{{ py.enter }}" placeholder="type your name, press Enter" style="flex: 1; min-height: 32px; border: 0; outline: 1px solid #3574f0; border-radius: 3px; background: #2b2d30; color: #dfe1e5; font-family: inherit; font-size: 13px; padding: 0 8px"></label>
+</sc-if>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<div id="s-win" class="scene" data-i="5" style="position: absolute; inset: 0; overflow: hidden; border-radius: var(--r, 24px); background: #0f4a8a; transform: translate3d(460px, 60px, -15000px); visibility: hidden; opacity: 0; --p: 0; --a: 0; --cs: 1">
+<div aria-hidden="true" style="position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 20%, #2f7fd0, #0f4a8a 60%, #082a52)"></div>
+<div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 0; height: 40px; display: flex; align-items: center; gap: 14px; padding: 0 12px; background: rgba(16,20,28,.92); font-family: system-ui, sans-serif; font-size: 12px; color: #e8eaee; z-index: 6">
+<span style="display: inline-grid; grid-template-columns: 8px 8px; gap: 2px"><span style="width: 8px; height: 8px; background: #e8eaee"></span><span style="width: 8px; height: 8px; background: #e8eaee"></span><span style="width: 8px; height: 8px; background: #e8eaee"></span><span style="width: 8px; height: 8px; background: #e8eaee"></span></span>
+<span style="padding: 4px 10px; border-bottom: 2px solid {{ w.tb1 }}">Browser</span><span style="padding: 4px 10px; border-bottom: 2px solid {{ w.tb2 }}">Chat</span><span style="padding: 4px 10px; border-bottom: 2px solid {{ w.tb3 }}">Editor</span>
+<span style="margin-left: auto">{{ w.clock }}</span>
+</div>
+<div style="position: absolute; left: 40px; top: 92px; width: 320px; display: flex; flex-direction: column; gap: 12px; color: #ffffff; z-index: 3">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 2px; color: #cfe3ff">{{ w.kicker }}</p>
+<h2 style="margin: 0; font-size: 36px; line-height: 1.06; font-weight: 600; text-shadow: 0 2px 12px rgba(0,0,0,.3)">{{ w.title }}</h2>
+<p style="margin: 0; font-size: 17px; line-height: 1.5; color: #dbe9ff">{{ w.text }}</p>
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.6; color: #cfe3ff">{{ w.gloss }}</p>
+<sc-if value="{{ w.naming }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 14px">
+<sc-for list="{{ js.names }}" as="nm" hint-placeholder-count="6"><span style="padding: 6px 10px; border-radius: 6px; border: 1px solid {{ nm.bd }}; color: {{ nm.c }}; text-decoration: {{ nm.td }}; background: {{ nm.bg }}">{{ nm.t }}</span></sc-for>
+</div>
+</sc-if>
+</div>
+<sc-if value="{{ w.photo }}" hint-placeholder-val="{{ false }}">
+<figure style="position: absolute; left: 60px; bottom: 64px; width: 200px; margin: 0; padding: 10px 10px 34px; background: #fbfaf6; box-shadow: 0 14px 30px rgba(0,0,0,.45); transform: rotate(-4deg); z-index: 3">
+<img src="{{ w.photoSrc }}" alt="{{ w.photoAlt }}" style="display: block; width: 100%; height: 220px; object-fit: cover">
+<figcaption style="position: absolute; left: 10px; right: 10px; bottom: 8px; font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 14px; color: #2a2a2a">{{ w.photoCap }}</figcaption>
+</figure>
+</sc-if>
+<div style="position: absolute; left: 380px; right: 40px; top: 96px; bottom: 64px; display: flex; gap: 20px; z-index: 2">
+
+<sc-if value="{{ w.feed }}" hint-placeholder-val="{{ true }}">
+<div style="flex: 1.2; min-width: 0; display: flex; flex-direction: column; background: #fafafa; border: 1px solid #9a9a9a; box-shadow: 0 16px 50px rgba(0,0,0,.4); font-family: system-ui, sans-serif; color: #262626">
+<div style="padding: 8px 12px; background: #dee1e6; font-size: 12px; color: #202124">social feed · 23:41</div>
+<div style="flex: 1; overflow: hidden; display: flex; justify-content: center; padding: 16px">
+<div style="width: 100%; max-width: 420px; background: #ffffff; border: 1px solid #dbdbdb; border-radius: 8px; overflow: hidden">
+<div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; font-size: 13px"><span style="width: 32px; height: 32px; border-radius: 50%; background: #0b2a8f; color: #ffffff; display: inline-flex; align-items: center; justify-content: center; font-weight: 700">F</span><span><strong>frontend.bootcamp</strong><br><span style="font-size: 11px; color: #8e8e8e">Sponsored</span></span></div>
+<div style="padding: 28px 24px; background: linear-gradient(135deg, #0b2a8f, #1d4fd8); color: #ffffff">
+<div style="font-size: 24px; font-weight: 700; line-height: 1.15">Start your career in front-end.</div>
+<div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.4"><span>· 16 months, intensive, run like a real job</span><span>· Pay only once you are hired</span><span>· Selection process with coding challenges</span></div>
+</div>
+<div style="padding: 10px 12px; font-size: 13px; line-height: 1.5"><span aria-hidden="true">♡  ◯  ➤</span><br><strong>frontend.bootcamp</strong> Applications open. Evenings, 7 to 11 p.m.</div>
+</div>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ w.chat }}" hint-placeholder-val="{{ false }}">
+<div style="flex: 0.8; min-width: 0; display: flex; flex-direction: column; background: #0b141a; border: 1px solid #2a3942; box-shadow: 0 16px 50px rgba(0,0,0,.45); font-family: system-ui, sans-serif; font-size: 14px; color: #e9edef">
+<div style="padding: 10px 14px; background: #202c33; font-size: 13px">[a friend] · May 25, 2020</div>
+<div style="flex: 1; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; padding: 14px">
+<sc-for list="{{ w.msgs }}" as="mg" hint-placeholder-count="4">
+<div style="align-self: {{ mg.side }}; max-width: 82%; padding: 8px 12px; border-radius: 10px; background: {{ mg.bg }}; line-height: 1.4">{{ mg.t }}<div style="font-size: 11px; color: #8696a0">{{ mg.en }}</div></div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ w.mail }}" hint-placeholder-val="{{ false }}">
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; background: #ffffff; border: 1px solid #9a9a9a; box-shadow: 0 16px 50px rgba(0,0,0,.4); font-family: system-ui, sans-serif; color: #202124">
+<div style="padding: 8px 12px; background: #dee1e6; font-size: 12px">Inbox · Selection process</div>
+<div style="padding: 28px 32px; display: flex; flex-direction: column; gap: 16px; font-size: 15px; line-height: 1.6">
+<div style="font-size: 20px; font-weight: 600">Desafio: Calculadora</div>
+<div>Crie uma calculadora que some dois valores (A + B), usando HTML, CSS e JavaScript.</div>
+<div style="font-size: 13px; color: #5f6368">Build a calculator that adds two values (A + B), using HTML, CSS and JavaScript.</div>
+<div style="display: flex; gap: 10px; margin-top: 8px">
+<sc-for list="{{ w.techs }}" as="tc" hint-placeholder-count="3"><span style="padding: 8px 14px; border-radius: 6px; border: 1px solid {{ tc.bd }}; color: {{ tc.c }}; font-family: 'JetBrains Mono', monospace; font-size: 13px">{{ tc.t }}</span></sc-for>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ w.editor }}" hint-placeholder-val="{{ false }}">
+<div style="flex: 1.1; min-width: 0; display: flex; flex-direction: column; background: #23241f; border: 1px solid #555; box-shadow: 0 16px 50px rgba(0,0,0,.45); font-family: 'JetBrains Mono', Consolas, monospace; font-size: 13px; color: #f8f8f2">
+<div style="display: flex; justify-content: space-between; padding: 6px 12px; background: #e9e9e9; font-family: system-ui, sans-serif; font-size: 12px; color: #1a1a1a"><span>C:\Users\Usuário\Desktop\curso\{{ w.file }} - Sublime Text</span><span aria-hidden="true">—  ▢  ✕</span></div>
+<div style="flex: 1; min-height: 0; display: flex">
+<div style="flex: none; width: 150px; padding: 10px 0; background: #ece6d9; color: #3a3a3a; font-family: system-ui, sans-serif; font-size: 12px; display: flex; flex-direction: column; gap: 2px">
+<span style="padding: 2px 10px; font-size: 10px; letter-spacing: 1px; color: #7a7466">FOLDERS</span>
+<sc-for list="{{ w.files }}" as="wf" hint-placeholder-count="5"><span style="padding: 3px 10px 3px 18px; background: {{ wf.bg }}">{{ wf.n }}</span></sc-for>
+</div>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+<div style="display: flex; background: #1b1c18; font-size: 12px"><span style="padding: 7px 14px; background: #23241f; color: #ffffff">{{ w.file }}</span></div>
+<sc-if value="{{ w.codeHtml }}" hint-placeholder-val="{{ true }}">
+<div style="flex: 1; min-height: 0; overflow: hidden; padding: 12px 0; line-height: 1.65">
+<sc-for list="{{ w.lines }}" as="ln" hint-placeholder-count="6"><div style="display: flex; white-space: pre; background: {{ ln.bg }}"><span style="flex: none; width: 36px; padding-right: 12px; text-align: right; color: #75715e">{{ ln.n }}</span><span><sc-for list="{{ ln.segs }}" as="sg" hint-placeholder-count="3"><span style="color: {{ sg.c }}; font-style: {{ sg.it }}; outline: {{ sg.o }}">{{ sg.t }}</span></sc-for></span></div></sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ w.yours }}" hint-placeholder-val="{{ false }}">
+<textarea aria-label="Edit the HTML yourself" value="{{ ht.src }}" onChange="{{ ht.edit }}" spellcheck="false" style="flex: 1; resize: none; border: 0; outline: 2px solid #ffd84a; margin: 6px; padding: 10px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 13px; line-height: 1.6; color: #f8f8f2; background: #23241f"></textarea>
+</sc-if>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ w.browser }}" hint-placeholder-val="{{ false }}">
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; background: #ffffff; border: 1px solid #9a9a9a; box-shadow: 0 16px 50px rgba(0,0,0,.4)">
+<div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px 0; background: #dee1e6; font-family: system-ui, sans-serif; font-size: 12px; color: #202124"><span style="padding: 7px 14px; border-radius: 8px 8px 0 0; background: #ffffff">{{ w.tabTitle }}</span></div>
+<div style="padding: 8px 12px; background: #ffffff; border-bottom: 1px solid #dadce0; font-family: system-ui, sans-serif; font-size: 12px; color: #5f6368">ⓘ Arquivo  |  C:/Users/Usuário/Desktop/curso/{{ w.file }}</div>
+<sc-if value="{{ w.page }}" hint-placeholder-val="{{ true }}">
+<div aria-live="polite" style="flex: 1; overflow: auto; padding: 8px; font-family: {{ ht.bodyFf }}; font-size: 16px; color: #000000; background: {{ ht.bodyBg }}; transition: background-color .4s ease">
+<sc-for list="{{ ht.blocks }}" as="bk" hint-placeholder-count="2">
+<div style="margin: {{ bk.m }}; font-size: {{ bk.fs }}; font-weight: {{ bk.fw }}; color: {{ bk.c }}; font-family: {{ bk.ff }}; text-align: {{ bk.ta }}; line-height: 1.2; transition: color .4s ease"><sc-for list="{{ bk.segs }}" as="sg" hint-placeholder-count="2"><span style="font-weight: {{ sg.fw }}; font-style: {{ sg.fs }}; text-decoration: {{ sg.td }}; white-space: pre-wrap">{{ sg.t }}</span></sc-for></div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ w.calcV1 }}" hint-placeholder-val="{{ false }}">
+<div style="flex: 1; overflow: auto; padding: 8px 16px; font-family: 'Times New Roman', Times, serif; color: #000000; background: #ffffff">
+<h1 style="margin: 21px 0; font-size: 32px">Calculadora Simples</h1>
+<h2 style="margin: 20px 0; font-size: 24px">A + B = C</h2>
+<p style="margin: 16px 0">A = <input type="text" aria-label="A" style="width: 200px"></p>
+<p style="margin: 16px 0">B = <input type="text" aria-label="B" style="width: 200px"></p>
+<p style="margin: 16px 0">C = </p>
+<p style="margin: 16px 0"><button type="button" onClick="{{ calc.v1 }}">Calcular</button></p>
+</div>
+</sc-if>
+<sc-if value="{{ w.calcFinal }}" hint-placeholder-val="{{ false }}">
+<div class="calc2020" style="flex: 1; overflow: auto; background: #ffffff; color: #000000; padding: 10px 16px">
+<header style="overflow: hidden">
+<sc-if value="{{ js.icon }}" hint-placeholder-val="{{ true }}"><img src="../../public/assets/icons/calc-icon.png" alt="Calculator icon" width="56" style="float: left; margin-right: 8px"></sc-if>
+<h1 style="font-size: 30px">Calculadora Básica</h1>
+<p class="sub">Use a calculadora abaixo para <strong>somar</strong> dois valores.</p>
+</header>
+<div style="width: 360px; max-width: 100%; padding: 8px 16px 8px 8px; margin-top: 16px; background: {{ js.cardBg }}; box-shadow: {{ js.shadow }}; transition: background-color .5s ease, box-shadow .5s ease">
+<p class="form"><label>Primeiro valor: <input type="number" value="{{ calc.n1 }}" onChange="{{ calc.setN1 }}" style="width: 120px"></label></p>
+<p class="form"><label>Segundo valor: <input type="number" value="{{ calc.n2 }}" onChange="{{ calc.setN2 }}" style="width: 120px"></label></p>
+<p class="form"><label>Resultado: <input value="{{ calc.res }}" readonly style="width: 120px"></label></p>
+<p class="form"><button type="button" onClick="{{ calc.somar }}">Somar</button><sc-if value="{{ js.reset }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ calc.zerar }}">Zerar</button></sc-if></p>
+</div>
+</div>
+</sc-if>
+<p aria-live="polite" style="margin: 0; padding: 8px 12px; border-top: 1px solid #dadce0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #5f6368; background: #f8f9fa">{{ w.status }}</p>
+</div>
+</sc-if>
+</div>
+</div>
+<div id="s-ubu" class="scene" data-i="6" style="position: absolute; inset: 0; overflow: hidden; border-radius: var(--r, 24px); background: #2c001e; transform: translate3d(-420px, -60px, -18000px); visibility: hidden; opacity: 0; --p: 0; --a: 0; --cs: 1">
+<sc-if value="{{ u.grub }}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; inset: 0; background: #2c001e; display: flex; flex-direction: column; justify-content: center; padding: 0 12vw; font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #ffffff; line-height: 2">
+<div style="text-align: center; margin-bottom: 24px">GNU GRUB  version 2.04</div>
+<div style="border: 1px solid #ffffff; padding: 12px 16px">
+<div style="background: #ffffff; color: #2c001e">*Ubuntu</div><div>Advanced options for Ubuntu</div><div>Windows Boot Manager (on /dev/sda1)</div>
+</div>
+<div style="margin-top: 20px; font-size: 13px; opacity: .8">The highlighted entry will be executed automatically in 3s.</div>
+</div>
+</sc-if>
+<sc-if value="{{ u.desk }}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" style="position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 40%, #e95420 0%, #77216f 45%, #2c001e 90%)"></div>
+<div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0; height: 28px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; background: #111111; font-family: system-ui, sans-serif; font-size: 13px; color: #ffffff; z-index: 4"><span>Activities</span><span>ago 10  22:04</span><span>⏻</span></div>
+<div aria-hidden="true" style="position: absolute; left: 0; top: 28px; bottom: 0; width: 56px; display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 14px; background: rgba(17,17,17,.85); z-index: 4">
+<span style="width: 34px; height: 34px; border-radius: 8px; background: #f4b400"></span><span style="width: 34px; height: 34px; border-radius: 8px; background: #ff7139"></span><span style="width: 34px; height: 34px; border-radius: 8px; background: #23a9f2; outline: 2px solid #ffffff"></span><span style="width: 34px; height: 34px; border-radius: 8px; background: #1db954"></span><span style="width: 34px; height: 34px; border-radius: 8px; background: #5865f2"></span>
+</div>
+<div style="position: absolute; left: 40px; top: 70px; width: 320px; padding-left: 40px; display: flex; flex-direction: column; gap: 12px; color: #ffffff; z-index: 3">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 2px; color: #ffd2c2">08 · TUX · AUGUST 2020</p>
+<h2 style="margin: 0; font-size: 36px; line-height: 1.06; font-weight: 600">{{ u.title }}</h2>
+<p style="margin: 0; font-size: 17px; line-height: 1.5; color: #ffe3d8">{{ u.text }}</p>
+</div>
+<div style="position: absolute; left: 420px; right: 40px; top: 60px; bottom: 40px; display: flex; flex-direction: column; border: 1px solid #3c3c3c; border-radius: 8px; overflow: hidden; background: #1e1e1e; box-shadow: 0 20px 60px rgba(0,0,0,.5); font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #d4d4d4; z-index: 3">
+<div style="padding: 7px 14px; background: #323233; font-family: system-ui, sans-serif; font-size: 12px; text-align: center">test.js - nlw - Visual Studio Code</div>
+<div style="flex: 1; min-height: 0; overflow: hidden; padding: 10px 0; line-height: 1.6">
+<sc-for list="{{ u.lines }}" as="ln" hint-placeholder-count="8"><div style="display: flex; white-space: pre; background: {{ ln.bg }}"><span style="flex: none; width: 44px; padding-right: 14px; text-align: right; color: #858585">{{ ln.n }}</span><span style="color: {{ ln.c }}">{{ ln.t }}</span></div></sc-for>
+</div>
+<div style="flex: none; height: 42%; display: flex; flex-direction: column; border-top: 1px solid #3c3c3c">
+<div style="padding: 5px 14px; font-size: 11px; letter-spacing: 1px; color: #9d9d9d">TERMINAL</div>
+<div aria-live="polite" style="flex: 1; overflow: hidden; padding: 4px 14px; line-height: 1.55; white-space: pre-wrap">
+<sc-for list="{{ u.out }}" as="o" hint-placeholder-count="3"><div style="color: {{ o.c }}">{{ o.t }}</div></sc-for>
+</div>
+</div>
+</div>
+</sc-if>
+</div>
+<div id="s-end" class="scene" data-i="7" style="position: absolute; inset: 0; overflow: hidden; border-radius: var(--r, 24px); background: #0b0d14; transform: translate3d(0px, 0px, -21000px); visibility: hidden; opacity: 0; --p: 0; --a: 0; --cs: 1">
+
+<div aria-hidden="true" style="position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, #1b2436, #0b0d14 70%)"></div>
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; text-align: center; color: #e6e9f2; padding: 0 32px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 2px; color: #8f9bb8">TO BE CONTINUED</p>
+<h2 style="margin: 0; font-size: clamp(40px, 6vw, 80px); line-height: 1; font-weight: 600; letter-spacing: -2px">Next stop: the first job.</h2>
+<p style="margin: 0; max-width: 560px; font-size: 18px; line-height: 1.5; color: #a9b1c7">This new version is being built one scene at a time. The rest of the story still lives in the previous prototype.</p>
+<a href="Journey.dc.html" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 24px; border: 1px solid currentColor; border-radius: 24px; text-decoration: none; font-size: 15px">Continue in the previous version →</a>
+</div>
+
+</div>
+</div>
+<header style="position: absolute; left: 0; right: 0; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 28px; pointer-events: none; mix-blend-mode: difference; color: #ffffff">
+<span style="font-size: 16px; font-weight: 500">Elias Matheus</span>
+<span aria-hidden="true" style="flex: 1; max-width: 360px; height: 2px; background: rgba(255,255,255,.25)"><span id="w-bar" style="display: block; height: 2px; width: 0; background: #ffffff"></span></span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px">{{ xp }}</span>
+<a href="Journey.dc.html" style="pointer-events: auto; font-size: 15px; text-decoration: none">Work →</a>
+</header>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.SC = [["s-pro", 2800, 0, 0], ["s-call", 1100, 520, -120], ["s-eng", 3000, -480, 80], ["s-des", 1500, 380, 140], ["s-click", 3400, -360, -100], ["s-win", 10400, 460, 60], ["s-ubu", 2600, -420, -60], ["s-end", 900, 0, 0]];
+    this.TRAVEL = 1000;
+    this.ZSTEP = 3000;
+    this.state = {
+      sc: 0, camPh: 0, lit: false, expOk: false, iso: 2, sh: 4, ap: 4, film: 3,
+      wStep: 'feed', wK: 0, uStep: 'grub', ftGuide: false,
+      ftB: 1.6, ftD: 1.5, ftPhase: 0, ftOk: false, ftTouched: false,
+      callPick: null,
+      pyStage: 'empty', pyK: 0, pyName: '', pyAnswered: false, pyOk: false,
+      htStep: 'desk', htK: 0, htEdit: null,
+      jsStep: 'q0', jsName: 0, jsDesign: 0,
+      cN1: '', cN2: '0', cRes: '0', calcMsg: ''
+    };
+  }
+  componentDidMount() {
+    this.onScroll = () => {
+      if (this.raf) return;
+      this.raf = requestAnimationFrame(() => { this.raf = null; this.frame(); });
+    };
+    document.addEventListener('scroll', this.onScroll, true);
+    window.addEventListener('resize', this.onScroll);
+    this.tries = 0;
+    const init = () => {
+      const vf = document.getElementById('em-vf');
+      if (!vf && this.tries++ < 40) { this.t0 = setTimeout(init, 150); return; }
+      if (vf) { this.yaw0 = 0.62 * (vf.offsetWidth || 1200) - 1.5 * (vf.offsetHeight || 800); this.setYaw(this.yaw0); }
+      this.frame();
+    };
+    init();
+  }
+  componentDidUpdate() {
+    if (!this.state.expOk && this.state.lit && this.lastEv !== undefined && Math.abs(this.lastEv) <= 0.5) this.setState({ expOk: true });
+  }
+  componentWillUnmount() {
+    document.removeEventListener('scroll', this.onScroll, true);
+    window.removeEventListener('resize', this.onScroll);
+    if (this.t0) clearTimeout(this.t0);
+    if (this.ftRaf) cancelAnimationFrame(this.ftRaf);
+    if (this.desRaf) cancelAnimationFrame(this.desRaf);
+    if (this.burstRaf) cancelAnimationFrame(this.burstRaf);
+    if (this.f3) { this.f3.R.dispose(); this.f3 = null; }
+  }
+  setYaw(px) {
+    const pano = document.getElementById('em-pano');
+    if (pano) pano.style.setProperty('--yaw', Math.round(px) + 'px');
+  }
+  // timeline -> camera position (f) and local progress per scene
+  locate(T) {
+    let pos = 0;
+    for (let i = 0; i < this.SC.length; i++) {
+      const dwell = this.SC[i][1];
+      if (T < pos + dwell || i === this.SC.length - 1) return { f: i, p: Math.min(1, Math.max(0, (T - pos) / dwell)), i: i };
+      pos += dwell;
+      if (T < pos + this.TRAVEL) { const u = (T - pos) / this.TRAVEL; const e = u * u * (3 - 2 * u); return { f: i + e, p: 1, i: i, travel: true }; }
+      pos += this.TRAVEL;
+    }
+    return { f: 0, p: 0, i: 0 };
+  }
+  dwellP(T, j) {
+    let pos = 0;
+    for (let i = 0; i < j; i++) pos += this.SC[i][1] + this.TRAVEL;
+    return Math.min(1, Math.max(0, (T - pos) / this.SC[j][1]));
+  }
+  frame() {
+    const root = document.getElementById('w-root'), world = document.getElementById('w-world');
+    if (!root || !world) return;
+    const T = Math.max(0, -root.getBoundingClientRect().top);
+    const L = this.locate(T);
+    const f = L.f, i0 = Math.floor(f), fr = f - i0;
+    const a = this.SC[i0], b = this.SC[Math.min(this.SC.length - 1, i0 + 1)];
+    const camX = a[2] + (b[2] - a[2]) * fr, camY = a[3] + (b[3] - a[3]) * fr, camZ = f * this.ZSTEP;
+    world.style.transform = 'translate3d(' + (-camX).toFixed(1) + 'px,' + (-camY).toFixed(1) + 'px,' + camZ.toFixed(1) + 'px)';
+    const bar = document.getElementById('w-bar');
+    if (bar) bar.style.width = (f / (this.SC.length - 1) * 100).toFixed(2) + '%';
+    for (let j = 0; j < this.SC.length; j++) {
+      const el = document.getElementById(this.SC[j][0]);
+      if (!el) continue;
+      const dz = camZ - j * this.ZSTEP;
+      const vis = Math.abs(j - f) < 1.7;
+      el.style.visibility = vis ? 'visible' : 'hidden';
+      if (!vis) continue;
+      const op = dz > 0 ? Math.max(0, 1 - dz / 700) : Math.max(0, Math.min(1, (dz + 5200) / 5200));
+      el.style.opacity = op.toFixed(3);
+      el.style.pointerEvents = Math.abs(dz) < 40 ? 'auto' : 'none';
+      el.style.setProperty('--r', Math.min(28, Math.abs(dz) / 25).toFixed(1) + 'px');
+      el.style.setProperty('--p', this.dwellP(T, j).toFixed(4));
+    }
+    const sc = Math.round(f);
+    const up = {};
+    // prologue camera
+    const pp = this.dwellP(T, 0);
+    let ca = Math.min(1, Math.max(0, (pp - 0.28) / 0.34)); ca = ca * ca * (3 - 2 * ca);
+    const proEl = document.getElementById('s-pro');
+    if (proEl) { proEl.style.setProperty('--a', ca.toFixed(4)); proEl.style.setProperty('--cs', Math.min(1, ((window.innerWidth || 1280) * 0.94) / 780).toFixed(3)); }
+    const cph = ca < 0.3 ? 0 : ca < 0.85 ? 1 : 2;
+    if (cph !== this.state.camPh) up.camPh = cph;
+    if (cph === 2 && !this.state.lit) up.lit = true;
+    if (sc !== this.state.sc) up.sc = sc;
+    // engineering
+    const pe = this.dwellP(T, 2);
+    this.ftP = pe;
+    const fph = pe >= 0.22 ? 1 : 0;
+    if (fph !== this.state.ftPhase) up.ftPhase = fph;
+    const engVis = Math.abs(f - 2) < 1.2;
+    if (engVis !== this.ftVisible) { this.ftVisible = engVis; if (engVis) { if (!this.f3) this.loadThree(); else if (!this.ftRaf) this.ftTick(); } }
+    const desVis = Math.abs(f - 3) < 1.2;
+    if (desVis !== this.desVisible) { this.desVisible = desVis; if (desVis && !this.desRaf) this.desertTick(); }
+    // python
+    const cp = this.dwellP(T, 4);
+    const L1 = 19, L2 = 64;
+    let stg, kk = 0;
+    if (cp < 0.06) stg = 'empty';
+    else if (cp < 0.24) { stg = 'type1'; kk = Math.round(L1 * (cp - 0.06) / 0.16); }
+    else if (cp < 0.34) stg = 'err';
+    else if (cp < 0.42) stg = 'fix';
+    else if (cp < 0.54) stg = 'ok1';
+    else if (cp < 0.6) stg = 'ex1';
+    else if (cp < 0.8) { stg = 'type2'; kk = Math.round(L2 * (cp - 0.6) / 0.18); }
+    else stg = 'ask';
+    if (stg === 'ok1' && !this.burstDone && Math.abs(f - 4) < 0.05) { this.burstDone = true; this.burst(1); }
+    if (['empty', 'type1', 'err', 'fix'].indexOf(stg) >= 0) this.burstDone = false;
+    if (stg !== this.state.pyStage) up.pyStage = stg;
+    if (kk !== this.state.pyK) up.pyK = kk;
+    // 2020 desktop
+    const wp = this.dwellP(T, 5);
+    const TXT = 'Olá! Esta é a minha primeira página.';
+    let ws, wk = 0;
+    if (wp < 0.06) ws = 'feed';
+    else if (wp < 0.13) ws = 'chat';
+    else if (wp < 0.19) ws = 'mail';
+    else if (wp < 0.26) { ws = 'h-type'; wk = Math.round(TXT.length * (wp - 0.19) / 0.06); }
+    else if (wp < 0.30) ws = 'h-open';
+    else if (wp < 0.38) { ws = 'h-tags'; wk = Math.min(2, Math.floor((wp - 0.30) / 0.08 * 3)); }
+    else if (wp < 0.43) ws = 'h-yours';
+    else if (wp < 0.53) { ws = 'css'; wk = Math.min(3, Math.floor((wp - 0.43) / 0.10 * 4)); }
+    else ws = 'js';
+    if (ws !== this.state.wStep) up.wStep = ws;
+    if (wk !== this.state.wK) up.wK = wk;
+    const jp = Math.min(1, Math.max(0, (wp - 0.53) / 0.47));
+    let js, jn = 0, jd = 0;
+    if (jp < 0.12) js = 'q0';
+    else if (jp < 0.28) js = 'q1';
+    else if (jp < 0.44) js = 'q2';
+    else if (jp < 0.64) { js = 'q3'; jn = Math.min(5, Math.floor((jp - 0.44) / 0.18 * 6)); }
+    else if (jp < 0.76) js = 'q4';
+    else { js = 'done'; jd = Math.min(4, Math.floor((jp - 0.76) / 0.2 * 5)); }
+    if (js !== this.state.jsStep) up.jsStep = js;
+    if (jn !== this.state.jsName) up.jsName = jn;
+    if (jd !== this.state.jsDesign) up.jsDesign = jd;
+    // ubuntu
+    const up6 = this.dwellP(T, 6);
+    const us = up6 < 0.15 ? 'grub' : up6 < 0.35 ? 'code' : up6 < 0.55 ? 'err' : up6 < 0.7 ? 'fix' : 'ok';
+    if (us !== this.state.uStep) up.uStep = us;
+    if (Object.keys(up).length) this.setState(up);
+  }
+  ftCalc(B, D, P) {
+    const pts = [[0, 4], [1, 6], [2, 9], [3, 21], [4, 23]];
+    const N = (d) => { for (let i = 0; i < pts.length - 1; i++) { const a = pts[i], b = pts[i + 1]; if (d <= b[0]) return a[1] + (b[1] - a[1]) * (d - a[0]) / (b[0] - a[0]); } return 23; };
+    const sigOf = (d) => Math.min(400, 20 * N(d));
+    const parts = (b, d) => { const e = (b + 0.6) * (b + 0.6); return { conc: 0.5 * b * b * 246, exc: e * d * 25, shore: d > 2 ? e * (d - 2) * 60 : 0 }; };
+    const total = (p) => p.conc + p.exc + p.shore;
+    if (!this.ftOpt) {
+      let best = Infinity;
+      for (let b = 0.8; b <= 3.2; b += 0.02) for (let d = 0.6; d <= 3.5; d += 0.02) {
+        if (480 / (b * b) <= sigOf(d)) { const c = total(parts(b, d)); if (c < best) { best = c; this.ftOptB = b; this.ftOptD = d; } }
+      }
+      this.ftOpt = best;
+    }
+    const sig = sigOf(D), q = P / (B * B), pr = parts(B, D), c = total(pr);
+    const st = q > sig ? 'fail' : (P >= 480 && c > this.ftOpt * 1.06) ? 'over' : 'ok';
+    return { sig: sig, q: q, parts: pr, cost: c, rel: c / this.ftOpt - 1, st: st, N: N, sigOf: sigOf };
+  }
+  burst(power) {
+    const cv = document.getElementById('py-burst'), ide = document.getElementById('py-ide');
+    if (!cv || !ide) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const W = cv.clientWidth, H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const cr = cv.getBoundingClientRect(), ir = ide.getBoundingClientRect();
+    const ox = ir.left - cr.left + ir.width * 0.3, oy = ir.top - cr.top + ir.height * 0.78;
+    const glyphs = ['{', '}', '(', ')', ';', '<', '>', '/', '=', '+', '0', '1', '#', '*', '&', 'print', 'def', 'if', 'for', 'λ', '!', '?', '[ ]', ':', '%'];
+    const cols = ['#ff6a5e', '#ffd84a', '#5fb865', '#56a8f5', '#c792ea', '#ff9a52', '#7ee2a8'];
+    const n = Math.round(240 * (power || 1));
+    const ps = Array.from({ length: n }, () => {
+      const a = Math.random() * Math.PI * 2, sp = 4 + Math.random() * 14 * (power || 1);
+      return { x: ox, y: oy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 6, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.3, g: glyphs[Math.floor(Math.random() * glyphs.length)], c: cols[Math.floor(Math.random() * cols.length)], s: 12 + Math.random() * 22, life: 1 };
+    });
+    if (this.burstRaf) cancelAnimationFrame(this.burstRaf);
+    const step = () => {
+      ctx.clearRect(0, 0, W, H);
+      let alive = 0;
+      ps.forEach((p) => {
+        if (p.life <= 0) return;
+        p.vy += 0.28; p.vx *= 0.985; p.vy *= 0.985;
+        p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life -= 0.009;
+        if (p.life <= 0) return;
+        alive++;
+        ctx.save(); ctx.globalAlpha = Math.min(1, p.life * 1.4); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+        ctx.fillStyle = p.c; ctx.font = '600 ' + p.s + 'px JetBrains Mono, monospace'; ctx.fillText(p.g, 0, 0);
+        ctx.restore();
+      });
+      if (alive) this.burstRaf = requestAnimationFrame(step); else { ctx.clearRect(0, 0, W, H); this.burstRaf = null; }
+    };
+    step();
+  }
+  loadThree() {
+    if (window.THREE) { this.buildFooting(); return; }
+    if (this.threeLoading) return;
+    this.threeLoading = true;
+    const sc = document.createElement('script');
+    sc.src = '../../public/assets/VENDOR/three.min.js (use o pacote three do npm)';
+    sc.onload = () => this.buildFooting();
+    document.head.appendChild(sc);
+  }
+  buildFooting() {
+    const T = window.THREE, cv = document.getElementById('ft-canvas');
+    if (!T || !cv || this.f3) return;
+    let R;
+    try { R = new T.WebGLRenderer({ canvas: cv, antialias: true, alpha: true }); } catch (e) { return; }
+    R.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+    const scene = new T.Scene();
+    const cam = new T.PerspectiveCamera(38, 1, 0.1, 200);
+    scene.add(new T.AmbientLight(0xffffff, 0.55));
+    const dl = new T.DirectionalLight(0xffffff, 0.85); dl.position.set(6, 12, 8); scene.add(dl);
+    scene.add(new T.GridHelper(24, 24, 0x353b47, 0x1d2129));
+    [[0, -2, 0xb08a5a, 0.06], [-2, -3, 0x9c7448, 0.10], [-3, -4.6, 0xd6a560, 0.13]].forEach((L) => {
+      const hgt = L[0] - L[1];
+      const g = new T.BoxGeometry(20, hgt, 14);
+      const m = new T.Mesh(g, new T.MeshBasicMaterial({ color: L[2], transparent: true, opacity: L[3], depthWrite: false }));
+      m.position.y = L[0] - hgt / 2; scene.add(m);
+      const e = new T.LineSegments(new T.EdgesGeometry(g), new T.LineBasicMaterial({ color: 0x5a4630 }));
+      e.position.y = m.position.y; scene.add(e);
+    });
+    const edgeMat = new T.LineBasicMaterial({ color: 0x5ec8ff });
+    const gray = new T.MeshStandardMaterial({ color: 0xc9ccd2, roughness: 0.85 });
+    const addBox = (w, h, d, x, y, z, mat) => {
+      const m = new T.Mesh(new T.BoxGeometry(w, h, d), mat || gray);
+      m.position.set(x, y, z); scene.add(m);
+      m.add(new T.LineSegments(new T.EdgesGeometry(m.geometry), edgeMat));
+      return m;
+    };
+    const xs = [-4, 0, 4], zs = [-3, 3];
+    xs.forEach((x) => zs.forEach((z) => addBox(0.3, 6, 0.3, x, 3, z)));
+    [3, 6].forEach((y) => {
+      zs.forEach((z) => addBox(8.3, 0.4, 0.2, 0, y - 0.2, z));
+      xs.forEach((x) => addBox(0.2, 0.4, 6.3, x, y - 0.2, 0));
+      const slab = addBox(8.6, 0.12, 6.6, 0, y + 0.06, 0, new T.MeshStandardMaterial({ color: 0x9aa3b5, transparent: true, opacity: 0.12, depthWrite: false }));
+      slab.renderOrder = 2;
+    });
+    const unit = new T.BoxGeometry(1, 0.5, 1);
+    const stubGeo = new T.BoxGeometry(0.3, 1, 0.3);
+    let tFoot = null, tStub = null;
+    xs.forEach((x) => zs.forEach((z) => {
+      const target = x === 0 && z === 3;
+      const mat = new T.MeshStandardMaterial({ color: 0xc9ccd2, roughness: 0.8, emissive: 0x000000 });
+      const f = new T.Mesh(unit, mat); f.position.set(x, -1.2 + 0.25, z); f.scale.set(1.4, 1, 1.4); scene.add(f);
+      f.add(new T.LineSegments(new T.EdgesGeometry(unit), edgeMat));
+      const st = new T.Mesh(stubGeo, gray); st.position.set(x, -0.35, z); st.scale.y = 0.7; scene.add(st);
+      if (target) { tFoot = f; tStub = st; }
+    }));
+    const bulb = new T.Mesh(new T.SphereGeometry(1, 32, 16), new T.MeshBasicMaterial({ color: 0x7ee2a8, transparent: true, opacity: 0.2, depthWrite: false }));
+    scene.add(bulb);
+    const hMat = new T.MeshBasicMaterial({ color: 0xffd84a });
+    const corners = [[1, 1], [1, -1], [-1, 1], [-1, -1]].map((sg) => { const h = new T.Mesh(new T.SphereGeometry(0.16, 16, 12), hMat); h.userData = { kind: 'corner', sg: sg }; scene.add(h); return h; });
+    const dh = new T.Mesh(new T.ConeGeometry(0.22, 0.5, 16), hMat); dh.rotation.x = Math.PI; dh.userData = { kind: 'depth' }; scene.add(dh);
+    const handles = corners.concat([dh]);
+    const ghost = new T.LineSegments(new T.EdgesGeometry(unit), new T.LineBasicMaterial({ color: 0x7ee2a8, transparent: true, opacity: 0.85 }));
+    ghost.visible = false; scene.add(ghost);
+    this.f3 = { T: T, R: R, scene: scene, cam: cam, cv: cv, tFoot: tFoot, tStub: tStub, bulb: bulb, corners: corners, dh: dh, handles: handles, ghost: ghost, ray: new T.Raycaster(), cx: 0, cz: 3, w: 0, h: 0 };
+    this.ftB = this.state.ftB; this.ftD = this.state.ftD;
+    this.updateFooting();
+    const ndc = (e) => { const r = cv.getBoundingClientRect(); return new T.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); };
+    const hit = (e) => { this.f3.ray.setFromCamera(ndc(e), cam); const hs = this.f3.ray.intersectObjects(handles, false); return hs.length ? hs[0].object : null; };
+    cv.addEventListener('pointerdown', (e) => {
+      const h = hit(e);
+      if (!h) return;
+      e.preventDefault();
+      cv.setPointerCapture(e.pointerId);
+      const f = this.f3;
+      let plane;
+      if (h.userData.kind === 'corner') {
+        plane = new T.Plane(new T.Vector3(0, 1, 0), this.ftD - 0.5);
+      } else {
+        const n = new T.Vector3(cam.position.x - h.position.x, 0, cam.position.z - h.position.z).normalize();
+        plane = new T.Plane(n, -n.dot(h.position));
+      }
+      this.drag = { kind: h.userData.kind, plane: plane };
+      cv.style.cursor = 'grabbing';
+      if (!this.state.ftTouched || !this.state.ftGuide) this.setState({ ftTouched: true, ftGuide: true });
+    });
+    cv.addEventListener('pointermove', (e) => {
+      const f = this.f3;
+      if (!this.drag) { cv.style.cursor = hit(e) ? 'grab' : 'default'; return; }
+      f.ray.setFromCamera(ndc(e), cam);
+      const pt = new T.Vector3();
+      if (!f.ray.ray.intersectPlane(this.drag.plane, pt)) return;
+      if (this.drag.kind === 'corner') {
+        this.ftB = Math.min(3.2, Math.max(0.8, 2 * Math.max(Math.abs(pt.x - f.cx), Math.abs(pt.z - f.cz))));
+      } else {
+        this.ftD = Math.min(3.5, Math.max(0.6, -pt.y + 0.2));
+      }
+      this.updateFooting();
+      const now = Date.now();
+      if (!this.ftLast || now - this.ftLast > 90) { this.ftLast = now; this.setState({ ftB: this.ftB, ftD: this.ftD }); }
+    });
+    const end = (e) => {
+      if (!this.drag) return;
+      this.drag = null;
+      cv.style.cursor = 'grab';
+      const r = this.ftCalc(this.ftB, this.ftD, this.state.ftPhase ? 480 : 320);
+      this.setState((st) => ({ ftB: this.ftB, ftD: this.ftD, ftOk: st.ftOk || (st.ftPhase === 1 && r.st === 'ok') }));
+    };
+    cv.addEventListener('pointerup', end);
+    cv.addEventListener('pointercancel', end);
+    this.ftTick();
+  }
+  showMe() {
+    this.ftCalc(this.ftB || 1.6, this.ftD || 1.5, 480);
+    const b0 = this.ftB, d0 = this.ftD, b1 = this.ftOptB + 0.02, d1 = this.ftOptD, t0 = performance.now();
+    this.setState({ ftGuide: true, ftTouched: true });
+    const step = () => {
+      const u = Math.min(1, (performance.now() - t0) / 1400), e = u * u * (3 - 2 * u);
+      this.ftB = b0 + (b1 - b0) * e; this.ftD = d0 + (d1 - d0) * e;
+      this.updateFooting();
+      if (u < 1) requestAnimationFrame(step);
+      else this.setState((st) => ({ ftB: this.ftB, ftD: this.ftD, ftOk: st.ftOk || st.ftPhase === 1 }));
+    };
+    step();
+  }
+  updateFooting() {
+    const f = this.f3; if (!f) return;
+    const B = this.ftB, D = this.ftD;
+    f.tFoot.scale.set(B, 1, B);
+    f.tFoot.position.y = -D + 0.25;
+    f.tStub.scale.y = Math.max(0.01, D - 0.5);
+    f.tStub.position.y = -(D - 0.5) / 2;
+    f.corners.forEach((h) => h.position.set(f.cx + h.userData.sg[0] * B / 2, -D + 0.5, f.cz + h.userData.sg[1] * B / 2));
+    f.dh.position.set(f.cx + B / 2 + 0.55, -D + 0.2, f.cz);
+    f.bulb.scale.set(B * 0.75, B * 0.95, B * 0.75);
+    f.bulb.position.set(f.cx, -D - B * 0.6, f.cz);
+    if (this.ftOptB) { f.ghost.scale.set(this.ftOptB, 1, this.ftOptB); f.ghost.position.set(f.cx, -this.ftOptD + 0.25, f.cz); }
+  }
+  ftTick() {
+    const f = this.f3;
+    if (!f) return;
+    if (!this.ftVisible) { this.ftRaf = null; return; }
+    const w = f.cv.clientWidth, h = f.cv.clientHeight;
+    if (w && h && (w !== f.w || h !== f.h)) { f.w = w; f.h = h; f.R.setSize(w, h, false); f.cam.aspect = w / h; f.cam.updateProjectionMatrix(); }
+    const p = this.ftP || 0;
+    const ang = -0.95 + p * 1.5;
+    const rad = 17;
+    f.cam.position.set(Math.sin(ang) * rad, 7.5 - p * 5.6, Math.cos(ang) * rad);
+    f.cam.lookAt(0, 0.4 - p * 2.2, 1.4);
+    const P = this.state.ftPhase ? 480 : 320;
+    const r = this.ftCalc(this.ftB, this.ftD, P);
+    const t = performance.now() / 1000;
+    const col = r.st === 'fail' ? 0xff4d3d : r.st === 'over' ? 0xffb35c : 0x7ee2a8;
+    f.tFoot.material.color.setHex(r.st === 'ok' && P < 480 ? 0xc9ccd2 : col);
+    f.tFoot.material.emissive.setHex(r.st === 'fail' ? 0x661a12 : 0x000000);
+    f.tFoot.material.emissiveIntensity = r.st === 'fail' ? 0.6 + 0.4 * Math.sin(t * 6) : 0;
+    f.bulb.material.color.setHex(col);
+    f.bulb.material.opacity = 0.12 + Math.min(0.25, (r.q / r.sig) * 0.12);
+    const showH = P >= 480;
+    f.handles.forEach((hh) => { hh.visible = showH; });
+    f.ghost.visible = showH && this.state.ftGuide && r.st !== 'ok';
+    const lab = document.getElementById('ft-label');
+    if (lab) {
+      const v = f.tFoot.position.clone(); v.y += 0.6; v.project(f.cam);
+      lab.style.transform = 'translate(' + Math.round((v.x + 1) / 2 * w + 18) + 'px,' + Math.round((1 - v.y) / 2 * h - 12) + 'px)';
+    }
+    f.R.render(f.scene, f.cam);
+    this.ftRaf = requestAnimationFrame(() => this.ftTick());
+  }
+  desertTick() {
+    const cv = document.getElementById('desert-canvas');
+    if (!cv || !this.desVisible) { this.desRaf = null; return; }
+    const ctx = cv.getContext('2d');
+    const w = cv.clientWidth, h = cv.clientHeight;
+    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    if (!this.sand) this.sand = Array.from({ length: 180 }, () => ({ x: Math.random(), y: Math.random(), v: 0.6 + Math.random() * 1.8, l: 8 + Math.random() * 28 }));
+    ctx.clearRect(0, 0, w, h);
+    ctx.strokeStyle = 'rgba(244,214,170,0.28)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    this.sand.forEach((p) => {
+      p.x -= p.v / w * 3; p.y += Math.sin((p.x + p.y) * 20) * 0.0004;
+      if (p.x < -0.05) { p.x = 1.05; p.y = Math.random(); }
+      const X = p.x * w, Y = p.y * h;
+      ctx.moveTo(X, Y); ctx.lineTo(X + p.l, Y - p.l * 0.06);
+    });
+    ctx.stroke();
+    this.desRaf = requestAnimationFrame(() => this.desertTick());
+  }
+
+  parseHtml(src) {
+    const css = {};
+    let str = src.replace(/<style[^>]*>([\s\S]*?)(<\/style>|$)/gi, (m0, body) => {
+      const rr = /([a-z0-9,\s]+)\{([^}]*)\}/gi; let r;
+      while ((r = rr.exec(body))) {
+        r[1].split(',').map((x) => x.trim().toLowerCase()).filter(Boolean).forEach((sel) => {
+          css[sel] = css[sel] || {};
+          r[2].split(';').forEach((d) => { const kv = d.split(':'); if (kv.length >= 2) css[sel][kv[0].trim().toLowerCase()] = kv.slice(1).join(':').trim(); });
+        });
+      }
+      return '';
+    }).replace(/<title>[\s\S]*?<\/title>/gi, '').replace(/<\/?(html|head|body|meta)[^>]*>/gi, '');
+    this.lastCss = css;
+    const blocks = [];
+    let cur = null;
+    const inl = { b: 0, i: 0, u: 0 };
+    const BLOCK = ['h1', 'h2', 'h3', 'p', 'li', 'div', 'ul', 'ol'];
+    const push = (t) => {
+      if (!cur) { cur = { tag: 'text', segs: [] }; blocks.push(cur); }
+      cur.segs.push({ t: t, fw: inl.b > 0 ? '700' : 'inherit', fs: inl.i > 0 ? 'italic' : 'normal', td: inl.u > 0 ? 'underline' : 'none' });
+    };
+    const re = /<(\/?)([a-zA-Z0-9]+)[^>]*>|([^<]+)|(<)/g;
+    let m;
+    while ((m = re.exec(str))) {
+      if (m[2]) {
+        const tag = m[2].toLowerCase(), close = m[1] === '/';
+        if (BLOCK.indexOf(tag) >= 0) {
+          if (close) cur = null;
+          else if (tag !== 'ul' && tag !== 'ol') { cur = { tag: tag, segs: tag === 'li' ? [{ t: '• ', fw: 'inherit', fs: 'normal', td: 'none' }] : [] }; blocks.push(cur); }
+        } else if (tag === 'strong' || tag === 'b') inl.b += close ? -1 : 1;
+        else if (tag === 'em' || tag === 'i') inl.i += close ? -1 : 1;
+        else if (tag === 'u') inl.u += close ? -1 : 1;
+        else if (tag === 'br' && !close) push('\n');
+      } else {
+        const t = (m[3] || m[4]).replace(/\s+/g, ' ');
+        if (t.trim() || (cur && t)) push(t);
+      }
+    }
+    const S = { h1: ['32px', '700', '21px 0'], h2: ['24px', '700', '20px 0'], h3: ['19px', '700', '18px 0'], p: ['16px', '400', '16px 0'], li: ['16px', '400', '4px 0 4px 20px'], div: ['16px', '400', '0'], text: ['16px', '400', '0'] };
+    const body = css.body || {};
+    return blocks.map((bk) => {
+      const st = S[bk.tag] || S.text, c = css[bk.tag] || {};
+      return { fs: c['font-size'] || st[0], fw: st[1], m: st[2], segs: bk.segs, c: c.color || body.color || '#000000', ff: c['font-family'] || 'inherit', ta: c['text-align'] || body['text-align'] || 'left' };
+    });
+  }
+  renderVals() {
+    const s = this.state;
+    const m = { muted: '#a3a6ad', line: '#393b40' };
+    const ftP = s.ftPhase ? 480 : 320;
+    const fr = this.ftCalc(s.ftB, s.ftD, ftP);
+    const colors = { fail: '#ff6b5b', over: '#ffb35c', ok: '#7ee2a8' };
+    let kicker, title, text, verdict;
+    if (!s.ftPhase) {
+      kicker = 'LIVE MODEL · DRAWN IN YOUR BROWSER';
+      title = 'One of the churches, in 3D.';
+      text = 'Two floors, six columns, six footings sized for the original plan, sitting on the soil the boreholes found. Everything checks out. Keep scrolling.';
+      verdict = 'All footings within the soil limit.';
+    } else if (fr.st === 'fail') {
+      kicker = 'QUEST · OPTIONAL · +25 XP';
+      title = 'Then the plans changed.';
+      text = 'A heavier roof and a full second floor: the central column now brings 480 kN. The footing pushes the soil past its limit. Drag the yellow corners to resize it, pull the arrow to change its depth. Find the cheapest footing that still holds.';
+      verdict = 'Failing. The soil will settle and the slab will crack.';
+    } else if (fr.st === 'over') {
+      kicker = 'QUEST · OPTIONAL · +25 XP';
+      title = 'It holds. Now make it cheaper.';
+      text = 'Safe, but not the best deal. Wider costs concrete. Deeper costs digging, and below 2 m the trench needs shoring. The sweet spot is somewhere in between.';
+      verdict = 'Safe, but not the best deal yet.';
+    } else {
+      kicker = s.ftOk ? 'QUEST COMPLETE · +25 XP' : 'QUEST · OPTIONAL · +25 XP';
+      title = 'The sweet spot.';
+      text = 'Deep enough to reach the stiff layer, small enough to save concrete. That trade-off was my job, column after column.';
+      verdict = 'Safe and close to the cheapest possible.';
+    }
+    const money = (v) => '$' + Math.round(v).toLocaleString('en-US');
+    const soilRows = [0.5, 1, 1.5, 2, 2.5, 3, 3.5].map((d) => {
+      const sg = fr.sigOf(d), on = Math.abs(s.ftD - d) <= 0.25;
+      return { d: d.toFixed(1) + ' m', n: 'N ' + Math.round(fr.N(d)), s: Math.round(sg) + ' kPa', w: (sg / 400 * 100).toFixed(0) + '%', c: d < 2 ? '#8a6a48' : d < 3 ? '#b08a5a' : '#e0b070', rowBg: on ? 'rgba(255,216,74,.16)' : 'transparent', fg: on ? '#e8eaee' : '#a3a9b4' };
+    });
+
+    const call = [
+      { name: 'CIVIL ENGINEERING', type: 'STURDY TYPE', glyph: '▲', c1: '#e8a65a', c2: '#9b5a1e' },
+      { name: 'COMPUTER SCIENCE', type: 'LOGIC TYPE', glyph: '{ }', c1: '#6ab8ff', c2: '#1d4f9b' },
+      { name: 'ARCHITECTURE', type: 'CREATIVE TYPE', glyph: '◆', c1: '#8fe07a', c2: '#2f7a2a' }
+    ];
+    const cp = s.callPick;
+    const callText = cp === null
+      ? 'PROFESSOR: So, school is over! Time to pick the path you will walk for years.\nThree of them are on the table. Choose wisely. Or quickly.'
+      : cp === 0
+        ? 'You chose CIVIL ENGINEERING!\nThat is exactly what Elias picked. A sturdy start. It would teach him more than he expected.'
+        : 'You chose ' + call[cp].name + '! Bold.\nElias picked CIVIL ENGINEERING. The road to code would take a detour through the desert.';
+
+    const C1W = "print 'Olá, Mundo!'", C1 = "print('Olá, Mundo!')", C2A = "nome = input('Qual o seu nome?\\n')", C2B = "print('Bem vindo, %s!' % nome)";
+    const hl = (str, errFrom) => {
+      const out = [];
+      const re = /(\s+)|('(?:[^'\\]|\\.)*'?)|([A-Za-z_]\w*)|(.)/g;
+      let mm, pos = 0;
+      while ((mm = re.exec(str))) {
+        const t = mm[0];
+        let c = '#bcbec4';
+        if (mm[2]) c = '#6aab73';
+        else if (mm[3] && (t === 'print' || t === 'input')) c = '#56a8f5';
+        const u = errFrom !== undefined && pos >= errFrom ? 'underline wavy' : 'none';
+        if (mm[2] && /\\n|%s/.test(t)) {
+          t.split(/(\\n|%s)/).forEach((piece) => { if (piece) out.push({ t: piece, c: (piece === '\\n' || piece === '%s') ? '#cf8e6d' : c, u: u }); });
+        } else out.push({ t: t, c: c, u: u });
+        pos += t.length;
+      }
+      return out;
+    };
+    const st = s.pyStage, k = s.pyK;
+    const ex0 = ['empty', 'type1', 'err', 'fix', 'ok1'].indexOf(st) >= 0;
+    let lines;
+    if (st === 'empty' || st === 'ex1') lines = [{ n: 1, segs: [], caret: true }];
+    else if (st === 'type1') lines = [{ n: 1, segs: hl(C1W.slice(0, k)), caret: true }];
+    else if (st === 'err') lines = [{ n: 1, segs: hl(C1W, 6), caret: false }];
+    else if (st === 'fix' || st === 'ok1') lines = [{ n: 1, segs: hl(C1), caret: st === 'fix' }];
+    else {
+      const k1 = st === 'type2' ? Math.min(k, C2A.length) : C2A.length;
+      const k2 = st === 'type2' ? Math.max(0, k - C2A.length) : C2B.length;
+      lines = [{ n: 1, segs: hl(C2A.slice(0, k1)), caret: st === 'type2' && k2 === 0 }, { n: 2, segs: hl(C2B.slice(0, k2)), caret: st === 'type2' && k2 > 0 }];
+    }
+    const gray = '#6f737a', red = '#f75464', white = '#dfe1e5';
+    let out = [];
+    if (st === 'err') out = [{ t: '  File "ex000.py", line 1', c: red }, { t: "    print 'Olá, Mundo!'", c: red }, { t: '          ^', c: red }, { t: "SyntaxError: Missing parentheses in call to 'print'. Did you mean print(...)?", c: red }, { t: ' ', c: gray }, { t: 'Process finished with exit code 1', c: gray }];
+    else if (st === 'ok1') out = [{ t: 'Olá, Mundo!', c: white }, { t: ' ', c: gray }, { t: 'Process finished with exit code 0', c: gray }];
+    else if (st === 'ask') {
+      out = [{ t: 'Qual o seu nome?', c: white }];
+      if (s.pyAnswered) out = out.concat([{ t: s.pyName, c: '#5fb865' }, { t: 'Bem vindo, ' + s.pyName + '!', c: white }, { t: ' ', c: gray }, { t: 'Process finished with exit code 0', c: gray }]);
+    }
+    const copy = {
+      empty: ['The click.', 'In the middle of the desert I started a free Python course, just to see. Exercise zero: make the computer say hello. Simple, right?', 'PyCharm Community. Dark theme, obviously.'],
+      type1: ['Trying to remember the syntax.', 'I had seen this somewhere. I was pretty sure it looked like this.', ''],
+      err: ['Run. Error.', 'Red text on line 1. The computer was not impressed. Back to the code, read the error, try again.', 'Python 3 wants parentheses. I learned that the hard way.'],
+      fix: ['Parentheses. Of course.', 'Fix it, press play again.', ''],
+      ok1: ['Wait. What?', 'Two words on a black screen, and the desert was gone. I told a machine what to do, and it did it.', 'Olá, Mundo! is Hello, World! in Portuguese.'],
+      ex1: ['I can make it do that?', 'If it can say hello, it can ask. If it can ask, it can listen. Next exercise: make it greet you by name. But how do you ask the user something? What is the syntax for input?', ''],
+      type2: ['Reading the docs, typing slowly.', 'Every line felt like finding a new lever on the machine.', ''],
+      ask: s.pyAnswered ? ['Could I make it do something no one has ever done?', 'A few lines I wrote just held a conversation with you. That question showed up right here, and it never left.', 'Bem vindo = Welcome. · PIVOT 01 · ENGINEERING → CODE'] : ['It was asking me a question.', 'The computer was asking ME something. Mind blown. Go on, answer it in the console.', 'Qual o seu nome? = What is your name?']
+    }[st];
+    const running = st === 'err' || st === 'ok1' || st === 'ask';
+    const face = st === 'ask' ? (s.pyAnswered ? 'eureka' : 'waiting') : ({ empty: 'curious', type1: 'focused', err: 'confused', fix: 'focused', ok1: 'smile', ex1: 'curious', type2: 'focused' }[st] || 'curious');
+    const clipNames = { curious: 'CLIP 1 · CURIOUS', focused: 'CLIP 2 · FOCUSED', confused: 'CLIP 3 · SCRATCHING HEAD', smile: 'CLIP 4 · FIRST SMILE', waiting: 'CLIP 5 · LEANING IN', eureka: 'CLIP 6 · EUREKA' };
+    const lit2 = ['ok1', 'ex1', 'type2', 'ask'].indexOf(st) >= 0;
+    const bigTxt = { ok1: 'WAIT. WHAT?', ex1: 'I CAN MAKE IT DO THAT?', type2: 'WHAT ELSE CAN I MAKE IT DO?', ask: s.pyAnswered ? 'SOMETHING NO ONE HAS EVER DONE?' : 'IT IS ASKING ME?' }[st] || '';
+    const py = {
+      title: copy[0], text: copy[1], gloss: copy[2],
+      face: face, clipLabel: '[' + clipNames[face] + ']',
+      camRing: face === 'eureka' ? '3px #ffd84a' : face === 'smile' ? '2px #5fb865' : face === 'confused' ? '2px #f75464' : '1px #393b40',
+      bg: lit2 ? '#0a0d1c' : '#17130f',
+      bloom: lit2 ? 1 : 0,
+      ideFilter: lit2 ? 'none' : 'grayscale(.75) sepia(.25) brightness(.8)',
+      ideShadow: lit2 ? '0 30px 80px rgba(0,0,0,.5), 0 0 0 1px rgba(86,168,245,.4), 0 0 90px rgba(86,168,245,.35)' : '0 30px 80px rgba(0,0,0,.5)',
+      big: bigTxt, bigOp: bigTxt ? 0.55 : 0, bigScale: bigTxt ? 1 : 0.85,
+      bigSize: bigTxt.length > 20 ? 'clamp(52px, 8vw, 132px)' : 'clamp(72px, 12vw, 200px)',
+      bigStroke: st === 'ask' && s.pyAnswered ? '#ffd84a' : '#56a8f5',
+      file: ex0 ? 'ex000.py' : 'ex001.py',
+      runName: running ? (ex0 ? 'ex000' : 'ex001') : '',
+      runBg: running ? '#2f3a30' : '#35373b',
+      runGlow: running ? '0 0 0 3px rgba(95,184,101,.45)' : 'none',
+      files: (ex0 ? ['ex000.py'] : ['ex000.py', 'ex001.py']).map((n) => ({ name: n, bg: n === (ex0 ? 'ex000.py' : 'ex001.py') ? '#2e436e' : 'transparent', fg: n === (ex0 ? 'ex000.py' : 'ex001.py') ? '#dfe1e5' : '#9da0a8' })),
+      lines: lines, out: out,
+      ask: st === 'ask' && !s.pyAnswered,
+      name: s.pyName,
+      setName: (e) => this.setState({ pyName: e.target.value.slice(0, 30) }),
+      enter: (e) => { if (e.key === 'Enter' && this.state.pyName.trim()) { this.setState({ pyAnswered: true, pyOk: true }); this.burst(1.4); } }
+    };
+
+    // ---- camera / exposure (prologue) ----
+    const ISO = [160, 200, 400, 800, 1600, 3200, 6400, 12800];
+    const SH = [4000, 2000, 1000, 500, 250, 125, 60, 30, 15, 8];
+    const AP = [1.4, 2, 2.8, 4, 5.6, 8, 11, 16];
+    const FILM = [
+      { s: 'STD', name: 'PROVIA', f: 'saturate(1.05)' },
+      { s: 'V', name: 'VELVIA', f: 'saturate(1.6) contrast(1.12)' },
+      { s: 'S', name: 'ASTIA', f: 'saturate(.95) contrast(.92) brightness(1.03)' },
+      { s: 'CC', name: 'CLASSIC CHROME', f: 'saturate(.7) contrast(1.1) sepia(.12)' },
+      { s: 'NC', name: 'CLASSIC NEG', f: 'saturate(.8) contrast(1.15) sepia(.1) hue-rotate(-8deg)' },
+      { s: 'ET', name: 'ETERNA', f: 'saturate(.72) contrast(.85) brightness(1.04)' },
+      { s: 'A', name: 'ACROS', f: 'grayscale(1) contrast(1.2)' }
+    ];
+    const log2 = (x) => Math.log(x) / Math.LN2;
+    const iso = ISO[s.iso], shv = SH[s.sh], apv = AP[s.ap], film = FILM[s.film];
+    const sceneEv = s.lit ? -3 : 0;
+    const ev = log2(iso / 400) + log2(250 / shv) - 2 * log2(apv / 5.6) + sceneEv;
+    this.lastEv = ev;
+    const evR = Math.round(ev * 3) / 3;
+    const evLabel = (evR > 0 ? '+' : evR < 0 ? '' : '±') + evR.toFixed(1) + ' EV';
+    const bright = Math.min(2.2, Math.max(0.35, Math.pow(2, ev * 0.25)));
+    const contrast = ev > 0 ? 1 - Math.min(ev, 5) * 0.06 : 1 + Math.min(-ev, 5) * 0.05;
+    const clampEv = Math.max(-3, Math.min(3, evR));
+    const fx = {
+      panoFilter: film.f + ' brightness(' + bright.toFixed(3) + ') contrast(' + contrast.toFixed(3) + ')',
+      wash: ev > 0 ? Math.min(0.6, ev * 0.17).toFixed(3) : Math.min(0.75, -ev * 0.22).toFixed(3),
+      washColor: ev > 0 ? '#f6f1e7' : '#160a02',
+      noise: [0, 0.02, 0.04, 0.07, 0.1, 0.14, 0.2, 0.28][s.iso],
+      meterLeft: ((clampEv + 3) / 6 * 100) + '%',
+      evLabel: evLabel,
+      exif: 'ISO ' + iso + ' · 1/' + shv + ' · F' + apv + ' · ' + film.name
+    };
+    const good = Math.abs(ev) <= 0.5;
+    const ix = {
+      kicker: good ? (s.lit ? 'GOLDEN HOUR · NICELY EXPOSED' : 'GOLDEN HOUR') : (ev > 0 ? 'EXPOSURE · TOO MUCH LIGHT' : 'GOLDEN HOUR · THE LIGHT IS DROPPING'),
+      status: good ? 'PERFECT · ' + evLabel : (ev > 0 ? 'OVEREXPOSED · ' + evLabel : 'UNDEREXPOSED · ' + evLabel),
+      statusColor: good ? '#7ee2a8' : '#ff9a52',
+      done: s.lit && good
+    };
+    const stepK = (key, n, d) => () => this.setState((st) => ({ [key]: key === 'film' ? (st[key] + d + n) % n : Math.max(0, Math.min(n - 1, st[key] + d)) }));
+    const mk = (key, label, names, shorts, idx, display) => ({
+      label: label, display: display, aria: label + ' ' + names[idx] + '. Turn up',
+      upLabel: 'Increase ' + label.toLowerCase(), downLabel: 'Decrease ' + label.toLowerCase(),
+      rot: -idx * 30,
+      ticks: shorts.map((t, i) => ({ t: t, deg: i * 30, color: i === idx ? '#ff6a3d' : '#a29e97' })),
+      up: stepK(key, shorts.length, 1), down: stepK(key, shorts.length, -1)
+    });
+    const cam = {
+      iso: mk('iso', 'ISO', ISO.map(String), ['160', '200', '400', '800', '1.6K', '3.2K', '6.4K', '12K'], s.iso, String(iso)),
+      sh: mk('sh', 'SHUTTER', SH.map((v) => '1/' + v), SH.map((v) => v >= 1000 ? (v / 1000) + 'K' : String(v)), s.sh, '1/' + shv),
+      ap: mk('ap', 'APERTURE', AP.map((v) => 'f/' + v), AP.map(String), s.ap, 'f/' + apv),
+      film: mk('film', 'FILM', FILM.map((x) => x.name), FILM.map((x) => x.s), s.film, film.name.length > 11 ? film.name.replace('CLASSIC ', 'CL. ') : film.name),
+      apCells: AP.map((v, i) => ({ t: 'f/' + v, color: i === s.ap ? '#ff6a3d' : '#8f8b84' })),
+      apShift: (125 - 26 - s.ap * 52) + 'px'
+    };
+    // ---- 2020 desktop: html / css ----
+    const TXT = 'Olá! Esta é a minha primeira página.';
+    const EDITS = [
+      '<h1>Olá!</h1> Esta é a minha primeira página.',
+      '<h1>Olá!</h1>\n<p>Esta é a minha primeira página.</p>',
+      '<h1>Olá!</h1>\n<p>Esta é a minha <strong>primeira</strong> página.</p>'
+    ];
+    const CSS = [
+      '<style>\n  h1 { color: #1a73e8; }\n</style>\n',
+      '<style>\n  h1 { color: #1a73e8; }\n  body { font-family: Arial, sans-serif; }\n</style>\n',
+      '<style>\n  h1 { color: #1a73e8; }\n  body { font-family: Arial, sans-serif; }\n  p { color: #555555; }\n</style>\n',
+      '<style>\n  h1 { color: #1a73e8; text-align: center; }\n  body { font-family: Arial, sans-serif; background: #f4f7fb; }\n  p { color: #555555; text-align: center; }\n</style>\n'
+    ];
+    const ws = s.wStep;
+    let hsrc = '';
+    if (ws === 'h-type') hsrc = TXT.slice(0, s.wK);
+    else if (ws === 'h-open') hsrc = TXT;
+    else if (ws === 'h-tags') hsrc = EDITS[s.wK];
+    else if (ws === 'h-yours') hsrc = s.htEdit !== null ? s.htEdit : EDITS[2] + '\n<p>Try <em>em</em>, <u>u</u> or <h2>h2</h2></p>';
+    else if (ws === 'css') hsrc = CSS[s.wK] + EDITS[2];
+    const blocks = hsrc ? this.parseHtml(hsrc) : [];
+    const bodyCss = (this.lastCss && this.lastCss.body) || {};
+    const ht = {
+      src: hsrc,
+      edit: (e) => this.setState({ htEdit: e.target.value }),
+      blocks: blocks,
+      bodyFf: bodyCss['font-family'] || "'Times New Roman', Times, serif",
+      bodyBg: bodyCss.background || bodyCss['background-color'] || '#ffffff'
+    };
+    const hlHtml = (line) => {
+      const out = [];
+      const re = /(<\/?)([a-zA-Z0-9!]+)|([a-zA-Z-]+)(=)("[^"]*")|(>)|([^<>]+?)(?=<|$|[a-zA-Z-]+=)|(.)/g;
+      let mm;
+      while ((mm = re.exec(line))) {
+        if (mm[2]) { out.push({ t: mm[1], c: '#f8f8f2', it: 'normal', o: 'none' }); out.push({ t: mm[2], c: '#f92672', it: 'normal', o: 'none' }); }
+        else if (mm[3]) { out.push({ t: mm[3], c: '#a6e22e', it: 'italic', o: 'none' }); out.push({ t: '=', c: '#f8f8f2', it: 'normal', o: 'none' }); out.push({ t: mm[5], c: '#e6db74', it: 'normal', o: 'none' }); }
+        else if (mm[6]) out.push({ t: '>', c: '#f8f8f2', it: 'normal', o: 'none' });
+        else out.push({ t: mm[7] || mm[8] || mm[0], c: '#f8f8f2', it: 'normal', o: 'none' });
+      }
+      return out;
+    };
+    const codeLines = (txt, hiFrom) => txt.split('\n').map((l, i) => ({ n: i + 1, segs: hlHtml(l), bg: hiFrom !== undefined && i >= hiFrom ? 'rgba(255,216,74,.10)' : 'transparent' }));
+    // ---- javascript a + b ----
+    const jst = s.jsStep;
+    const order = ['q0', 'q1', 'q2', 'q3', 'q4', 'done'];
+    const at = (x) => order.indexOf(jst) >= order.indexOf(x);
+    const NAMES = ['x', 'a', 'numero', 'primeiroValor', 'valorDoPrimeiroInput', 'n1'];
+    const nm = jst === 'q3' ? NAMES[s.jsName] : 'n1';
+    const K = '#66d9ef', S2 = '#e6db74', F = '#a6e22e', D = '#f8f8f2', V = '#fd971f';
+    const seg = (t, c, o) => ({ t: t, c: c, it: c === K ? 'italic' : 'normal', o: o || 'none' });
+    const hiName = jst === 'q3' ? '1px solid #fd971f' : 'none';
+    const fnOn = at('q2');
+    const ind = fnOn ? '  ' : '';
+    const jlines = [];
+    let jln = 1;
+    const add = (segs, isNew) => jlines.push({ n: jln++, segs: segs, bg: isNew ? 'rgba(102,217,239,.10)' : 'transparent' });
+    if (fnOn) add([seg('function ', K), seg('Calculadora', F), seg('() {', D)], jst === 'q2');
+    if (at('q1')) add([seg(ind + 'var ', K), seg(nm, V, hiName), seg('=document.', D), seg('getElementById', F), seg('(', D), seg('"n1"', S2, jst === 'q1' ? '1px solid #e6db74' : 'none'), seg(').value', D)], jst === 'q1');
+    if (at('q4')) {
+      add([seg(ind + 'var ', K), seg('n2', V), seg('=document.', D), seg('getElementById', F), seg('(', D), seg('"n2"', S2), seg(').value', D)], jst === 'q4');
+      add([seg(ind + 'total = ', D), seg('Number', F), seg('(n1) + ', D), seg('Number', F), seg('(n2)', D)], jst === 'q4');
+      add([seg(ind + 'document.', D), seg('getElementById', F), seg('(', D), seg('"resultado"', S2), seg(').value = total;', D)], jst === 'q4');
+    }
+    if (fnOn) add([seg('}', D)], jst === 'q2');
+    const V1 = '<!doctype html>\n\n<html>\n  <head>\n    <title>Calculadora Simples</title>\n    <meta charset="utf-8" />\n    <script type="text/javascript">\n      function Calculadora() {\n        // body...\n      }\n    <\/script>\n  </head>\n\n  <body>\n    <h1>Calculadora Simples</h1>\n    <h2>A + B = C</h2>\n    <p>A = <input type="text" name="A"></p>\n    <p>B = <input type="text" name="B"></p>\n    <p>C = </p>\n    <p><input type="submit" name="Calcular" value="Calcular"></p>\n  <body>\n</html>';
+    const NAMES_ = NAMES;
+    const js = {
+      names: NAMES_.map((t, i) => {
+        const shown = jst !== 'q3' || i <= s.jsName;
+        const final = i === NAMES_.length - 1 && (jst !== 'q3' || s.jsName === 5);
+        const past = !final && (jst !== 'q3' || i < s.jsName);
+        return { t: shown ? (final ? t + ' ✓' : t) : '?', c: final ? '#7ee2a8' : past ? '#9fb3d1' : '#ffd84a', td: past ? 'line-through' : 'none', bd: final ? '#7ee2a8' : 'rgba(255,255,255,.3)', bg: final ? 'rgba(126,226,168,.12)' : 'rgba(0,0,0,.15)' };
+      }),
+      cardBg: jst === 'done' && s.jsDesign >= 1 ? '#CCCCCC' : 'transparent',
+      shadow: jst === 'done' && s.jsDesign >= 2 ? '5px 10px 18px #888888' : 'none',
+      icon: jst === 'done' && s.jsDesign >= 3,
+      reset: jst === 'done' && s.jsDesign >= 4
+    };
+    const isJs = ws === 'js';
+    const wcopy = {
+      feed: ['FIRST CONTACT · MAY 2020', 'Scrolling at night.', 'An ad: a front-end program run like a real job. Sixteen months, evenings, and you only pay once you are hired.', ''],
+      chat: ['THE DECISION · MAY 25, 2020', 'I did not go alone.', 'Evenings, every day, seven to eleven. Deadlines. Pressure. I was not sure I could keep up, so I asked a friend to join.', 'Bilingual: my messages, then the English.'],
+      mail: ['THE ADMISSION TEST', 'Build a calculator.', 'A + B. With HTML, CSS and JavaScript. Three things I had never touched.', ''],
+      'h-type': ['STEP 1 · HTML', 'First, HTML.', 'A file called primeiro.html. Just text, no tags yet.', 'Olá! Esta é a minha primeira página. = Hello! This is my first page.'],
+      'h-open': ['STEP 1 · HTML', 'Open with Chrome.', 'My sentence, in a browser, in Times New Roman. It did nothing. It meant everything.', ''],
+      'h-tags': ['STEP 1 · HTML', 'Then the tags.', ['<h1> made it a title.', '<p> made it a paragraph.', '<strong> made it bold.'][s.wK] + ' Save, refresh, and the page changed.', ''],
+      'h-yours': ['STEP 1 · HTML', 'Your turn.', 'This editor is real. Type any tag and watch the browser change.', 'Try <em>, <u>, <h2>.'],
+      css: ['STEP 2 · CSS', 'Then CSS.', ['color made the title blue.', 'font-family killed Times New Roman.', 'The paragraph got softer.', 'Centered, with a background. It looked like a real page.'][s.wK], ''],
+      js: {
+        q0: ['STEP 3 · JAVASCRIPT', 'Now the actual test.', 'Feeling braver, I built the page. This is my real first version. Then I clicked Calcular, and nothing happened.', 'The two photos are from that night.'],
+        q1: ['STEP 3 · JAVASCRIPT', 'How does JavaScript read an input?', 'The number lives in the HTML. The code lives somewhere else. They meet through an id: document.getElementById.', ''],
+        q2: ['STEP 3 · JAVASCRIPT', 'How do I even write a function?', 'Wrap the code, give it a name, and let the button call it: onclick="Calculadora()".', ''],
+        q3: ['STEP 3 · JAVASCRIPT', 'And the cruelest question of all:', 'What do I name this variable?', ''],
+        q4: ['STEP 3 · JAVASCRIPT', 'Add them up.', 'Number(), because an input gives you text, not numbers. Then put the total back on the page.', ''],
+        done: ['SUBMITTED · JULY 2020', 'It worked. Then I kept going.', ['Plain and working.', 'Then a card...', '...a shadow...', '...an icon...', '...and a reset button. Nobody asked for any of it.'][s.jsDesign], 'Submitted in July 2020.']
+      }[jst]
+    }[ws];
+    const htmlish = ws.indexOf('h-') === 0 || ws === 'css';
+    const file = isJs ? 'desafio-calculadora.html' : 'primeiro.html';
+    const FILES = ['estrutura-html5.html', 'link-img.html', 'listas.html', 'pagina1.html', 'primeiro.html', 'seo-titulos.html', 'desafio-calculadora.html'];
+    let wl = [];
+    if (htmlish && ws !== 'h-yours') wl = codeLines(hsrc || ' ', ws === 'css' ? 0 : undefined).slice(0, 18);
+    if (htmlish && ws === 'css') { const n = CSS[s.wK].split('\n').length - 1; wl = wl.map((l, i) => Object.assign({}, l, { bg: i < n ? 'rgba(255,216,74,.10)' : 'transparent' })); }
+    if (isJs) wl = jst === 'q0' ? codeLines(V1) : jlines;
+    const w = {
+      kicker: wcopy[0], title: wcopy[1], text: wcopy[2], gloss: wcopy[3],
+      clock: ws === 'feed' || ws === 'chat' ? '23:41' : '01:12',
+      tb1: ws === 'feed' || ws === 'mail' ? '#7ab8ff' : 'transparent', tb2: ws === 'chat' ? '#7ab8ff' : 'transparent', tb3: htmlish || isJs ? '#7ab8ff' : 'transparent',
+      feed: ws === 'feed' || ws === 'chat', chat: ws === 'chat', mail: ws === 'mail',
+      msgs: [
+        { t: 'Tô pensando real em entrar', en: 'I am seriously thinking about joining', side: 'flex-end', bg: '#005c4b' },
+        { t: 'Isso que me deixa um pouco pensativo, se eu vou dar conta', en: 'That is what makes me wonder if I can handle it', side: 'flex-end', bg: '#005c4b' },
+        { t: 'Mas mano, se tu topar eu faço contigo', en: 'But bro, if you are in, I will do it with you', side: 'flex-end', bg: '#005c4b' },
+        { t: 'Fechou', en: 'Deal', side: 'flex-start', bg: '#202c33' },
+        { t: 'Fechou!', en: 'Deal!', side: 'flex-end', bg: '#005c4b' }
+      ],
+      techs: [{ t: 'HTML ✗', c: '#c5221f', bd: '#f3c2bf' }, { t: 'CSS ✗', c: '#c5221f', bd: '#f3c2bf' }, { t: 'JavaScript ✗', c: '#c5221f', bd: '#f3c2bf' }],
+      editor: htmlish || isJs,
+      browser: (htmlish && ws !== 'h-type') || isJs,
+      file: file,
+      files: FILES.map((n) => ({ n: n, bg: n === file ? '#d8cfbd' : 'transparent' })),
+      codeHtml: ws !== 'h-yours', yours: ws === 'h-yours',
+      lines: wl,
+      tabTitle: isJs ? (at('q4') ? 'Desafio - Calculadora' : 'Calculadora Simples') : 'primeiro.html',
+      page: htmlish,
+      calcV1: isJs && !at('q4'),
+      calcFinal: isJs && at('q4'),
+      naming: isJs && (jst === 'q3' || jst === 'q4'),
+      status: isJs ? (s.calcMsg || (at('q4') ? 'Try it: type two numbers and press Somar.' : 'Try it: press Calcular.')) : (htmlish ? 'file saved · refreshed' : ''),
+      photo: htmlish || (isJs && jst === 'q0'),
+      photoSrc: isJs ? '../../public/assets/2020/calc-v1-browser.webp' : '../../public/assets/2020/desk-2020.webp',
+      photoAlt: isJs ? 'Photo of the first version of the calculator open in Chrome, 2020' : 'Photo of my desk in 2020 with the code editor and the browser side by side',
+      photoCap: isJs ? 'the real first version' : 'the real desk, 2020'
+    };
+    // ---- ubuntu ----
+    const ust = s.uStep;
+    const BUG = ust === 'code' || ust === 'err';
+    const UL = [
+      ['// Consultar os dados inseridos', '#6a9955'],
+      ['', '#d4d4d4'],
+      ['// todos os proffys', '#6a9955'],
+      ['const selectedProffys = await db.all("SELECT * FROM proffys")', '#9cdcfe'],
+      ['', '#d4d4d4'],
+      ['// Consultar as classes de um determinado professor', '#6a9955'],
+      ['// e trazer junto os dados do professor', '#6a9955'],
+      ['const selectClassesAndProffys = await db.all(`', '#9cdcfe'],
+      [BUG ? '    SELECT classes.* proffys.*' : '    SELECT classes.*, proffys.*', '#ce9178'],
+      ['    FROM proffys', '#ce9178'],
+      ['    JOIN classes ON (classes.proffy_id = proffys.id)', '#ce9178'],
+      ['    WHERE classes.proffy_id = 1;', '#ce9178'],
+      ['`)', '#9cdcfe'],
+      ['console.log(selectClassesAndProffys)', '#dcdcaa']
+    ];
+    const uout = [{ t: '❯ node src/database/test.js', c: '#d4d4d4' }];
+    if (ust === 'err' || ust === 'fix') uout.push({ t: '(node:59195) UnhandledPromiseRejectionWarning: Error: SQLITE_ERROR: near ".": syntax error', c: '#f48771' });
+    if (ust === 'fix') uout.push({ t: '❯ (a missing comma. of course.)', c: '#9d9d9d' });
+    if (ust === 'ok') uout.push({ t: '[', c: '#d4d4d4' }, { t: "  { id: 1, subject: 'Química', cost: '20', proffy_id: 1, name: 'Ana', bio: 'Loves explaining chemistry...' }", c: '#4ec9b0' }, { t: ']', c: '#d4d4d4' }, { t: 'ematheus23 in nlw on master ❯ _', c: '#c586c0' });
+    const u = {
+      grub: ust === 'grub', desk: ust !== 'grub',
+      title: ust === 'ok' ? 'It worked on Linux too.' : 'So excited I installed Ubuntu.',
+      text: ust === 'ok' ? 'Next Level Week, August 2020: my first Node.js back end, my first SQL JOIN. Same loop as always: run, read the error, fix, run again.' : 'Dual boot, GRUB menu, a terminal that felt like a cockpit. First time on Linux, mid-bootcamp, because I could not get enough.',
+      lines: UL.map((l, i) => ({ n: 37 + i, t: l[0], c: l[1], bg: i === 8 && (ust === 'err' || ust === 'fix') ? 'rgba(244,135,113,.15)' : 'transparent' })),
+      out: uout
+    };
+    const calc = {
+      n1: s.cN1, n2: s.cN2, res: s.cRes,
+      setN1: (e) => this.setState({ cN1: e.target.value }),
+      setN2: (e) => this.setState({ cN2: e.target.value }),
+      somar: () => this.setState({ cRes: String(Number(this.state.cN1) + Number(this.state.cN2)), calcMsg: '' }),
+      zerar: () => this.setState({ cN1: '0', cN2: '0', cRes: '0', calcMsg: '' }),
+      v1: () => this.setState({ calcMsg: 'Nothing happens. The function is empty: // body...' })
+    };
+    // ---- footing guidance ----
+    let ftStep = '';
+    if (s.ftPhase) {
+      if (fr.st === 'fail') ftStep = 'Step 1 · Drag a yellow corner outward until the footing stops being red.';
+      else if (fr.st === 'over' && s.ftD < 2.2) ftStep = 'Step 2 · Safe, but pricey. Pull the yellow arrow down toward the stiff layer, around 2.5 m. Stronger soil lets the footing shrink.';
+      else if (fr.st === 'over') ftStep = 'Step 3 · Now drag a corner inward. Stop right before it turns red. The green outline is the target.';
+      else ftStep = 'Sweet spot. +25 XP';
+    }
+    const done = [s.expOk, s.ftOk, s.pyOk].filter(Boolean).length;
+    return {
+      m: m, fx: fx, ix: ix, cam: cam,
+      stagePe: s.camPh === 0 ? 'auto' : 'none', stagePe2: s.camPh >= 1 ? 'auto' : 'none',
+      meterTicks: [-3, -2, -1, 0, 1, 2, 3].map((v) => ({ left: ((v + 3) / 6 * 100) + '%', h: v === 0 ? '10px' : '6px', h2: v === 0 ? '14px' : '8px' })),
+      reset: () => this.setState(s.lit ? { iso: 4, sh: 5, ap: 4 } : { iso: 2, sh: 4, ap: 4 }),
+      ft: {
+        kicker: kicker, title: title, text: text, verdict: verdict,
+        color: s.ftPhase ? colors[fr.st] : '#7ee2a8',
+        tag: !s.ftPhase ? 'OK' : fr.st === 'fail' ? 'FAILING' : fr.st === 'over' ? 'COSTLY' : 'SWEET SPOT',
+        dims: s.ftB.toFixed(2) + ' × ' + s.ftB.toFixed(2) + ' m · ' + s.ftD.toFixed(2) + ' m deep',
+        press: Math.round(fr.q) + ' / ' + Math.round(fr.sig) + ' kPa',
+        pressW: Math.min(100, fr.q / fr.sig * 80).toFixed(1) + '%',
+        cTot: money(fr.cost),
+        rel: !s.ftPhase ? '·' : fr.st === 'fail' ? 'unsafe' : fr.rel <= 0.06 ? 'BEST ✓' : '+' + Math.round(fr.rel * 100) + '%',
+        relColor: !s.ftPhase ? '#a3a9b4' : fr.st === 'fail' ? '#ff6b5b' : fr.rel <= 0.06 ? '#7ee2a8' : '#ffb35c',
+        soil: soilRows,
+        showGuide: !!s.ftPhase && fr.st !== 'ok',
+        step: ftStep,
+        showMe: () => this.showMe()
+      },
+      py: py,
+      call: {
+        text: callText,
+        orbs: call.map((o, i) => Object.assign({}, o, { pick: () => this.setState({ callPick: i }), pressed: cp === i ? 'true' : 'false', bg: cp === i ? '#fff7d6' : 'transparent', lift: cp === i ? '-12px' : '0px' }))
+      },
+      ht: ht, js: js, w: w, u: u, calc: calc,
+      xp: 'QUESTS ' + done + '/3',
+      vfMove: (e) => {
+        const el = e.currentTarget; if (!el) return;
+        const h = el.offsetHeight || 1, panoW = 5 * h;
+        if (e.pointerType === 'mouse') { const r = el.getBoundingClientRect(); const mx = (e.clientX - r.left) / Math.max(1, r.width); this.setYaw((this.yaw0 || 0) - (mx - 0.5) * panoW); }
+        else if (this.touchX !== undefined) { const dx = e.clientX - this.touchX; this.touchX = e.clientX; this.touchYaw = (this.touchYaw || this.yaw0 || 0) + dx * 2; this.setYaw(this.touchYaw); }
+      },
+      vfDown: (e) => { this.touchX = e.clientX; }
+    };
+  }
+}
+
+</script>
+</body>
+</html>
