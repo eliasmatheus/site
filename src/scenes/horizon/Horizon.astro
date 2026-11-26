@@ -1,12 +1,13 @@
 ---
 /**
- * Horizon: the journey opens at a black hole. Scroll plays it: a wormhole, a hard stop, the
- * arrival at the Off-axis view, then a first-person fall with instruments and alerts.
+ * Horizon: the journey opens at a wormhole. Scroll plays it: into the sphere, a tunnel, a hard
+ * stop at a black hole, the arrival at the Off-axis view, then a first-person fall with
+ * instruments and alerts.
  * src/scenes/horizon/controller.ts draws it (WebGL shader + a 2D lens flare); the beats and
  * the camera come from src/scenes/horizon/beats.ts.
  *
- * Before the shader is ready, and without WebGL or JS, a still black hole made of CSS
- * gradients stands in, and every line of copy stays readable.
+ * Before the shader is ready, and without WebGL or JS, CSS gradients stand in: a still
+ * wormhole first, the black hole once past it. Every line of copy stays readable.
  */
 import { horizon } from '../../content/horizon';
 
@@ -15,7 +16,8 @@ const centered = new Set([0, 3]);
 
 <section class="horizon" data-scene="horizon" aria-labelledby="horizon-title">
   <div class="sky" data-shake>
-    <div class="still" aria-hidden="true"></div>
+    <div class="still worm" aria-hidden="true"></div>
+    <div class="still hole" aria-hidden="true"></div>
     <canvas class="gl" data-gl role="img" aria-label={horizon.label}></canvas>
     <canvas class="fx" data-fx aria-hidden="true"></canvas>
   </div>
@@ -85,10 +87,41 @@ const centered = new Set([0, 3]);
     will-change: transform;
   }
 
-  /* The still black hole: a dark shadow, a hot ring and a flat disk, all gradients. */
   .still {
     position: absolute;
     inset: 0;
+    transition: opacity 1s ease;
+  }
+
+  /*
+   * The still wormhole, the journey's opening: a sphere with another galaxy inside it and a
+   * pale rim, in a field of stars. What waits past it stays a surprise.
+   */
+  .worm {
+    background:
+      radial-gradient(circle at 63% 41%, rgb(255 238 214 / 0.8) 0 0.4vmin, transparent 1.8vmin),
+      radial-gradient(ellipse 6vmin 2.2vmin at 63% 41%, rgb(255 196 140 / 0.35), transparent 70%),
+      radial-gradient(
+        circle at 62% 42%,
+        rgb(16 22 36) 0 8.4vmin,
+        rgb(150 160 185 / 0.35) 8.9vmin,
+        rgb(240 232 220 / 0.6) 9.2vmin,
+        rgb(140 160 200 / 0.12) 9.8vmin,
+        transparent 12vmin
+      ),
+      radial-gradient(1.5px 1.5px at 12% 18%, #fff, transparent),
+      radial-gradient(1px 1px at 28% 64%, #dfe8ff, transparent),
+      radial-gradient(1.5px 1.5px at 41% 27%, #ffe9d2, transparent),
+      radial-gradient(1px 1px at 18% 84%, #fff, transparent),
+      radial-gradient(1px 1px at 84% 72%, #dfe8ff, transparent),
+      radial-gradient(1.5px 1.5px at 90% 16%, #fff, transparent),
+      radial-gradient(1px 1px at 52% 88%, #ffe9d2, transparent),
+      radial-gradient(1px 1px at 74% 12%, #fff, transparent), #040508;
+  }
+
+  /* The still black hole, past the wormhole: a shadow, a hot ring and a flat disk. */
+  .hole {
+    opacity: 0;
     background:
       radial-gradient(circle at 70% 38%, #000 0 7vmin, transparent 7.2vmin),
       radial-gradient(
@@ -104,7 +137,19 @@ const centered = new Set([0, 3]);
         transparent 70%
       ),
       radial-gradient(ellipse at 70% 38%, rgb(255 160 80 / 0.12), transparent 45%), #040508;
-    transition: opacity 1s ease;
+  }
+
+  .horizon[data-past] .worm {
+    opacity: 0;
+  }
+
+  .horizon[data-past] .hole {
+    opacity: 1;
+  }
+
+  /* Once the shader draws, it replaces both. */
+  .horizon[data-ready] .still {
+    opacity: 0;
   }
 
   .gl,
@@ -128,10 +173,6 @@ const centered = new Set([0, 3]);
 
   .horizon[data-ready] .gl {
     opacity: 1;
-  }
-
-  .horizon[data-ready] .still {
-    opacity: 0;
   }
 
   .flash,
