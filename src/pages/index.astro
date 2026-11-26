@@ -11,6 +11,7 @@ const profiles = [work.contact.links.github, work.contact.links.linkedin];
 
 <Base title={landing.title} description={landing.description}>
   <canvas class="sky nebula" data-nebula aria-hidden="true"></canvas>
+  <canvas class="sky nebula light" data-nebula-light aria-hidden="true"></canvas>
   <canvas class="sky" data-stars aria-hidden="true"></canvas>
 
   <div class="wrap">
@@ -169,8 +170,14 @@ const profiles = [work.contact.links.github, work.contact.links.linkedin];
   }
 
   .nebula[data-ready] {
-    opacity: var(--glow, 0.55);
+    opacity: var(--glow, 0.17);
     animation: nebula-in 1.6s ease backwards;
+  }
+
+  /* The same painting at full strength, masked to the light around the pointer (sky.ts). */
+  .nebula.light[data-ready] {
+    opacity: 1;
+    mask-image: linear-gradient(transparent, transparent);
   }
 
   @keyframes nebula-in {

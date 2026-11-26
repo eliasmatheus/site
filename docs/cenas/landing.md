@@ -15,8 +15,10 @@ Quem está com pressa resolve tudo aqui em 10 segundos: quem é, o que faz, onde
 ## Tempero
 
 - Céu escuro com estrelas discretas e leve paralaxe.
-- Nebulosa no estilo da árvore de habilidades do Skyrim (homenagem só no estilo): uma pintura larga e parada do céu (gás azul-esverdeado à esquerda, ferrugem e âmbar à direita, faixas de poeira escura, aglomerados de estrelas), 1,7 tela de largura, pintada uma vez em WebGL. Ela não se mexe; o que muda é para onde olhamos. Cada parte da página tem um ponto no céu (About, Experience, Projects, a porta). Ao rolar até outra parte, a vista desliza até lá e a nebulosa brilha durante o movimento, apagando de volta quando para. O mouse inclina a vista de leve. Uma camada de estrelas mais próxima anda um pouco mais rápido (paralaxe).
-- (Substituiu a primeira versão, em que o cursor revelava a nebulosa: parecia arte abstrata, não nebulosa.)
+- Nebulosa no estilo da árvore de habilidades do Skyrim (homenagem só no estilo): uma pintura larga e parada do céu (faixa de gás com filamentos, faixas de poeira escura, aglomerados de estrelas), 1,7 tela de largura, pintada uma vez em WebGL. Paleta da primeira versão puxada para o Duna: sombras em preto esverdeado, gás verde-azulado apagado, laranja de especiaria e realces cor de areia.
+- O céu fica escuro (17% de opacidade em repouso). A luz em volta do mouse acende a nebulosa por inteiro, com um rastro que se apaga em ~2,5 s. Sem mouse (celular), uma luz fraca passeia sozinha.
+- A nebulosa não se mexe; o que muda é para onde olhamos. Cada parte da página tem um ponto no céu (About, Experience, Projects, a porta). Ao rolar até outra parte, a vista desliza até lá e o céu clareia um pouco durante o movimento. O mouse inclina a vista de leve. Uma camada de estrelas mais próxima anda um pouco mais rápido (paralaxe).
+- Histórico: a primeira versão (gás revelado só pelo cursor) parecia arte abstrata; a segunda (nebulosa parada e clara, cores frias e quentes separadas) perdeu o contraste e a paleta antiga. Esta junta os desenhos da segunda com a luz e a paleta da primeira.
 - Um satélite pequeno orbitando ao lado do nome.
 - Itens da lista se destacam ao passar o mouse (os outros esmaecem).
 
@@ -35,10 +37,10 @@ Quem está com pressa resolve tudo aqui em 10 segundos: quem é, o que faz, onde
 
 ## Implementação
 
-- Página: `src/pages/index.astro`. Conteúdo: `src/content/landing.ts` + `src/content/work.ts`. Céu: `src/landing/` (`sky.ts`, `nebula.ts`, `view.ts` com testes).
+- Página: `src/pages/index.astro`. Conteúdo: `src/content/landing.ts` + `src/content/work.ts`. Céu: `src/landing/` (`sky.ts`, `nebula.ts`, `view.ts` e `trail.ts` com testes).
 - A jornada mudou para `/journey`. `/work` redireciona para `/` (308 na Vercel via `vercel.json`, meta refresh no build estático).
 - O céu só liga na primeira interação (mouse, toque, scroll, tecla) ou 3 s depois do load, para não pesar no LCP nem no TBT.
-- Vista: `src/landing/view.ts` (pontos por seção, inclinação do mouse, suavização e brilho, com testes). A nebulosa é repintada só quando muda a largura da janela. Em repouso fica a 55% de opacidade; o movimento leva até 100%. O texto do registro tem sombra escura.
+- Vista: `src/landing/view.ts` (pontos por seção, inclinação do mouse, suavização e brilho, com testes). Luz: `src/landing/trail.ts` (rastro, luz que passeia e a máscara CSS de uma cópia acesa da pintura, com testes). A nebulosa é repintada só quando muda a largura da janela. O rastro se apaga pelo tempo real, mesmo com quadros lentos. O texto do registro tem sombra escura.
 - Reduced motion: a vista pula direto para o ponto da seção, sem deslizar nem brilhar.
 - O "About" está em rascunho com fatos que já estão no site (estruturas, igrejas, sondagens, 2020, pagamentos, internet banking, agritech). Revisar com o Elias.
 

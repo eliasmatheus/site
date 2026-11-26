@@ -1,4 +1,5 @@
-// The nebula behind the landing: a wide, still painting of gas, dust lanes and star clusters,
+// The nebula behind the landing: a wide, still painting of gas, dust lanes and star clusters
+// in a Dune-like palette,
 // rendered once in WebGL. It never moves on its own; the page pans the view across it.
 
 const VERTEX = 'attribute vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); }';
@@ -31,7 +32,7 @@ vec3 stars(vec2 uv, float k, float bias){
   vec2 pos = vec2(hash(cell + 1.3), hash(cell + 7.1));
   float d = length(f - pos) * uRes.y / k; // distance in canvas pixels
   float b = pow(hash(cell + 3.7), 6.0);
-  vec3 tint = mix(vec3(0.75, 0.85, 1.0), vec3(1.0, 0.85, 0.65), hash(cell + 5.9));
+  vec3 tint = mix(vec3(0.8, 0.9, 0.95), vec3(1.0, 0.82, 0.6), hash(cell + 5.9));
   return tint * b * (exp(-d * d * 0.9) * 1.6 + exp(-d * 0.35) * 0.18);
 }
 
@@ -49,24 +50,26 @@ void main(){
   float wisps = ridged(uv * 2.8 + q * 1.8);
   float dens = band * smoothstep(0.25, 0.85, 0.55 * body + 0.6 * wisps * body);
 
-  // Cool on the left, warm on the right, mixed by the gas itself.
-  float warm = smoothstep(0.25, 0.85, x + 0.35 * (q.x - 0.5));
-  vec3 cool = mix(vec3(0.02, 0.10, 0.18), vec3(0.22, 0.70, 0.82), body);
-  vec3 hot = mix(vec3(0.20, 0.06, 0.04), vec3(0.98, 0.55, 0.24), body);
-  vec3 gas = mix(cool, hot, warm) * dens * 1.5;
-  gas += mix(vec3(0.6, 0.9, 1.0), vec3(1.0, 0.85, 0.6), warm) * pow(wisps, 5.0) * band * 0.35;
+  // Dune-like palette: black teal shadows, muted teal gas, spice amber, pale sand highlights.
+  vec3 deep = vec3(0.02, 0.06, 0.09), teal = vec3(0.08, 0.32, 0.36);
+  vec3 amber = vec3(0.86, 0.52, 0.2), sand = vec3(1.0, 0.84, 0.58), rust = vec3(0.36, 0.12, 0.05);
+  float spice = smoothstep(0.35, 0.8, q.x * body * 1.7 + 0.3 * (x - 0.5));
+  vec3 tint = mix(mix(deep, teal, smoothstep(0.25, 0.75, body)), amber, spice);
+  vec3 gas = tint * dens * (0.45 + 1.3 * pow(body, 1.4)) * 1.6;
+  gas += sand * pow(wisps, 5.0) * band * (0.15 + 0.4 * spice);
 
-  // Dark dust lanes cut through the glow.
+  // Dark dust lanes cut through the glow, rusty at their edges.
   float dust = smoothstep(0.5, 0.78, fbm(uv * 3.4 + q * 2.4 + 9.0));
-  gas *= 1.0 - 0.8 * dust * band;
+  gas = mix(gas, rust * dens, 0.35 * dust * band);
+  gas *= 1.0 - 0.75 * dust * band;
 
-  vec3 col = vec3(0.008, 0.010, 0.018) + gas;
+  vec3 col = vec3(0.006, 0.009, 0.012) + gas;
   // Stars: a fine field everywhere, denser and brighter clusters inside the gas.
   col += stars(uv, 90.0, 0.55) * 0.5;
   col += stars(uv + 3.1, 38.0, 0.7 - 0.35 * band) * (0.6 + band);
   col += stars(uv + 7.7, 14.0, 0.85 - 0.2 * band) * 1.2;
   // Soft glow of unresolved stars in the densest parts.
-  col += vec3(0.9, 0.85, 1.0) * pow(dens, 3.0) * 0.08;
+  col += sand * pow(dens, 3.0) * 0.08;
 
   gl_FragColor = vec4(col, 1.0);
 }`;

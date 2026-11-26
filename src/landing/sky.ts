@@ -1,13 +1,17 @@
 // Decoration for the landing: a still nebula painted once, a view that pans across it as the
-// visitor moves through the page, a nearer layer of stars and the small black hole at the door.
+// visitor moves through the page, a light that follows the pointer, a nearer layer of stars and the small black hole at the door.
 // Everything here is optional; the page reads fine without it.
 import { paintNebula } from './nebula';
+import { fadeTrail, isIdle, lightMask, pushPoint, wanderer, type TrailPoint } from './trail';
 import { stepView, viewTarget, type View } from './view';
 
 /** The panorama is this many screens wide (matches the CSS width of the nebula canvas). */
 const PANORAMA = 1.7;
-/** Nebula opacity at rest; moving the view adds up to the rest. */
-const REST_OPACITY = 0.55;
+/** Nebula opacity at rest: a dark sky. Moving the view adds up to GLOW_OPACITY more. */
+const REST_OPACITY = 0.17;
+const GLOW_OPACITY = 0.23;
+/** On touch screens a faint light wanders on its own, one weak point every 120 ms. */
+const WANDER_STRENGTH = 0.12;
 
 interface Star {
   x: number;
@@ -33,13 +37,45 @@ function watchSection(ids: readonly string[], onChange: (id: string | null) => v
 export function startSky(): void {
   const stars = document.querySelector<HTMLCanvasElement>('[data-stars]');
   const nebula = document.querySelector<HTMLCanvasElement>('[data-nebula]');
+  const light = document.querySelector<HTMLCanvasElement>('[data-nebula-light]');
   const ring = document.querySelector<HTMLCanvasElement>('[data-ring]');
-  if (!stars || !nebula || !ring) return;
+  if (!stars || !nebula || !light || !ring) return;
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const coarse = window.matchMedia('(pointer: coarse)').matches;
-  const painted = paintNebula(nebula, coarse ? 0.4 : 0.5);
-  if (painted) nebula.dataset['ready'] = '';
+  // The lit copy is the same painting at full strength, shown only around the pointer.
+  const paintBoth = (): boolean => {
+    if (!paintNebula(nebula, coarse ? 0.4 : 0.5)) return false;
+    light.width = nebula.width;
+    light.height = nebula.height;
+    light.getContext('2d')?.drawImage(nebula, 0, 0);
+    return true;
+  };
+  if (paintBoth()) {
+    nebula.dataset['ready'] = '';
+    light.dataset['ready'] = '';
+  }
+
+  // ---------- the light around the pointer ----------
+  const trail: TrailPoint[] = [];
+  let lastPush = 0;
+  window.addEventListener(
+    'pointermove',
+    (e) => {
+      if (e.pointerType !== 'mouse') return;
+      const now = performance.now();
+      const head = trail[0];
+      if (now - lastPush > 40 || !head) {
+        pushPoint(trail, { x: e.clientX, y: e.clientY, s: 1 });
+        lastPush = now;
+      } else {
+        head.x = e.clientX;
+        head.y = e.clientY;
+        head.s = 1;
+      }
+    },
+    { passive: true },
+  );
 
   // ---------- where we look ----------
   let section: string | null = null;
@@ -59,9 +95,15 @@ export function startSky(): void {
   }
   const panWidth = (): number => window.innerWidth * (PANORAMA - 1);
   function applyView(): void {
-    if (!nebula) return;
-    nebula.style.transform = `translate3d(${(-view.x * panWidth()).toFixed(1)}px, 0, 0)`;
-    nebula.style.setProperty('--glow', (REST_OPACITY + (1 - REST_OPACITY) * view.glow).toFixed(3));
+    if (!nebula || !light) return;
+    const pan = view.x * panWidth();
+    const move = `translate3d(${(-pan).toFixed(1)}px, 0, 0)`;
+    nebula.style.transform = move;
+    light.style.transform = move;
+    nebula.style.setProperty('--glow', (REST_OPACITY + GLOW_OPACITY * view.glow).toFixed(3));
+    const mask = lightMask(trail, pan);
+    light.style.maskImage = mask;
+    light.style.setProperty('-webkit-mask-image', mask);
   }
 
   // ---------- nearer stars, a little faster than the nebula ----------
@@ -159,7 +201,7 @@ export function startSky(): void {
   }
 
   const repaintNebula = (): void => {
-    paintNebula(nebula, coarse ? 0.4 : 0.5);
+    paintBoth();
     paint(performance.now());
   };
   // Phones resize on every toolbar show and hide; only a new width needs a new painting.
@@ -174,17 +216,31 @@ export function startSky(): void {
 
   if (reduce) {
     // A still sky: the view jumps between spots and is redrawn only when something changes.
+    const p = wanderer(0, window.innerWidth, window.innerHeight);
+    pushPoint(trail, { ...p, s: 0.5 });
     paint(0);
     window.addEventListener('scroll', () => paint(0), { passive: true });
     return;
   }
 
   let last = performance.now();
+  let time = 0;
+  let lastWander = 0;
   let raf = 0;
   const run = (now: number): void => {
-    const dt = Math.min(0.05, (now - last) / 1000);
+    const raw = (now - last) / 1000;
+    const dt = Math.min(0.05, raw);
     last = now;
     view = stepView(view, viewTarget(section, pointer), dt);
+    // The light fades on real time, even when frames are slow.
+    fadeTrail(trail, Math.min(0.5, raw));
+    time += dt;
+    // With a mouse the sky goes dark again at rest; on touch a faint light keeps wandering.
+    if (coarse && isIdle(trail, 0.2) && now - lastWander > 120) {
+      const p = wanderer(time, window.innerWidth, window.innerHeight);
+      pushPoint(trail, { ...p, s: WANDER_STRENGTH });
+      lastWander = now;
+    }
     paint(now);
     raf = requestAnimationFrame(run);
   };
