@@ -28,7 +28,7 @@ export const SCENES: readonly SceneEntry[] = [
     label: 'Horizon',
     // The departure (ringed planet, wormhole, tunnel, calm, still sky), then the black hole:
     // arrival and the fall. A long dwell so each beat gets room.
-    dwell: 8000,
+    dwell: 9500,
     x: 0,
     y: 0,
     load: () => import('./horizon/controller'),

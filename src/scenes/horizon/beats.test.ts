@@ -10,6 +10,7 @@ import {
   horizonFrame,
   instruments,
   MOUTH_AT,
+  PAN_END,
   PLANET_END,
   TUNNEL_END,
 } from './beats';
@@ -22,6 +23,9 @@ describe('the departure', () => {
     const start = horizonFrame(0, 1.6);
     expect(start.planet).toBe(1);
     expect(start.inside).toBe(0);
+    expect(horizonFrame(PAN_END, 1.6).pan).toBe(1);
+    expect(horizonFrame(PAN_END, 1.6).zoom).toBe(0);
+    expect(horizonFrame(PLANET_END, 1.6).zoom).toBe(1);
     expect(horizonFrame(PLANET_END + 0.02, 1.6).planet).toBe(0);
     expect(horizonFrame(MOUTH_AT + 0.02, 1.6).inside).toBe(1);
   });

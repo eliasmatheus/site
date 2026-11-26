@@ -7,16 +7,18 @@
  * after the departure, so its beats and framings did not have to change.
  */
 
-/** The ringed planet against the light, the camera panning. */
-export const PLANET_END = 0.11;
-/** The wormhole, revealed a little at a time, until its mouth. */
-export const MOUTH_AT = 0.2;
+/** The ringed planet against the light: the camera pans until it sits in the middle. */
+export const PAN_END = 0.08;
+/** Then it zooms in, the rings level out and we fly under them, past the planet. */
+export const PLANET_END = 0.18;
+/** A tiny point ahead grows into the wormhole, revealed a little at a time, until its mouth. */
+export const MOUTH_AT = 0.3;
 /** Inside: the tunnel seen from near its wall, shaking. */
-export const TUNNEL_END = 0.27;
+export const TUNNEL_END = 0.37;
 /** The calm: speed falls away, the center opens. */
-export const CALM_END = 0.31;
+export const CALM_END = 0.41;
 /** A still sky; then the black hole. */
-export const DEPARTURE_END = 0.36;
+export const DEPARTURE_END = 0.46;
 
 /** The black hole's own timeline (q). */
 const Q_START = 0.2;
@@ -53,8 +55,10 @@ export interface HorizonFrame extends Framing {
   warp: number;
   /** The ringed planet: 1 in view, 0 gone. */
   planet: number;
-  /** The camera's pan across the planet, 0 to 1. */
+  /** The camera's pan until the planet is in the middle, 0 to 1. */
   pan: number;
+  /** The zoom and the flight under the rings, 0 to 1. */
+  zoom: number;
   /** Approaching the wormhole, 0 far to 1 at its mouth. */
   approach: number;
   /** How much of the wormhole shows, 0 (a faint lens) to 1 (all its light). */
@@ -101,9 +105,10 @@ export function horizonFrame(p: number, aspect: number): HorizonFrame {
     sy: at('sy'),
     fov: at('fov'),
     warp: 1 - smooth(DEPARTURE_END - 0.025, DEPARTURE_END, p),
-    planet: 1 - smooth(PLANET_END - 0.03, PLANET_END + 0.01, p),
-    pan: smooth(0, PLANET_END + 0.01, p),
-    approach: smooth(PLANET_END - 0.03, MOUTH_AT, p),
+    planet: 1 - smooth(PLANET_END - 0.01, PLANET_END + 0.01, p),
+    pan: smooth(0, PAN_END, p),
+    zoom: smooth(PAN_END, PLANET_END, p),
+    approach: smooth(PLANET_END - 0.01, MOUTH_AT, p),
     reveal: smooth(PLANET_END, MOUTH_AT - 0.015, p),
     inside: smooth(MOUTH_AT - 0.012, MOUTH_AT + 0.012, p),
     turbulence:

@@ -11,7 +11,7 @@ uniform vec2 uRes; uniform float uTime; uniform float uClock;
 uniform float uDist, uTilt, uYaw, uRoll, uFov, uWarp, uSteps;
 uniform vec2 uShift;
 uniform vec2 uWormC; uniform float uWormR, uIn, uReveal;
-uniform float uPlanet, uPan, uSatR, uCalm, uStill, uFlash;
+uniform float uPlanet, uPan, uSatR, uCalm, uStill, uFlash, uRingTilt, uRingSquash, uSunSeen;
 uniform vec2 uSatC, uSun, uTunC;
 
 float hash(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
@@ -154,6 +154,9 @@ vec3 wormhole(vec2 uv){
     col += stars2(vec2(a * 9.0 + uClock * 0.3, log(r) * 3.0), 14.0) * near * 2.2 * uReveal;
     col += vec3(0.85, 0.88, 1.0) * exp(-(r - 1.0) * 14.0) * 0.06;
   }
+  // From far it is a tiny bright point dead ahead, before it is big enough to show anything.
+  float far = 1.0 - smoothstep(0.015, 0.08, R);
+  col += vec3(0.95, 0.93, 1.0) * (exp(-length(d) * 420.0) * 2.2 + exp(-length(d) * 60.0) * 0.12) * far;
   return col;
 }
 
@@ -161,9 +164,9 @@ vec3 wormhole(vec2 uv){
 // forward-scattered light, the star just past its edge.
 vec3 planet(vec2 uv, vec3 bg){
   vec2 d = (uv - uSatC) / uSatR;
-  float tilt = -0.3;
+  float tilt = uRingTilt;
   vec2 rd = mat2(cos(tilt), sin(tilt), -sin(tilt), cos(tilt)) * d;
-  float ry = rd.y / 0.2;
+  float ry = rd.y / uRingSquash;
   float rq = length(vec2(rd.x, ry));
   float ring = smoothstep(1.24, 1.3, rq) * (1.0 - smoothstep(2.15, 2.25, rq));
   ring *= 0.55 + 0.45 * sin(rq * 52.0) * sin(rq * 13.0 + 1.0);
@@ -196,7 +199,7 @@ vec3 planet(vec2 uv, vec3 bg){
   vec2 s = uv - uSun;
   float sr = length(s);
   float spikes = exp(-abs(s.x) * 260.0) * exp(-abs(s.y) * 9.0) + exp(-abs(s.y) * 260.0) * exp(-abs(s.x) * 9.0);
-  col += vec3(1.0, 0.95, 0.86) * (exp(-sr * 110.0) * 4.0 + exp(-sr * 14.0) * 0.12 + spikes * 0.5);
+  col += vec3(1.0, 0.95, 0.86) * (exp(-sr * 110.0) * 4.0 + exp(-sr * 14.0) * 0.12 + spikes * 0.5) * uSunSeen;
   return col;
 }
 
@@ -286,4 +289,7 @@ export const UNIFORMS = [
   'uSatC',
   'uSun',
   'uTunC',
+  'uRingTilt',
+  'uRingSquash',
+  'uSunSeen',
 ] as const;

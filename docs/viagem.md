@@ -16,8 +16,8 @@ Tempo de leitura pensado para quem só rola, sem parar nas quests. "Work →" co
 
 | # | Momento | O que já existe | O que falta |
 | --- | --- | --- | --- |
-| 1 | **O planeta contra a luz (decidido: entra).** Um gigante gasoso com anéis, no estilo de Saturno, iluminado por trás, flare da estrela. O cursor (ou o dedo) faz o pan e o flare muda com ele. "The long version starts far from here." | O flare no cursor | Planeta com anéis em shader, contraluz, o pan |
-| 2 | **O wormhole aparece aos poucos.** Pouca luz no começo, mais informação conforme chega perto. Aproximação lateral: só uma parte da esfera no quadro, as estrelas da borda viram flashes finos. | A esfera do wormhole (galáxia dentro, borda, lente) | Revelação gradual, aproximação de lado, flashes na borda |
+| 1 | **O planeta contra a luz (decidido: entra).** Um gigante gasoso com anéis, no estilo de Saturno, iluminado por trás, flare da estrela. O scroll faz o pan até o planeta ficar no centro (o flare muda com ele); daí zoom, os anéis na horizontal e o voo por baixo deles, até passar o planeta. "The long version starts far from here." | Feito (PR da partida) | |
+| 2 | **O wormhole aparece aos poucos.** Passado o planeta, um ponto minúsculo cresce. Pouca luz no começo, mais informação conforme chega perto; as estrelas da borda viram flashes finos. | A esfera do wormhole (galáxia dentro, borda, lente) | Revelação gradual, aproximação de lado, flashes na borda |
 | 3 | **Dentro.** O cilindro corre na nossa direção, vistos de perto da borda, lente grande-angular. A parede ondula, flashes, chacoalho, alarmes. É o **ponto de não retorno** (ver decisões). | O túnel de faíscas, o tranco | Parede curva, chacoalho, alarmes, a câmera fora do centro |
 | 4 | **A calmaria.** Alarmes calam, a velocidade cai como uma curva logarítmica, o centro se abre. | A mola do scroll (`follow.ts`) | A curva de saída |
 | 5 | **O universo parado.** Antes a câmera estava fixa e o universo passava; agora a câmera se move contra um universo parado. | | Céu estático e pan |

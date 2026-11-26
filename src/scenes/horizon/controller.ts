@@ -21,30 +21,48 @@ type Uniform = (typeof UNIFORMS)[number];
 
 /** Where things sit in the departure, in screen units (fractions of the height). */
 interface Layout {
-  planet: { x: number; y: number; r: number };
-  sun: { x: number; y: number };
+  planet: { x: number; y: number; r: number; tilt: number; squash: number };
+  sun: { x: number; y: number; seen: number };
   worm: { x: number; y: number; r: number };
   tunnel: { x: number; y: number };
 }
 
+const mixTo = (a: number, b: number, t: number): number => a + (b - a) * t;
+
 /**
- * The departure's layout for a frame. The pan carries the planet across the view (the star,
- * farther away, moves less, so the flare changes); the pointer adds a little parallax. The
- * wormhole comes in from the side, so only part of it is in view until the camera is close.
+ * The departure's layout for a frame. The pan carries the planet to the middle of the view
+ * (the star, farther away, moves less, so the flare changes). Then the camera zooms in, the
+ * rings level out and the planet rises out of the frame: the flight passes under the rings.
+ * The star hides behind the planet while it covers it. Past the planet, a tiny point dead
+ * ahead grows into the wormhole. The pointer adds a little parallax.
  */
 function departureLayout(f: HorizonFrame, aspect: number, look: { x: number; y: number }): Layout {
   const phone = aspect < 0.8;
-  // Above and to the right of the title (above it on a phone), drifting left with the pan.
-  const r = phone ? 0.15 : 0.24;
-  const px = (phone ? 0.14 : 0.62) - f.pan * (phone ? 0.28 : 0.5) - look.x * 0.03;
-  const py = (phone ? 0.3 : 0.2) + look.y * 0.02;
+  const r0 = phone ? 0.15 : 0.24;
+  const startX = phone ? 0.14 : 0.62;
+  const startY = phone ? 0.3 : 0.2;
+  const midY = phone ? 0.1 : 0.04;
+  const z = f.zoom;
+  const r = r0 * (1 + z * z * 7);
+  const x = mixTo(startX, 0, f.pan) - look.x * 0.03 * (1 - z);
+  const y = mixTo(startY, midY, f.pan) + z * z * z * r * 1.7 + look.y * 0.02 * (1 - z);
+  const sun = {
+    x: mixTo(startX, 0, f.pan) - r0 * 1.55 + f.pan * 0.12 - look.x * 0.01,
+    y: mixTo(startY, midY, f.pan) + r0 * 0.62,
+  };
+  const covered = Math.hypot(sun.x - x, sun.y - y) / r;
   const near = Math.pow(f.approach, 2.4);
-  const wx = phone ? 0.32 : 0.95 * Math.min(1, aspect / 1.6);
-  const wy = phone ? 0.3 : 0.12;
   return {
-    planet: { x: px, y: py, r },
-    sun: { x: px - r * 1.55 + f.pan * 0.12 - look.x * 0.01, y: py + r * 0.62 },
-    worm: { x: wx * (1 - near), y: wy * (1 - near), r: 0.11 + near * 1.8 },
+    planet: {
+      x,
+      y,
+      r,
+      tilt: mixTo(-0.3, 0, Math.min(1, z / 0.6)),
+      squash: mixTo(0.2, 0.045, z),
+    },
+    sun: { ...sun, seen: Math.min(1, Math.max(0, (covered - 0.98) / 0.06)) },
+    // Born above the title, it settles in the middle as it grows to fill the view.
+    worm: { x: 0, y: (phone ? 0.26 : 0.2) * (1 - near), r: 0.004 + near * 1.9 },
     // Inside, we are near the right wall looking at the far end, up and to the left; the calm
     // drifts us towards the middle.
     tunnel: { x: -0.3 * (1 - f.calm * 0.8), y: 0.16 * (1 - f.calm * 0.8) },
@@ -112,12 +130,16 @@ function createRenderer(canvas: HTMLCanvasElement, coarse: boolean): Renderer | 
       gl.uniform2f(u.uWormC, lay.worm.x, lay.worm.y);
       gl.uniform1f(u.uWormR, lay.worm.r);
       gl.uniform1f(u.uIn, f.inside);
-      gl.uniform1f(u.uReveal, f.reveal);
+      // Even far away the wormhole shows as a small bright point.
+      gl.uniform1f(u.uReveal, 0.4 + 0.6 * f.reveal);
       gl.uniform1f(u.uPlanet, f.planet);
       gl.uniform1f(u.uPan, f.pan);
       gl.uniform2f(u.uSatC, lay.planet.x, lay.planet.y);
       gl.uniform1f(u.uSatR, lay.planet.r);
+      gl.uniform1f(u.uRingTilt, lay.planet.tilt);
+      gl.uniform1f(u.uRingSquash, lay.planet.squash);
       gl.uniform2f(u.uSun, lay.sun.x, lay.sun.y);
+      gl.uniform1f(u.uSunSeen, lay.sun.seen);
       gl.uniform2f(u.uTunC, lay.tunnel.x, lay.tunnel.y);
       gl.uniform1f(u.uCalm, f.calm);
       gl.uniform1f(u.uStill, f.still);
@@ -247,7 +269,17 @@ const horizonScene: SceneController = ({ el, mode }) => {
     if (!renderer) return;
     // At the planet, the flare belongs to the star; the pan moves it across the lens.
     if (f.planet > 0.01) {
-      flare(fx, w / 2 + lay.sun.x * h, h / 2 - lay.sun.y * h, w, h, f.planet * 0.85, now);
+      if (lay.sun.seen > 0.01) {
+        flare(
+          fx,
+          w / 2 + lay.sun.x * h,
+          h / 2 - lay.sun.y * h,
+          w,
+          h,
+          f.planet * 0.85 * lay.sun.seen,
+          now,
+        );
+      }
       return;
     }
     const show = 1 - f.warp;
