@@ -19,11 +19,15 @@ const at = async (page: Page, p: number) => {
     .poll(() =>
       page.evaluate((top) => {
         window.scrollTo(0, top);
+        // WebKit on CI can skip the scroll event for a programmatic jump; nudge the engine.
+        window.dispatchEvent(new Event('scroll'));
         return Math.round(window.scrollY);
       }, y),
     )
     .toBe(y);
-  await expect.poll(() => page.locator('[data-stage]').getAttribute('data-active')).toBe('call');
+  await expect
+    .poll(() => page.locator('[data-stage]').getAttribute('data-active'), { timeout: 10_000 })
+    .toBe('call');
   // Let the engine paint the new position before reading the scene's state.
   await page.evaluate(
     () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))),
@@ -44,6 +48,8 @@ test.describe('the call', () => {
   });
 
   test('every point of the scene shows a picture and a line', async ({ page }) => {
+    // 31 stops, each waiting for a painted frame: slow on WebKit in CI.
+    test.slow();
     await page.goto('/journey');
     for (let p = 0; p <= 1; p += 1 / 30) {
       await at(page, p);

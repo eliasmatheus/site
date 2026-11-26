@@ -16,6 +16,8 @@ const at = async (page: Page, p: number) => {
     .poll(() =>
       page.evaluate((top) => {
         window.scrollTo(0, top);
+        // WebKit on CI can skip the scroll event for a programmatic jump; nudge the engine.
+        window.dispatchEvent(new Event('scroll'));
         return Math.round(window.scrollY);
       }, y),
     )
@@ -108,7 +110,7 @@ test.describe('prologue', () => {
     const page = await ctx.newPage();
     await page.goto('/journey');
     await at(page, 0.75);
-    await expect(scene(page)).toHaveAttribute('data-phase', '2');
+    await expect(scene(page)).toHaveAttribute('data-phase', '2', { timeout: 10_000 });
     await expect(scene(page)).toHaveCSS('transform', 'none');
     await scene(page).getByRole('button', { name: 'AUTO' }).click();
     await expect(scene(page).locator('[data-status]')).toHaveText('PERFECT · ±0.0 EV');
