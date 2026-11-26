@@ -49,6 +49,23 @@ test.describe('landing', () => {
     await expect(page).toHaveURL(/\/$/);
   });
 
+  test('the journey still starts in the right place when the landing changes height', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    // Like a web font arriving after the fallback (wider on Linux): the landing gets shorter
+    // after the engine measured it, without any resize event.
+    await page
+      .locator('main li')
+      .first()
+      .evaluate((el) => el.remove());
+    const start = await page
+      .locator('#journey')
+      .evaluate((el) => el.getBoundingClientRect().top + window.scrollY + window.innerHeight);
+    await page.evaluate((y) => window.scrollTo(0, y + 10), start);
+    await expect(page.locator('[data-header]')).toBeVisible();
+  });
+
   test('the door link jumps to the start of the journey', async ({ page }) => {
     await page.goto('/');
     const door = page.getByRole('link', { name: 'Begin the journey ↓' });

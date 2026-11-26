@@ -255,6 +255,9 @@ export function createEngine(opts: EngineOptions): Engine {
   });
   window.addEventListener('scroll', schedule, { passive: true });
   window.addEventListener('resize', onResize);
+  // Late fonts and images move the journey without a resize event: the page's height tells.
+  const grows = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(onResize);
+  grows?.observe(document.body);
   window.addEventListener('hashchange', goToHash);
   queries.forEach((q) => q.addEventListener('change', onModeChange));
   // Stops in document px, read on each gesture so they follow resizes and mode changes.
@@ -288,6 +291,7 @@ export function createEngine(opts: EngineOptions): Engine {
       if (raf) cancelAnimationFrame(raf);
       window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', onResize);
+      grows?.disconnect();
       window.removeEventListener('hashchange', goToHash);
       queries.forEach((q) => q.removeEventListener('change', onModeChange));
       pacer?.destroy();
