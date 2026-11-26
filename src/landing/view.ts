@@ -21,7 +21,7 @@ export interface View {
 
 /** The spot to look at: the section's, tilted by the pointer (0 to 1 across the screen). */
 export function viewTarget(section: string | null, pointer: number | null): number {
-  const base = (section && SECTION_VIEW[section]) ?? SECTION_VIEW['about'] ?? 0;
+  const base = (section === null ? undefined : SECTION_VIEW[section]) ?? SECTION_VIEW['about'] ?? 0;
   const tilt = pointer === null ? 0 : (pointer - 0.5) * 2 * POINTER_TILT;
   return Math.min(1, Math.max(0, base + tilt));
 }
