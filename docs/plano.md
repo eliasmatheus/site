@@ -57,7 +57,7 @@ A nova narrativa é a direção. O que não fizer mais sentido do que já foi fe
 - [ ] The fall v4, a chegada: a colmeia cúbica, o poço, zero G, a fresta, o quarto do Elias e a interação (Ato III, momentos 11 a 14).
 - [ ] The fall v4, a escolha: quartos em todas as direções, a seleção de personagem no notebook (dev, civil, aeronáutico) como quest que falha, o rádio em língua inventada, a missão (Ato III, momentos 15 a 18).
 - [ ] As salas do Ato IV: hub de memórias, My computer como primeira sala, Structures e Desert como salas.
-- [ ] O presente: o fim que substitui o "To be continued" (Ato V).
+- [ ] O presente e a volta: ponto de inflexão, colapso do tesseract, volta gentil pelo wormhole, prata derretida e Saturno com o CTA de contato ou recomeçar (Ato V). Substitui o "To be continued".
 - [ ] Tirar a The Call do registro quando a escolha e o My computer existirem.
 
 ## Fase 5 · A virada

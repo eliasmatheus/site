@@ -38,7 +38,7 @@ O site é híbrido:
 
 ## Jornada: a viagem (decidida em 26/11/2026)
 
-A jornada virou um arco só, em cinco atos, descrito em `docs/viagem.md` (a fonte de verdade para ordem, momentos e decisões). Em resumo: o Elias passa por um planeta com anéis, atravessa um wormhole e cai num buraco negro. Lá dentro, num tesseract onde o passado é um lugar, tenta mudar a escolha do curso em 2011 e não consegue. Entende que foi essa escolha que o trouxe até aqui: a missão não é mudar o passado, é mudar o presente. Navega pelas memórias em ordem e termina no hoje, se reinventando como engenheiro de IA.
+A jornada virou um arco só, em cinco atos, descrito em `docs/viagem.md` (a fonte de verdade para ordem, momentos e decisões). Em resumo: o Elias passa por um planeta com anéis, atravessa um wormhole e cai num buraco negro. Lá dentro, num tesseract onde o passado é um lugar, tenta mudar a escolha do curso em 2011 e não consegue. Entende que foi essa escolha que o trouxe até aqui: a missão não é mudar o passado, é mudar o presente. Navega pelas memórias em ordem e chega ao hoje, se reinventando como engenheiro de IA. O tesseract colapsa, ele volta pelo wormhole fazendo as pazes com o Elias antigo e reaparece diante de Saturno: o começo e o fim são o mesmo lugar.
 
 | Ato | Cena | O que acontece |
 |---|---|---|
@@ -46,7 +46,7 @@ A jornada virou um arco só, em cinco atos, descrito em `docs/viagem.md` (a font
 | II · O buraco negro | Horizon | A estrela que vira buraco negro ("Meet Elias."), a órbita, a queda, a tempestade, a ejeção |
 | III · O tesseract | The fall | A colmeia, o poço, zero G, o quarto pela fresta, a escolha (seleção de personagem: dev, civil, aeronáutico), o rádio, a missão |
 | IV · As memórias | Salas do tesseract | My computer, Structures, Desert, The Click, 2020, Tux, primeiro emprego |
-| V · O presente | Fim | O ponto de inflexão e a nova jornada como engenheiro de IA |
+| V · O presente e a volta | Fim | O ponto de inflexão, a nova jornada como engenheiro de IA, o colapso do tesseract, a volta gentil pelo wormhole e a chegada a Saturno, onde tudo começou: contato ou recomeçar |
 
 - A The Call (a montagem retrô) sai: as memórias dela passam a viver no My computer, e a escolha vira a seleção de personagem no Ato III.
 - O ponto de não retorno (dentro do wormhole e na queda) é um piloto automático curto, sem travar quem quer sair ("Work →", teclado e links funcionam).

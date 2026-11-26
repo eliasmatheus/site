@@ -57,12 +57,16 @@ Com o propósito claro, navegamos pelas memórias em ordem, cada uma uma sala do
 6. O Ubuntu e a NLW (**Tux**).
 7. Primeiro emprego e os grandes feitos (capítulos ainda sem protótipo).
 
-### Ato V · O presente
+### Ato V · O presente e a volta
 
-| # | Momento |
-| --- | --- |
-| 19 | **O ponto de inflexão.** De volta ao presente. A mensagem para o Elias de hoje: você já se reinventou uma vez; o que parecia impossível se abriu com esforço, dedicação e alguma dose de talento. |
-| 20 | **A nova jornada.** Em vez de recusar a IA e perder espaço, abraçá-la: engenheiro de IA. Fim da história, com "Work →" e contato em destaque. Substitui o "To be continued". |
+| # | Momento | O que já existe | O que falta |
+| --- | --- | --- | --- |
+| 19 | **O ponto de inflexão.** De volta ao presente. A mensagem para o Elias de hoje: você já se reinventou uma vez; o que parecia impossível se abriu com esforço, dedicação e alguma dose de talento. | | Copy |
+| 20 | **A nova jornada.** Em vez de recusar a IA e perder espaço, abraçá-la: engenheiro de IA. A intervenção que dá certo. | | Copy e o gesto final |
+| 21 | **O colapso.** O tesseract se fecha sobre si, num colapso confuso. A luz cresce até o clarão e a tela branca. | O tesseract em 3D | O colapso, o clarão |
+| 22 | **A volta pelo wormhole**, agora mais iluminado, pacífico, gentil. A despedida do Elias antigo: fazer as pazes com ele e com as escolhas dele. | O túnel do wormhole | A versão clara e calma do túnel, a despedida |
+| 23 | **Prata derretida.** Clarão com sombras onduladas, como um líquido viscoso e escaldante. | | Shader de líquido |
+| 24 | **De volta a Saturno.** O clarão some e revela o flare de um ponto muito brilhante: estamos de volta ao começo. O fim fecha o círculo. **CTA: entrar em contato ou recomeçar a jornada.** "Work →" em destaque. Substitui o "To be continued". | O planeta do Ato I | O CTA, o "recomeçar" (volta ao topo da jornada) |
 
 Rascunho de copy (inglês simples, sem travessão, a revisar com o Elias):
 - A escolha: "I shouted at him. Computer Science. He picked Civil Engineering anyway."
@@ -88,7 +92,7 @@ Rascunho de copy (inglês simples, sem travessão, a revisar com o Elias):
 3. **The fall v4, a chegada:** a colmeia, o poço, zero G, a fresta, o quarto. Momentos 11 a 14.
 4. **The fall v4, a escolha:** quartos em todas as direções, a quest da escolha, o rádio, a missão. Momentos 15 a 18.
 5. **As salas do Ato IV:** o hub de memórias e a entrada no My computer; as cenas que já existem (Structures, Desert) passam a ser salas.
-6. **O presente:** o fim que substitui o "To be continued".
+6. **O presente e a volta:** o ponto de inflexão, o colapso do tesseract, a volta gentil pelo wormhole, a prata derretida e a chegada a Saturno com o CTA (contato ou recomeçar). Substitui o "To be continued".
 
 Cada passo com desktop e iPhone, check, testes e Lighthouse, como sempre.
 
