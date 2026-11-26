@@ -111,7 +111,7 @@ const profiles = [work.contact.links.github, work.contact.links.linkedin];
     </main>
   </div>
 
-  <section class="door" aria-labelledby="h-door">
+  <section class="door" id="door" aria-labelledby="h-door">
     <div class="door-inner">
       <canvas class="ring" data-ring aria-hidden="true"></canvas>
       <h2 id="h-door">{landing.door.title}</h2>
@@ -159,14 +159,24 @@ const profiles = [work.contact.links.github, work.contact.links.linkedin];
     pointer-events: none;
   }
 
-  /* The nebula fades in once the shader is ready, so no black flash on slow devices. */
+  /* The nebula is a wide, still painting; the view pans across it (sky.ts sets the transform).
+     It fades in once painted, then its opacity follows the glow of the moving view. */
   .nebula {
+    right: auto;
+    width: 170vw;
     opacity: 0;
-    transition: opacity 1.2s ease;
+    will-change: transform, opacity;
   }
 
   .nebula[data-ready] {
-    opacity: 1;
+    opacity: var(--glow, 0.55);
+    animation: nebula-in 1.6s ease backwards;
+  }
+
+  @keyframes nebula-in {
+    from {
+      opacity: 0;
+    }
   }
 
   .wrap {
@@ -539,9 +549,12 @@ const profiles = [work.contact.links.github, work.contact.links.linkedin];
     }
 
     .item,
-    nav a::before,
-    .nebula {
+    nav a::before {
       transition: none;
+    }
+
+    .nebula[data-ready] {
+      animation: none;
     }
   }
 </style>

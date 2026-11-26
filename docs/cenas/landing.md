@@ -15,7 +15,8 @@ Quem está com pressa resolve tudo aqui em 10 segundos: quem é, o que faz, onde
 ## Tempero
 
 - Céu escuro com estrelas discretas e leve paralaxe.
-- Nebulosa por baixo (WebGL, gás com distorção de domínio em verde-azulado e âmbar, estética dos títulos de Duna): quase invisível em repouso, revelada onde o cursor passa, com um rastro que se apaga em ~2,5 s. Sem cursor (celular), uma janela lenta vagueia sozinha. Renderizada em meia resolução.
+- Nebulosa no estilo da árvore de habilidades do Skyrim (homenagem só no estilo): uma pintura larga e parada do céu (gás azul-esverdeado à esquerda, ferrugem e âmbar à direita, faixas de poeira escura, aglomerados de estrelas), 1,7 tela de largura, pintada uma vez em WebGL. Ela não se mexe; o que muda é para onde olhamos. Cada parte da página tem um ponto no céu (About, Experience, Projects, a porta). Ao rolar até outra parte, a vista desliza até lá e a nebulosa brilha durante o movimento, apagando de volta quando para. O mouse inclina a vista de leve. Uma camada de estrelas mais próxima anda um pouco mais rápido (paralaxe).
+- (Substituiu a primeira versão, em que o cursor revelava a nebulosa: parecia arte abstrata, não nebulosa.)
 - Um satélite pequeno orbitando ao lado do nome.
 - Itens da lista se destacam ao passar o mouse (os outros esmaecem).
 
@@ -27,18 +28,18 @@ Quem está com pressa resolve tudo aqui em 10 segundos: quem é, o que faz, onde
 
 ## Aceite
 
-- [x] Lighthouse mobile ≥ 95 em performance, SEO 100, acessibilidade 100. (100 / 100 / 100, LCP 0,9 s, TBT 0 ms, CLS 0,002. Best practices 96 só pelo script do Vercel Analytics, que dá 404 fora da Vercel.)
+- [x] Lighthouse mobile ≥ 95 em performance, SEO 100, acessibilidade 100. (100 / 100 / 100, LCP 0,9 s, TBT 0 ms, CLS 0,007. Best practices 96 só pelo script do Vercel Analytics, que dá 404 fora da Vercel.)
 - [x] Sem JS, a página inteira continua lá.
 - [x] Reduced motion: estrelas e satélite parados.
 - [ ] A porta leva ao Horizon sem frame vazio. Por enquanto leva à jornada atual em `/journey`; o texto da porta muda quando o Horizon existir.
 
 ## Implementação
 
-- Página: `src/pages/index.astro`. Conteúdo: `src/content/landing.ts` + `src/content/work.ts`. Céu: `src/landing/` (`sky.ts`, `nebula.ts`, `trail.ts` com testes).
+- Página: `src/pages/index.astro`. Conteúdo: `src/content/landing.ts` + `src/content/work.ts`. Céu: `src/landing/` (`sky.ts`, `nebula.ts`, `view.ts` com testes).
 - A jornada mudou para `/journey`. `/work` redireciona para `/` (308 na Vercel via `vercel.json`, meta refresh no build estático).
 - O céu só liga na primeira interação (mouse, toque, scroll, tecla) ou 3 s depois do load, para não pesar no LCP nem no TBT.
-- Se os 12 primeiros quadros saírem mais lentos que 24 fps, a nebulosa desliga e ficam só as estrelas.
-- Rastro do cursor só com mouse. No toque, a janela que vagueia é fraca (força 0,07 por ponto) para o texto continuar legível; o texto do registro tem sombra escura.
+- Vista: `src/landing/view.ts` (pontos por seção, inclinação do mouse, suavização e brilho, com testes). A nebulosa é repintada só quando muda a largura da janela. Em repouso fica a 55% de opacidade; o movimento leva até 100%. O texto do registro tem sombra escura.
+- Reduced motion: a vista pula direto para o ponto da seção, sem deslizar nem brilhar.
 - O "About" está em rascunho com fatos que já estão no site (estruturas, igrejas, sondagens, 2020, pagamentos, internet banking, agritech). Revisar com o Elias.
 
 Prints: `docs/screens/fase-4/landing-*.jpg`.

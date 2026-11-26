@@ -1,14 +1,13 @@
-// Decoration for the landing: stars with a little parallax, the nebula under the pointer and
-// the small black hole at the door. Everything here is optional; the page reads fine without it.
-import { createNebula, type Nebula } from './nebula';
-import { fadeTrail, isIdle, pushPoint, wanderer, type TrailPoint } from './trail';
+// Decoration for the landing: a still nebula painted once, a view that pans across it as the
+// visitor moves through the page, a nearer layer of stars and the small black hole at the door.
+// Everything here is optional; the page reads fine without it.
+import { paintNebula } from './nebula';
+import { stepView, viewTarget, type View } from './view';
 
-/** The wanderer drops a faint point every 120 ms; about ten overlap, so keep each one weak. */
-const WANDER_STRENGTH = 0.07;
-/** Frames measured before deciding whether the nebula stays. */
-const PROBE_FRAMES = 12;
-/** Average seconds per frame above which the nebula is dropped. */
-const SLOW_FRAME = 1 / 24;
+/** The panorama is this many screens wide (matches the CSS width of the nebula canvas). */
+const PANORAMA = 1.7;
+/** Nebula opacity at rest; moving the view adds up to the rest. */
+const REST_OPACITY = 0.55;
 
 interface Star {
   x: number;
@@ -17,43 +16,57 @@ interface Star {
   a: number;
 }
 
+/** The part of the page being read: the section crossing the middle of the screen. */
+function watchSection(ids: readonly string[], onChange: (id: string | null) => void): void {
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) if (e.isIntersecting) onChange(e.target.id);
+    },
+    { rootMargin: '-45% 0px -45% 0px' },
+  );
+  for (const id of ids) {
+    const el = document.getElementById(id);
+    if (el) io.observe(el);
+  }
+}
+
 export function startSky(): void {
   const stars = document.querySelector<HTMLCanvasElement>('[data-stars]');
-  const nebulaCanvas = document.querySelector<HTMLCanvasElement>('[data-nebula]');
+  const nebula = document.querySelector<HTMLCanvasElement>('[data-nebula]');
   const ring = document.querySelector<HTMLCanvasElement>('[data-ring]');
-  if (!stars || !nebulaCanvas || !ring) return;
+  if (!stars || !nebula || !ring) return;
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const coarse = window.matchMedia('(pointer: coarse)').matches;
-  let nebula: Nebula | null = createNebula(nebulaCanvas, coarse ? 0.35 : 0.5);
-  if (nebula) nebulaCanvas.dataset['ready'] = '';
+  const painted = paintNebula(nebula, coarse ? 0.4 : 0.5);
+  if (painted) nebula.dataset['ready'] = '';
 
-  // ---------- pointer trail ----------
-  const trail: TrailPoint[] = [];
-  let lastPush = 0;
-  let pointed = false;
-  window.addEventListener(
-    'pointermove',
-    (e) => {
-      if (e.pointerType !== 'mouse') return;
-      pointed = true;
-      const now = performance.now();
-      const head = trail[0];
-      if (now - lastPush > 40 || !head) {
-        pushPoint(trail, { x: e.clientX, y: e.clientY, s: 1 });
-        lastPush = now;
-      } else {
-        head.x = e.clientX;
-        head.y = e.clientY;
-        head.s = 1;
-      }
-    },
-    { passive: true },
-  );
+  // ---------- where we look ----------
+  let section: string | null = null;
+  let pointer: number | null = null;
+  let view: View = { x: viewTarget(null, null), glow: 0 };
+  watchSection(['about', 'experience', 'projects', 'door'], (id) => {
+    section = id;
+    if (reduce) {
+      view = { x: viewTarget(section, null), glow: 0 };
+      paint(performance.now());
+    }
+  });
+  if (!coarse && !reduce) {
+    window.addEventListener('pointermove', (e) => (pointer = e.clientX / window.innerWidth), {
+      passive: true,
+    });
+  }
+  const panWidth = (): number => window.innerWidth * (PANORAMA - 1);
+  function applyView(): void {
+    if (!nebula) return;
+    nebula.style.transform = `translate3d(${(-view.x * panWidth()).toFixed(1)}px, 0, 0)`;
+    nebula.style.setProperty('--glow', (REST_OPACITY + (1 - REST_OPACITY) * view.glow).toFixed(3));
+  }
 
-  // ---------- stars ----------
+  // ---------- nearer stars, a little faster than the nebula ----------
   const sky = stars.getContext('2d');
-  const field: Star[] = Array.from({ length: 220 }, () => ({
+  const field: Star[] = Array.from({ length: 200 }, () => ({
     x: Math.random(),
     y: Math.random(),
     near: Math.random() < 0.3,
@@ -71,13 +84,15 @@ export function startSky(): void {
     sky.setTransform(dpr, 0, 0, dpr, 0, 0);
     sky.clearRect(0, 0, w, h);
     sky.fillStyle = '#e9e6df';
+    const pan = view.x * panWidth();
     for (const s of field) {
-      const depth = s.near ? 1 : 0.4;
-      const y = (((s.y * h - window.scrollY * 0.05 * depth) % h) + h) % h;
+      const depth = s.near ? 1.35 : 1.15;
+      const x = (((s.x * w - pan * depth) % w) + w) % w;
+      const y = (((s.y * h - window.scrollY * 0.04 * depth) % h) + h) % h;
       const twinkle = reduce ? 1 : 0.6 + 0.4 * Math.sin(now / 900 + s.x * 40);
       sky.globalAlpha = s.a * twinkle;
       const size = s.near ? 1.6 : 1;
-      sky.fillRect(s.x * w, y, size, size);
+      sky.fillRect(x, y, size, size);
     }
     sky.globalAlpha = 1;
   }
@@ -137,57 +152,40 @@ export function startSky(): void {
     flat(true);
   }
 
-  // ---------- loop ----------
-  const probe = { frames: 0, total: 0 };
-  let time = 0;
-  let last = performance.now();
-  let lastWander = 0;
-  function frame(now: number): void {
-    const dt = Math.min(0.05, (now - last) / 1000);
-    last = now;
-    time += dt;
-    fadeTrail(trail, dt);
-    // Nobody pointing (phones, or the mouse left): a slow wanderer keeps one window open.
-    if ((!pointed || isIdle(trail)) && now - lastWander > 120) {
-      const p = wanderer(time, window.innerWidth, window.innerHeight);
-      pushPoint(trail, { ...p, s: WANDER_STRENGTH });
-      lastWander = now;
-    }
-    if (nebula) {
-      nebula.draw(time, trail);
-      // A device that cannot keep up loses the nebula and keeps the stars.
-      if (probe.frames < PROBE_FRAMES) {
-        probe.frames++;
-        probe.total += dt;
-        if (probe.frames === PROBE_FRAMES && probe.total / PROBE_FRAMES > SLOW_FRAME) {
-          nebula = null;
-          delete nebulaCanvas?.dataset['ready'];
-        }
-      }
-    }
+  function paint(now: number): void {
+    applyView();
     drawStars(now);
     if (ringVisible) drawRing(now);
   }
 
+  const repaintNebula = (): void => {
+    paintNebula(nebula, coarse ? 0.4 : 0.5);
+    paint(performance.now());
+  };
+  // Phones resize on every toolbar show and hide; only a new width needs a new painting.
+  let paintedWidth = window.innerWidth;
+  let resizeTimer = 0;
+  window.addEventListener('resize', () => {
+    if (window.innerWidth === paintedWidth) return paint(performance.now());
+    paintedWidth = window.innerWidth;
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(repaintNebula, 250);
+  });
+
   if (reduce) {
-    // Still sky: one frame, redrawn only when the page changes size or scrolls.
-    const still = (): void => {
-      trail.length = 0;
-      const p = wanderer(0, window.innerWidth, window.innerHeight);
-      pushPoint(trail, { ...p, s: 0.4 });
-      nebula?.draw(0, trail);
-      drawStars(0);
-      drawRing(0);
-    };
-    still();
-    window.addEventListener('resize', still);
-    window.addEventListener('scroll', () => drawStars(0), { passive: true });
+    // A still sky: the view jumps between spots and is redrawn only when something changes.
+    paint(0);
+    window.addEventListener('scroll', () => paint(0), { passive: true });
     return;
   }
 
+  let last = performance.now();
   let raf = 0;
   const run = (now: number): void => {
-    frame(now);
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    view = stepView(view, viewTarget(section, pointer), dt);
+    paint(now);
     raf = requestAnimationFrame(run);
   };
   raf = requestAnimationFrame(run);
