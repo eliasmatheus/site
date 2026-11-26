@@ -2,7 +2,7 @@
 // visitor moves through the page, a light that follows the pointer, a nearer layer of stars and the small black hole at the door.
 // Everything here is optional; the page reads fine without it.
 import { paintNebula } from './nebula';
-import { fadeTrail, isIdle, lightMask, pushPoint, wanderer, type TrailPoint } from './trail';
+import { easeToward, fadeTrail, lightMask, pushPoint, wanderer, type TrailPoint } from './trail';
 import { stepView, viewTarget, type View } from './view';
 
 /** The panorama is this many screens wide (matches the CSS width of the nebula canvas). */
@@ -10,8 +10,10 @@ const PANORAMA = 1.7;
 /** Nebula opacity at rest: a dark sky. Moving the view adds up to GLOW_OPACITY more. */
 const REST_OPACITY = 0.17;
 const GLOW_OPACITY = 0.23;
-/** On touch screens a light wanders on its own while no finger is down, one point every 120 ms. */
-const WANDER_STRENGTH = 0.45;
+/** On touch screens one steady light drifts across the sky while no finger is down. */
+const WANDER_STRENGTH = 0.6;
+/** How long after the last touch the drifting light comes back, in ms. */
+const WANDER_DELAY = 1200;
 /** Touch screens have no hover, so sliding the view lights up more of the sky. */
 const TOUCH_GLOW_OPACITY = 0.45;
 
@@ -60,6 +62,8 @@ export function startSky(): void {
 
   // ---------- the light around the pointer ----------
   const trail: TrailPoint[] = [];
+  // A single drifting light for touch screens. It moves smoothly and never blinks.
+  const wander: TrailPoint = { x: 0, y: 0, s: 0 };
   let lastPush = 0;
   const lightAt = (x: number, y: number): void => {
     const now = performance.now();
@@ -82,7 +86,9 @@ export function startSky(): void {
   );
   // On a phone the finger is the pointer: touching and scrolling light the sky under it.
   // Touch events keep firing while the page scrolls (pointer events are cancelled).
+  let lastTouch = -Infinity;
   const onTouch = (e: TouchEvent): void => {
+    lastTouch = performance.now();
     const t = e.touches[0];
     if (t) lightAt(t.clientX, t.clientY);
   };
@@ -114,7 +120,7 @@ export function startSky(): void {
     light.style.transform = move;
     const glow = coarse ? TOUCH_GLOW_OPACITY : GLOW_OPACITY;
     nebula.style.setProperty('--glow', (REST_OPACITY + glow * view.glow).toFixed(3));
-    const mask = lightMask(trail, pan);
+    const mask = lightMask(wander.s > 0.01 ? [...trail, wander] : trail, pan);
     light.style.maskImage = mask;
     light.style.setProperty('-webkit-mask-image', mask);
   }
@@ -238,7 +244,6 @@ export function startSky(): void {
 
   let last = performance.now();
   let time = 0;
-  let lastWander = 0;
   let raf = 0;
   const run = (now: number): void => {
     const raw = (now - last) / 1000;
@@ -248,11 +253,14 @@ export function startSky(): void {
     // The light fades on real time, even when frames are slow.
     fadeTrail(trail, Math.min(0.5, raw));
     time += dt;
-    // With a mouse the sky goes dark again at rest; on touch a light keeps wandering.
-    if (coarse && isIdle(trail, 0.2) && now - lastWander > 120) {
+    // With a mouse the sky goes dark again at rest; on touch the drifting light fades back
+    // in a moment after the finger leaves.
+    if (coarse) {
       const p = wanderer(time, window.innerWidth, window.innerHeight);
-      pushPoint(trail, { ...p, s: WANDER_STRENGTH });
-      lastWander = now;
+      wander.x = p.x;
+      wander.y = p.y;
+      const target = now - lastTouch > WANDER_DELAY ? WANDER_STRENGTH : 0;
+      wander.s = easeToward(wander.s, target, Math.min(0.5, raw), 1.2);
     }
     paint(now);
     raf = requestAnimationFrame(run);

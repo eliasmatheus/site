@@ -7,6 +7,8 @@ const VERTEX = 'attribute vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); 
 const FRAGMENT = `
 precision highp float;
 uniform vec2 uRes;
+// Width over height of the screen (not of the panorama): phones held upright are below 1.
+uniform float uScreen;
 
 float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float noise(vec2 p){
@@ -43,7 +45,9 @@ void main(){
 
   // A broad band of gas that wanders across the whole panorama.
   float centre = 0.52 + 0.16 * sin(x * 4.2 + 0.6) + 0.07 * sin(x * 11.0);
-  float band = exp(-pow((uv.y - centre) * 2.6, 2.0));
+  // On a tall screen the band opens up to fill the height, so the top is never empty.
+  float tall = clamp(uScreen, 0.35, 1.0);
+  float band = exp(-pow((uv.y - centre) * 2.6 * tall, 2.0));
 
   vec2 q = vec2(fbm(uv * 1.4), fbm(uv * 1.4 + vec2(5.2, 1.3)));
   float body = fbm(uv * 2.2 + 2.2 * q);
@@ -124,6 +128,7 @@ export function paintNebula(canvas: HTMLCanvasElement, scale: number): boolean {
   canvas.height = h;
   gl.viewport(0, 0, w, h);
   gl.uniform2f(gl.getUniformLocation(program, 'uRes'), w, h);
+  gl.uniform1f(gl.getUniformLocation(program, 'uScreen'), window.innerWidth / window.innerHeight);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
   return true;
 }

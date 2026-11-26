@@ -25,12 +25,12 @@ export function fadeTrail(trail: TrailPoint[], dt: number): void {
   for (const p of trail) p.s = Math.max(0, p.s - dt * FADE_PER_SECOND);
 }
 
-/** True when nothing in the trail is still visible, so the slow wanderer takes over. */
-export function isIdle(trail: readonly TrailPoint[], threshold = 0.05): boolean {
-  return trail.every((p) => p.s < threshold);
+/** Moves a value toward a target, smoothly and without overshoot. `rate` is per second. */
+export function easeToward(current: number, target: number, dt: number, rate: number): number {
+  return current + (target - current) * (1 - Math.exp(-dt * rate));
 }
 
-/** Where the wanderer is at time t (seconds): a slow loop around the middle of the screen. */
+/** Where the drifting light is at time t (seconds): a slow loop around the middle of the screen. */
 export function wanderer(t: number, width: number, height: number): { x: number; y: number } {
   const k = t * 0.12;
   return {

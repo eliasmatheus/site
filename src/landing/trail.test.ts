@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   fadeTrail,
   FADE_PER_SECOND,
-  isIdle,
+  easeToward,
   lightMask,
   pushPoint,
   TRAIL_SIZE,
@@ -29,11 +29,18 @@ describe('fadeTrail', () => {
   });
 });
 
-describe('isIdle', () => {
-  it('is idle when empty or when every point has faded', () => {
-    expect(isIdle([])).toBe(true);
-    expect(isIdle([{ x: 0, y: 0, s: 0.01 }])).toBe(true);
-    expect(isIdle([{ x: 0, y: 0, s: 0.5 }])).toBe(false);
+describe('easeToward', () => {
+  it('approaches the target steadily and never passes it', () => {
+    let v = 0;
+    const seen: number[] = [];
+    for (let i = 0; i < 300; i++) {
+      v = easeToward(v, 0.6, 1 / 60, 1.2);
+      seen.push(v);
+    }
+    // Monotonic: a light driven by this never blinks.
+    expect(seen.every((x, i) => i === 0 || x >= (seen[i - 1] ?? 0))).toBe(true);
+    expect(v).toBeLessThanOrEqual(0.6);
+    expect(v).toBeGreaterThan(0.55);
   });
 });
 
