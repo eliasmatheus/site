@@ -18,6 +18,8 @@ const at = async (page: Page, p: number) => {
     .poll(() =>
       page.evaluate((top) => {
         window.scrollTo(0, top);
+        // WebKit on CI can skip the scroll event for a programmatic jump; nudge the engine.
+        window.dispatchEvent(new Event('scroll'));
         return Math.round(window.scrollY);
       }, y),
     )
@@ -28,14 +30,14 @@ const at = async (page: Page, p: number) => {
 };
 
 const toQuest = async (page: Page) => {
-  await page.goto('/');
+  await page.goto('/journey');
   await at(page, 0.5);
   await expect(scene(page)).toHaveAttribute('data-state', 'fail');
 };
 
 test.describe('structures', () => {
   test('everything holds, then the plans change and the footing fails', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/journey');
     await at(page, 0.1);
     await expect(scene(page)).toHaveAttribute('data-state', 'original');
     await expect(
@@ -59,7 +61,7 @@ test.describe('structures', () => {
     await width.focus();
     for (let i = 0; i < 21; i++) await page.keyboard.press('ArrowLeft');
     await expect(scene(page)).toHaveAttribute('data-state', 'ok');
-    await expect(page.getByText('QUESTS 1/3')).toBeVisible();
+    await expect(page.getByText('QUESTS 1/2')).toBeVisible();
     await expect(scene(page).locator('[data-kicker]')).toHaveText('QUEST COMPLETE · +25 XP');
   });
 
@@ -77,7 +79,7 @@ test.describe('structures', () => {
     await toQuest(page);
     await scene(page).getByRole('button', { name: 'SHOW ME THE SWEET SPOT' }).click();
     await expect(scene(page)).toHaveAttribute('data-state', 'ok');
-    await expect(page.getByText('QUESTS 1/3')).toBeVisible();
+    await expect(page.getByText('QUESTS 1/2')).toBeVisible();
   });
 
   test('three.js only loads once the previous scene starts', async ({ page }) => {
@@ -85,10 +87,10 @@ test.describe('structures', () => {
     page.on('request', (r) => {
       if (/model3d/.test(r.url())) chunks.push(r.url());
     });
-    await page.goto('/');
+    await page.goto('/journey');
     await page.waitForLoadState('networkidle');
     expect(chunks).toEqual([]);
-    await page.goto('/#call');
+    await page.goto('/journey#call');
     await expect.poll(() => chunks.length).toBeGreaterThan(0);
   });
 

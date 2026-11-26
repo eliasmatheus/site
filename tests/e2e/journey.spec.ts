@@ -19,15 +19,17 @@ const toEnd = async (page: Page) => {
 
 test.describe('journey', () => {
   test('starts on the first scene with the header always visible', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.getByRole('heading', { level: 1, name: 'Meet Elias.' })).toBeVisible();
+    await page.goto('/journey');
+    await expect(
+      page.getByRole('heading', { name: 'The long version starts far from here.' }),
+    ).toBeVisible();
     await expect.poll(() => active(page)).toBe(first.id);
     await expect(page.getByRole('link', { name: 'Work →' }).first()).toBeVisible();
-    await expect(page.getByText('QUESTS 0/3')).toBeVisible();
+    await expect(page.getByText('QUESTS 0/2')).toBeVisible();
   });
 
   test('scrolling flies to the next scene and updates the hash', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/journey');
     await toEnd(page);
     await expect(page.getByRole('heading', { name: 'Next stop: the first job.' })).toBeVisible();
     await expect(page).toHaveURL(/#to-be-continued$/);
@@ -36,17 +38,17 @@ test.describe('journey', () => {
   });
 
   test('the resting scene has no 3D transform and takes clicks', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/journey');
     await toEnd(page);
     const end = page.locator('[data-scene="to-be-continued"]');
     await expect(end).toHaveCSS('transform', 'none');
     await expect(end).toHaveCSS('pointer-events', 'auto');
     await end.getByRole('link', { name: 'Work →' }).click();
-    await expect(page).toHaveURL(/\/work$/);
+    await expect(page).toHaveURL(/\/$/);
   });
 
   test('the scene waiting in depth never paints over the current one', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/journey');
     const mode = await page.locator('[data-stage]').getAttribute('data-mode');
     await page.evaluate((y) => window.scrollTo(0, y), firstFlight(mode) - 100);
     await expect.poll(() => active(page)).toBe(first.id);
@@ -59,7 +61,7 @@ test.describe('journey', () => {
 
   test('a hidden scene leaves nothing on screen', async ({ page }) => {
     for (const s of SCENES) {
-      await page.goto(`/#${s.id}`);
+      await page.goto(`/journey#${s.id}`);
       await expect.poll(() => active(page)).toBe(s.id);
       // A child with visibility: visible would show through a hidden layer.
       const leaks = await page.evaluate(() =>
@@ -76,12 +78,14 @@ test.describe('journey', () => {
   });
 
   test('an anchor opens the journey on that scene', async ({ page }) => {
-    await page.goto('/#to-be-continued');
+    await page.goto('/journey#to-be-continued');
     await expect.poll(() => active(page)).toBe('to-be-continued');
   });
 
   test('every point of the flight shows a scene (no empty frame)', async ({ page }) => {
-    await page.goto('/');
+    // The flight lands in The fall, whose WebGL is slow on the test machines' software GPU.
+    test.slow();
+    await page.goto('/journey');
     const mode = await page.locator('[data-stage]').getAttribute('data-mode');
     const travel = mode === 'fly' ? 1000 : 600;
     for (let u = 0; u <= 1; u += 0.125) {
@@ -103,7 +107,7 @@ test.describe('journey', () => {
 
 test.describe('staging modes', () => {
   test('desktop flies, mobile stacks', async ({ page, isMobile }) => {
-    await page.goto('/');
+    await page.goto('/journey');
     await expect(page.locator('[data-stage]')).toHaveAttribute(
       'data-mode',
       isMobile ? 'stack' : 'fly',
@@ -113,7 +117,7 @@ test.describe('staging modes', () => {
   test('reduced motion only fades', async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await ctx.newPage();
-    await page.goto('/');
+    await page.goto('/journey');
     await expect(page.locator('[data-stage]')).toHaveAttribute('data-mode', 'fade');
     await page.evaluate((y) => window.scrollTo(0, y), firstFlight('fade') + 200);
     for (const id of [first.id, second.id]) {
@@ -126,8 +130,11 @@ test.describe('staging modes', () => {
 test('without JavaScript every scene is readable in order', async ({ browser }) => {
   const ctx = await browser.newContext({ javaScriptEnabled: false });
   const page = await ctx.newPage();
-  await page.goto('/');
+  await page.goto('/journey');
   await expect(page.getByRole('heading', { level: 1, name: 'Meet Elias.' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Past this line, there is only forward.' }),
+  ).toBeVisible();
   await page.getByRole('heading', { name: 'Next stop: the first job.' }).scrollIntoViewIfNeeded();
   await expect(page.getByRole('heading', { name: 'Next stop: the first job.' })).toBeVisible();
   await ctx.close();

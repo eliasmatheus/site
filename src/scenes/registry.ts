@@ -5,6 +5,7 @@
  */
 import type { SceneHooks } from '../engine/engine';
 import type { ScenePlacement } from '../engine/timeline';
+import { CALL_STOPS } from './call/beats';
 
 export interface SceneContext {
   /** The scene's layer element. */
@@ -20,21 +21,36 @@ export interface SceneEntry extends ScenePlacement {
   load?: () => Promise<{ default: SceneController }>;
 }
 
-// Positions and dwells from the prototype (World.dc.html, this.SC).
+// Positions and dwells from the prototype (World.dc.html, this.SC), Horizon from black-hole.html.
 export const SCENES: readonly SceneEntry[] = [
   {
-    id: 'prologue',
-    label: 'Prologue',
-    dwell: 2800,
+    id: 'horizon',
+    label: 'Horizon',
+    // Wormhole, hard stop, arrival, then the fall: a long dwell so each beat gets room.
+    dwell: 5200,
     x: 0,
     y: 0,
-    load: () => import('./prologue/controller'),
+    load: () => import('./horizon/controller'),
   },
+  {
+    id: 'the-fall',
+    label: 'The fall',
+    // Down the tesseract past four moments, to the first computer and its save file. No
+    // stops: the camera follows the scroll with mass, like a flight in a 3D game.
+    dwell: 5600,
+    x: 0,
+    y: 0,
+    load: () => import('./the-fall/controller'),
+  },
+  // The Prologue (photography) left the opening on 25/11/2026 (docs/plano.md, Fase 4). Its
+  // code stays in src/scenes/prologue until it gets a place in the timeline.
   {
     id: 'call',
     label: 'The Call',
-    // Longer than the prototype's card scene: boot, seven vignettes, the choice and the save.
-    dwell: 4400,
+    // Longer than the prototype's card scene: boot, eight vignettes, the choice and the save.
+    // Told one gesture at a time, so a fast flick never skips a line.
+    dwell: 4800,
+    stops: CALL_STOPS,
     x: 520,
     y: -120,
     load: () => import('./call/controller'),

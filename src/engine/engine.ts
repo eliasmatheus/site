@@ -1,9 +1,11 @@
 /**
  * Scroll engine runtime: one requestAnimationFrame loop that reads scrollY and writes
- * only transforms, opacity, visibility and CSS custom properties. No scroll-jacking:
- * the document scrolls natively and its height is the timeline length plus one viewport.
+ * only transforms, opacity, visibility and CSS custom properties. The document scrolls
+ * natively and its height is the timeline length plus one viewport. The one exception is a
+ * scene with stops: there each gesture glides to the next stop (src/engine/pacing.ts).
  */
 import { layerStyle, type StageMode } from './layers';
+import { createPacer, type Zone } from './pacing';
 import {
   activeIndex,
   createTimeline,
@@ -48,6 +50,17 @@ export interface EngineOptions {
   placements: readonly ScenePlacement[];
   /** Called every frame with the overall progress 0 to 1 (header bar). */
   onJourney?(progress: number, activeId: string): void;
+  /**
+   * Called when the journey comes into view or leaves it. The journey can start below other
+   * content (the landing): until the visitor scrolls down to it, nothing runs.
+   */
+  onStage?(inView: boolean): void;
+  /**
+   * The journey fades in over one screen of the content before it (the landing's door)
+   * instead of scrolling up from below. The root overlaps that screen (CSS) and the stage
+   * stays pinned while it fades in.
+   */
+  entry?: boolean;
 }
 
 export interface Engine {
@@ -77,10 +90,17 @@ export function createEngine(opts: EngineOptions): Engine {
   let active = -1;
   let raf = 0;
   let destroyed = false;
+  /** Where the journey starts in the document (0 when it is the whole page). */
+  let origin = 0;
+  let inView: boolean | undefined;
+
+  const findOrigin = (): number =>
+    root.getBoundingClientRect().top + window.scrollY + (opts.entry ? window.innerHeight : 0);
 
   const applyHeight = (): void => {
-    root.style.height = `calc(${tl.length}px + 100vh)`;
+    root.style.height = `calc(${tl.length}px + ${opts.entry ? 200 : 100}vh)`;
     stage.dataset['mode'] = mode;
+    origin = findOrigin();
   };
 
   const call = (j: number, name: keyof Omit<SceneHooks, 'onProgress'>): void => {
@@ -92,9 +112,40 @@ export function createEngine(opts: EngineOptions): Engine {
   const frame = (): void => {
     raf = 0;
     if (destroyed) return;
-    const y = window.scrollY;
+    const raw = window.scrollY - origin;
+    const y = Math.max(0, raw);
     const loc = locate(tl, y);
     const now = activeIndex(loc.f);
+    // Still above the journey (reading the landing): every layer rests, no hash changes.
+    const visible = raw > -window.innerHeight;
+    let shown = visible;
+    if (opts.entry) {
+      // Over the end of the last screen before the journey, the stage fades in on top of it.
+      // It waits until the door is half gone, so the door reads clean first.
+      const span = window.innerHeight * 0.6;
+      const fade = Math.min(1, Math.max(0, (raw + span) / span));
+      stage.style.opacity = fade.toFixed(3);
+      stage.style.visibility = fade > 0 ? '' : 'hidden';
+      // Layers set their own pointer-events, so the whole stage opts out while it fades in.
+      stage.toggleAttribute('data-entering', fade < 1);
+      shown = fade >= 1;
+    }
+    if (shown !== inView) {
+      inView = shown;
+      opts.onStage?.(shown);
+    }
+    if (!visible) {
+      layers.forEach((el, j) => {
+        const st = state[j];
+        if (!st?.visible) return;
+        st.visible = false;
+        el.style.visibility = 'hidden';
+        call(j, 'onHide');
+      });
+      // Start loading the first scenes a couple of screens before the journey.
+      if (raw > -3 * window.innerHeight) prefetch(loc.f);
+      return;
+    }
 
     layers.forEach((el, j) => {
       const s = layerStyle(tl, loc.f, j, mode);
@@ -137,6 +188,15 @@ export function createEngine(opts: EngineOptions): Engine {
     opts.onJourney?.(journeyProgress(tl, loc.f), placements[active]?.id ?? '');
   };
 
+  function prefetch(f: number): void {
+    state.forEach((st, j) => {
+      if (!st.near && Math.abs(j - f) <= 1) {
+        st.near = true;
+        call(j, 'onNear');
+      }
+    });
+  }
+
   const schedule = (): void => {
     if (!raf) raf = requestAnimationFrame(frame);
   };
@@ -144,14 +204,22 @@ export function createEngine(opts: EngineOptions): Engine {
   const goToHash = (): void => {
     const id = decodeURIComponent(window.location.hash.slice(1));
     const j = placements.findIndex((s) => s.id === id);
-    if (j >= 0) window.scrollTo({ top: scrollForScene(tl, j), behavior: 'instant' });
+    if (j >= 0) window.scrollTo({ top: origin + scrollForScene(tl, j), behavior: 'instant' });
   };
 
   /** Keep the visitor in the same place when the staging mode changes. */
   const onModeChange = (): void => {
     const next = detectMode();
     if (next === mode) return;
-    const y = window.scrollY;
+    const y = window.scrollY - origin;
+    if (y < 0) {
+      // Still above the journey: nothing to keep in place.
+      mode = next;
+      tl = createTimeline(placements, MODE_CONFIG[mode]);
+      applyHeight();
+      schedule();
+      return;
+    }
     const loc = locate(tl, y);
     const dwell = placements[loc.index]?.dwell ?? 0;
     const dwellEnd = (tl.starts[loc.index] ?? 0) + dwell;
@@ -164,7 +232,13 @@ export function createEngine(opts: EngineOptions): Engine {
     const top = loc.travelling
       ? start + dwell + u * tl.config.travel
       : start + dwell * loc.progress;
-    window.scrollTo({ top, behavior: 'instant' });
+    window.scrollTo({ top: origin + top, behavior: 'instant' });
+    schedule();
+  };
+
+  /** Content above the journey can change height (fonts, resize): find its start again. */
+  const onResize = (): void => {
+    origin = findOrigin();
     schedule();
   };
 
@@ -180,9 +254,22 @@ export function createEngine(opts: EngineOptions): Engine {
     el.style.zIndex = String(layers.length - j);
   });
   window.addEventListener('scroll', schedule, { passive: true });
-  window.addEventListener('resize', schedule);
+  window.addEventListener('resize', onResize);
+  // Late fonts and images move the journey without a resize event: the page's height tells.
+  const grows = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(onResize);
+  grows?.observe(document.body);
   window.addEventListener('hashchange', goToHash);
   queries.forEach((q) => q.addEventListener('change', onModeChange));
+  // Stops in document px, read on each gesture so they follow resizes and mode changes.
+  const zones = (): Zone[] =>
+    placements.flatMap((s, j) =>
+      s.stops?.length
+        ? [s.stops.map((p) => Math.round(origin + (tl.starts[j] ?? 0) + s.dwell * p))]
+        : [],
+    );
+  const pacer = placements.some((s) => s.stops?.length)
+    ? createPacer(zones, () => mode === 'fade')
+    : undefined;
   if (window.location.hash) goToHash();
   schedule();
 
@@ -203,9 +290,11 @@ export function createEngine(opts: EngineOptions): Engine {
       destroyed = true;
       if (raf) cancelAnimationFrame(raf);
       window.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', schedule);
+      window.removeEventListener('resize', onResize);
+      grows?.disconnect();
       window.removeEventListener('hashchange', goToHash);
       queries.forEach((q) => q.removeEventListener('change', onModeChange));
+      pacer?.destroy();
     },
   };
 }

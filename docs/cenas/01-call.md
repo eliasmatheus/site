@@ -48,3 +48,12 @@ Montagem vertical, uma vinheta por tela, toast no topo. Cards empilhados; no lug
 - A narração fica numa caixa de diálogo com borda dupla, homenagem de estilo aos RPGs de bolso, e as skills formam um inventário ao lado do monitor (no mobile, embaixo).
 - O monitor é bege e genérico; o gabinete ligando ficou de fora por espaço. Dá para voltar a ele num refinamento.
 - O save das skills (cinza, para dentro do disquete) é o gancho para o "SAVE FILE FOUND · 2011" da cena 04.
+
+## Ritmo e caixas de diálogo por época (26/11/2026)
+
+Pedido do Elias: o scroll com inércia fazia a montagem passar batida. Agora a cena tem paradas (`CALL_STOPS` em `beats.ts`, motor em `src/engine/pacing.ts`): cada gesto leva a uma fala ou ação (boot concluído, cada vinheta depois da sua ação, o cursor hesitando em COMPUTER SCIENCE, a escolha, o save). São 12 gestos; o deslize entre paradas é curto, para continuar fluido.
+
+- A montagem segue a ordem real da linha do tempo de `docs/cenas/my-computer.md`: pasta do jogo (98), discada e jogos flash (2000), emuladores, suporte e downloads (XP), editor de imagem e scanner de memória (Vista), mapas personalizados (7, nova vinheta: lobby de jogos personalizados e o e-mail da key beta, "First match · that night").
+- A caixa de diálogo se veste como os jogos de cada época, só com CSS: RPG de bolso (borda dupla, fonte pixel Press Start 2P), balão de jogo Flash, janela de RPG de console 16 bits (azul em degradê), painel brilhante de simulador de vida, vidro (Vista), moldura dourada de estratégia (Cinzel) e painel escuro de arena moderna na escolha e no save. Uma aba no canto mostra a época (Late 90s, Early 2000s, Mid 2000s, Late 2000s, Around 2010, 2011).
+- O texto aparece letra a letra (CSS, com uma cópia escondida para leitores de tela); com reduced motion aparece inteiro.
+- Dwell foi de 4400 para 4800 px por causa da oitava vinheta.

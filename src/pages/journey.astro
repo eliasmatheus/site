@@ -1,0 +1,14 @@
+---
+import Journey from '../components/Journey.astro';
+import Base from '../layouts/Base.astro';
+import { site } from '../content/site';
+---
+
+<Base
+  title={site.title}
+  description="Meet Elias. The long version, starting at the edge of a black hole."
+>
+  <main>
+    <Journey />
+  </main>
+</Base>

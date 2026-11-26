@@ -2,8 +2,8 @@ import { expect, test, type Page } from '@playwright/test';
 import { SCENES } from '../../src/scenes/registry';
 
 const prologue = SCENES.find((s) => s.id === 'prologue');
-if (!prologue) throw new Error('No prologue in the registry.');
-const dwell = prologue.dwell;
+// Parked: the Prologue is out of the registry for now, so the dwell falls back to 0.
+const dwell = prologue?.dwell ?? 0;
 const scene = (page: Page) => page.locator('[data-scene="prologue"]');
 
 /**
@@ -16,6 +16,8 @@ const at = async (page: Page, p: number) => {
     .poll(() =>
       page.evaluate((top) => {
         window.scrollTo(0, top);
+        // WebKit on CI can skip the scroll event for a programmatic jump; nudge the engine.
+        window.dispatchEvent(new Event('scroll'));
         return Math.round(window.scrollY);
       }, y),
     )
@@ -24,22 +26,24 @@ const at = async (page: Page, p: number) => {
 
 /** Look up from the viewfinder until the sun goes down. Each test has fresh storage. */
 const toCamera = async (page: Page) => {
-  await page.goto('/');
+  await page.goto('/journey');
   await at(page, 0.75);
   await expect(scene(page)).toHaveAttribute('data-phase', '2');
 };
 
-test.describe('prologue', () => {
+// The Prologue left the opening (docs/plano.md, Fase 4). Its scene and these tests stay
+// until it gets a place in the timeline again.
+test.describe.skip('prologue', () => {
   test('arrives through the viewfinder, perfectly exposed', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/journey');
     await expect(page.getByRole('heading', { level: 1, name: 'Meet Elias.' })).toBeVisible();
     await expect(scene(page).locator('[data-ev]')).toHaveText('±0.0 EV');
     await scene(page).getByRole('link', { name: 'In a hurry? See the work' }).click();
-    await expect(page).toHaveURL(/\/work$/);
+    await expect(page).toHaveURL(/\/$/);
   });
 
   test('the camera is not reachable while looking through the viewfinder', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/journey');
     await expect(scene(page).locator('[data-cam-ui]')).toHaveJSProperty('inert', true);
   });
 
@@ -47,10 +51,10 @@ test.describe('prologue', () => {
     await toCamera(page);
     const status = scene(page).locator('[data-status]');
     await expect(status).toHaveText('UNDEREXPOSED · -3.0 EV');
-    await expect(page.getByText('QUESTS 0/3')).toBeVisible();
+    await expect(page.getByText('QUESTS 0/2')).toBeVisible();
     await scene(page).getByRole('button', { name: 'AUTO' }).click();
     await expect(status).toHaveText('PERFECT · ±0.0 EV');
-    await expect(page.getByText('QUESTS 1/3')).toBeVisible();
+    await expect(page.getByText('QUESTS 1/2')).toBeVisible();
     await expect(scene(page).getByRole('link', { name: "GOOD LIGHT. LET'S GO ↓" })).toBeVisible();
   });
 
@@ -69,7 +73,7 @@ test.describe('prologue', () => {
     await expect(shutter).toHaveAttribute('aria-valuetext', '1/125');
     // ISO 1600 and 1/125 is exactly AUTO: the quest is done by hand too.
     await expect(scene(page).locator('[data-status]')).toHaveText('PERFECT · ±0.0 EV');
-    await expect(page.getByText('QUESTS 1/3')).toBeVisible();
+    await expect(page.getByText('QUESTS 1/2')).toBeVisible();
   });
 
   test('exposure only touches the image, never the camera', async ({ page }) => {
@@ -106,9 +110,9 @@ test.describe('prologue', () => {
   test('reduced motion keeps the quest usable', async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await ctx.newPage();
-    await page.goto('/');
+    await page.goto('/journey');
     await at(page, 0.75);
-    await expect(scene(page)).toHaveAttribute('data-phase', '2');
+    await expect(scene(page)).toHaveAttribute('data-phase', '2', { timeout: 10_000 });
     await expect(scene(page)).toHaveCSS('transform', 'none');
     await scene(page).getByRole('button', { name: 'AUTO' }).click();
     await expect(scene(page).locator('[data-status]')).toHaveText('PERFECT · ±0.0 EV');

@@ -5,6 +5,8 @@
 
 export const QUEST_IDS = ['exposure', 'footing', 'name'] as const;
 export type QuestId = (typeof QUEST_IDS)[number];
+/** Quests on the current journey. The exposure quest is parked with the Prologue. */
+export const JOURNEY_QUESTS: readonly QuestId[] = ['footing', 'name'];
 
 const KEY = 'em:quests';
 export const QUESTS_EVENT = 'quests:change';

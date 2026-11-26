@@ -1,0 +1,32 @@
+---
+/**
+ * The journey: header and stage with every scene, in order. It is its own page (/journey)
+ * and also continues the landing (/) right under the door, so scrolling past the short
+ * version flies into the long one without a click.
+ */
+import Header from './Header.astro';
+import Stage from './Stage.astro';
+import Call from '../scenes/call/Call.astro';
+import Desert from '../scenes/desert/Desert.astro';
+import Horizon from '../scenes/horizon/Horizon.astro';
+import TheFall from '../scenes/the-fall/TheFall.astro';
+import Structures from '../scenes/structures/Structures.astro';
+import ToBeContinued from '../scenes/to-be-continued/ToBeContinued.astro';
+
+interface Props {
+  /** True when the journey sits below other content: the header waits until it is reached. */
+  below?: boolean;
+}
+
+const { below = false } = Astro.props;
+---
+
+<Header away={below} />
+<Stage id="journey" entry={below}>
+  <Horizon />
+  <TheFall />
+  <Call />
+  <Structures />
+  <Desert />
+  <ToBeContinued />
+</Stage>

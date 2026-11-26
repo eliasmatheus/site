@@ -7,3 +7,5 @@ export { click } from './click';
 export { win2020 } from './win2020';
 export { tux } from './tux';
 export { toBeContinued } from './toBeContinued';
+export { landing } from './landing';
+export { work } from './work';

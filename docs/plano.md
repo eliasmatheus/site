@@ -33,17 +33,18 @@ Cada fase termina com deploy funcionando. Uma cena só conta como pronta quando 
 
 Protótipos em `reference/prototype/` (`landing-orbit.html`, `black-hole.html`).
 
-- [ ] Landing TL;DR "Orbit" em `/`, com a nebulosa revelada pelo cursor, o conteúdo da `/work` e a porta para a jornada no fim. `/work` passa a redirecionar para ela.
-- [ ] Horizon: wormhole na chegada, buraco negro em WebGL (shader próprio, sem three.js) no enquadramento Off-axis, lens flare no cursor e queda em primeira pessoa. Fallback sem WebGL. (Planeta no cursor em espera.)
+- [x] Landing TL;DR "Orbit" em `/`, com a nebulosa parada no céu, a luz do cursor e a vista deslizando entre as seções (estilo skill tree do Skyrim, paleta de Duna), o conteúdo da `/work` e a porta para a jornada no fim. `/work` passa a redirecionar para ela. A jornada atual foi para `/journey` até o Horizon existir.
+- [x] Horizon: wormhole na chegada, buraco negro em WebGL (shader próprio, sem three.js) no enquadramento Off-axis, lens flare no cursor e queda em primeira pessoa. Fallback sem WebGL. (Planeta no cursor em espera.)
 - [x] Protótipo do The fall (`reference/prototype/the-fall.html`).
-- [ ] Cena The fall no site. A câmera não pode atravessar vigas (no protótipo atravessa).
+- [x] Cena The fall no site. A câmera não atravessa vigas (testado), uma parada por brecha, e a tela retrô termina num save "Continue?" que leva à The Call. Falta medir num celular médio.
 - [x] Confirmar a linha do tempo do computador (versões, anos, specs e memórias) em `docs/cenas/my-computer.md`.
 - [x] Protótipo do My computer (`reference/prototype/my-computer.html`).
 - [x] Fatia vertical do My computer como pseudo-simulador (2000 → XP): `reference/prototype/os-slice-2000-xp.html`.
 - [x] Demais versões no mesmo formato: `reference/prototype/os-95-98.html` (primeiro PC → 98) e `reference/prototype/os-xp-8.html` (XP → 8).
 - [ ] Protótipos das outras versões (95, 98, Vista, 7, 8) no mesmo formato.
 - [ ] Cena My computer no site (substitui a The Call).
-- [ ] Prologue (fotografia) sai da abertura e fica guardado até ganhar lugar na linha do tempo.
+- [x] Ritmo: paradas no engine (um gesto por fala ou ação) e caixas de diálogo por época na The Call, com a montagem em ordem cronológica.
+- [x] Prologue (fotografia) sai da abertura e fica guardado até ganhar lugar na linha do tempo. Saiu do registro; código e testes ficam (testes em `describe.skip`), e a quest de exposição saiu da contagem (`JOURNEY_QUESTS`).
 - [ ] Sapata: nova interação (protótipo C). O arrasto no 3D é impreciso: perto do ângulo errado aumentar e diminuir quase não se diferenciam, e chegar ao sweet spot leva umas três tentativas. Referência de fluxo: grail-app.com (o scroll continua, a interação é opcional).
 
 ## Fase 5 · A virada

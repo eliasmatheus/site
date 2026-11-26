@@ -8,7 +8,7 @@ Abrir a jornada com algo de tirar o fôlego e que mostre o tom do site: um burac
 
 ## Beats (por scroll)
 
-1. **Wormhole:** a jornada começa rolando, sem botão. Quem sai da landing entra num túnel de luz ("The long version starts far from here.").
+1. **Wormhole:** a jornada começa rolando, sem botão, diante de uma esfera no espaço: um wormhole com outra galáxia distorcida dentro e arcos de luz na borda ("The long version starts far from here."). O buraco negro não aparece aqui: o que vem depois é surpresa. O scroll aproxima a esfera até ela encher a tela e a câmera entra num túnel azul-escuro com faíscas quentes.
 2. **Parada brusca:** tranco e clarão, longe do buraco negro.
 3. **Chegada ao hoje:** a câmera se aproxima até o enquadramento Off-axis e aparece "Meet Elias.".
 4. "Every story has a point of no return." A câmera começa a descer.
@@ -34,7 +34,7 @@ Abrir a jornada com algo de tirar o fôlego e que mostre o tom do site: um burac
 
 - Shader de fragmento em WebGL1, sem three.js: integra o raio de luz em volta do buraco (passos adaptativos), disco com textura polar em riscos, brilho Doppler.
 - Resolução e número de passos caem sozinhos se o aparelho não aguentar.
-- Sem WebGL: versão em partículas 2D.
+- Antes do shader, sem WebGL e sem JS: gradientes CSS. Na abertura, um wormhole parado (esfera com núcleo de galáxia e borda clara); depois do túnel, o buraco negro parado (sombra, anel quente e disco achatado). O texto aparece por cima desde a primeira pintura.
 - Reduced motion: disco quase parado, sem tremor nem clarão, sem gás caindo.
 
 ## Mobile
@@ -44,6 +44,23 @@ Abrir a jornada com algo de tirar o fôlego e que mostre o tom do site: um burac
 
 ## Aceite
 
-- [ ] LCP < 2,5 s no mobile (texto aparece antes do shader).
-- [ ] 50 fps num celular médio, ou a qualidade cai sozinha.
-- [ ] Nenhuma marca, nome ou imagem de filme.
+- [x] LCP < 2,5 s no mobile (texto aparece antes do shader). Lighthouse mobile em `/journey`: 100 / 100 / 100, LCP 0,9 s, TBT 0 ms.
+- [ ] 50 fps num celular médio, ou a qualidade cai sozinha. A queda automática existe (resolução, depois passos); falta medir num celular real.
+- [x] Nenhuma marca, nome ou imagem de filme.
+
+## Implementação
+
+- Cena: `src/scenes/horizon/` (`Horizon.astro`, `controller.ts`, `beats.ts` com testes, `shader.ts`, `flare.ts`). Copy: `src/content/horizon.ts`. Primeira cena do registro, `dwell` 5200 px.
+- O shader só liga no primeiro sinal do visitante (mouse, toque, rolagem, tecla). Até lá, o buraco negro em CSS. Com o timer de 2,5 s do protótipo, o Lighthouse caía para 92 (TBT 240 ms).
+- O flare segue o mouse e, no celular, o dedo (eventos de toque continuam durante a rolagem). Sem ponteiro, descansa no lado brilhante do disco.
+- HUD da queda abaixo do header da jornada.
+- Visibilidade das falas e do HUD vira na hora ao aparecer e só depois do fade ao sumir, para nada vazar quando a camada é escondida.
+- A cena seguinte ainda é The Call (a The fall não existe no site). O clarão final faz a ponte.
+
+Prints: `docs/screens/fase-4/horizon-*.jpg`.
+
+## Revisão de 26/11/2026
+
+- A abertura mostrava o buraco negro e estragava a surpresa. Agora é a esfera do wormhole (estilo das referências em `reference/inspiration/2026-11-26-tesseract-wormhole/`, fora do repositório), que cresce com o scroll, vira túnel e só então para no buraco negro.
+- **Scroll com massa:** a câmera segue o scroll por uma mola criticamente amortecida (`src/engine/follow.ts`): começa e termina devagar, sem passar do ponto. O texto continua no scroll cru. No túnel, as faíscas aceleram com a velocidade do scroll. Reduced motion desliga a mola.
+- Rótulo e aviso sem WebGL não falam mais do buraco negro na abertura.
