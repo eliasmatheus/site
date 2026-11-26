@@ -1,21 +1,56 @@
 import { describe, expect, it } from 'vitest';
 import {
   ALERT_AT,
-  ARRIVE_END,
+  ARRIVE_END as ARRIVE_Q,
+  atQ,
   beatAt,
-  FALL_START,
+  CALM_END,
+  DEPARTURE_END,
+  FALL_START as FALL_Q,
   horizonFrame,
   instruments,
-  WARP_END,
+  MOUTH_AT,
+  PLANET_END,
+  TUNNEL_END,
 } from './beats';
 
-describe('horizonFrame', () => {
-  it('starts inside the wormhole and leaves it with a hard stop', () => {
-    expect(horizonFrame(0, 1.6).warp).toBe(1);
-    expect(horizonFrame(WARP_END - 0.03, 1.6).warp).toBe(1);
-    expect(horizonFrame(WARP_END, 1.6).warp).toBe(0);
+const ARRIVE_END = atQ(ARRIVE_Q);
+const FALL_START = atQ(FALL_Q);
+
+describe('the departure', () => {
+  it('opens on the ringed planet, then the wormhole, then the tunnel', () => {
+    const start = horizonFrame(0, 1.6);
+    expect(start.planet).toBe(1);
+    expect(start.inside).toBe(0);
+    expect(horizonFrame(PLANET_END + 0.02, 1.6).planet).toBe(0);
+    expect(horizonFrame(MOUTH_AT + 0.02, 1.6).inside).toBe(1);
   });
 
+  it('reveals the wormhole a little at a time', () => {
+    let last = -1;
+    for (let p = PLANET_END; p <= MOUTH_AT; p += 0.005) {
+      const r = horizonFrame(p, 1.6).reveal;
+      expect(r).toBeGreaterThanOrEqual(last);
+      last = r;
+    }
+    expect(last).toBe(1);
+  });
+
+  it('shakes only in the tunnel, then calms and stills', () => {
+    expect(horizonFrame(PLANET_END, 1.6).turbulence).toBe(0);
+    expect(horizonFrame((MOUTH_AT + TUNNEL_END) / 2, 1.6).turbulence).toBe(1);
+    expect(horizonFrame(CALM_END, 1.6).turbulence).toBe(0);
+    expect(horizonFrame(CALM_END, 1.6).calm).toBe(1);
+    expect(horizonFrame(DEPARTURE_END, 1.6).still).toBe(1);
+  });
+
+  it('shows the black hole only after the departure', () => {
+    expect(horizonFrame(DEPARTURE_END - 0.03, 1.6).warp).toBe(1);
+    expect(horizonFrame(DEPARTURE_END, 1.6).warp).toBe(0);
+  });
+});
+
+describe('horizonFrame', () => {
   it('arrives at the Off-axis view, then dives to the center', () => {
     const off = horizonFrame(ARRIVE_END, 1.6);
     expect(off.dist).toBeCloseTo(15);
@@ -68,9 +103,10 @@ describe('instruments', () => {
 describe('beatAt', () => {
   it('shows one line at a time, and none in the gaps', () => {
     expect(beatAt(0)).toBe(0);
-    expect(beatAt(0.3)).toBe(1);
-    expect(beatAt(0.6)).toBe(2);
-    expect(beatAt(0.8)).toBe(-1);
-    expect(beatAt(0.95)).toBe(3);
+    expect(beatAt(CALM_END)).toBe(-1);
+    expect(beatAt(atQ(0.3))).toBe(1);
+    expect(beatAt(atQ(0.6))).toBe(2);
+    expect(beatAt(atQ(0.8))).toBe(-1);
+    expect(beatAt(atQ(0.95))).toBe(3);
   });
 });

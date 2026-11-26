@@ -1,8 +1,8 @@
-// Horizon: the journey opens at a wormhole, then a black hole. A homage in style to the film about the
+// Horizon: the journey opens at a ringed planet and a wormhole, then a black hole. A homage in style to the film about the
 // wormhole and the farm: no names, ships, score or images from it.
 export const horizon = {
   label:
-    'Space, drawn live: a wormhole with another galaxy inside it, then a black hole with a bright disk of gas.',
+    'Space, drawn live: a ringed planet against the light, a wormhole with another galaxy inside it, then a black hole with a bright disk of gas.',
   hint: 'Scroll',
   beats: [
     {

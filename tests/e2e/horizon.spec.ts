@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { SCENES } from '../../src/scenes/registry';
+import { atQ, MOUTH_AT } from '../../src/scenes/horizon/beats';
 
 const horizon = SCENES[0];
 if (horizon?.id !== 'horizon') throw new Error('Horizon should open the journey.');
@@ -22,12 +23,12 @@ const at = async (page: Page, p: number) => {
 };
 
 test.describe('horizon', () => {
-  test('starts in the wormhole, then meets Elias at the black hole', async ({ page }) => {
+  test('starts at the ringed planet, then meets Elias at the black hole', async ({ page }) => {
     await page.goto('/journey');
     await expect(
       scene(page).getByRole('heading', { name: 'The long version starts far from here.' }),
     ).toBeVisible();
-    await at(page, 0.35);
+    await at(page, atQ(0.35));
     await expect(scene(page).getByRole('heading', { level: 1, name: 'Meet Elias.' })).toBeVisible();
     // One line at a time: the wormhole line is switched off (it fades out, then hides; the
     // fade can stall in a background tab on CI, so check the switch, not the animation end).
@@ -49,12 +50,12 @@ test.describe('horizon', () => {
     ).toBeVisible();
   });
 
-  test('the text paints before the shader, over a still wormhole, not the black hole', async ({
+  test('the text paints before the shader, over a still ringed planet, not the black hole', async ({
     page,
   }) => {
     await page.goto('/journey');
-    // The black hole is a surprise for later: the opening is the wormhole.
-    await expect(scene(page).locator('.still.worm')).toHaveCSS('opacity', '1');
+    // The black hole is a surprise for later: the opening is the ringed planet.
+    await expect(scene(page).locator('.still.planet')).toHaveCSS('opacity', '1');
     await expect(scene(page).locator('.still.hole')).toHaveCSS('opacity', '0');
     await expect(
       scene(page).getByRole('heading', { name: 'The long version starts far from here.' }),
@@ -65,7 +66,7 @@ test.describe('horizon', () => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await ctx.newPage();
     await page.goto('/journey');
-    await at(page, 0.21);
+    await at(page, MOUTH_AT + 0.03);
     await at(page, 0.9);
     await page.waitForTimeout(300);
     const transform = await scene(page)

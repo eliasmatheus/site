@@ -1,5 +1,5 @@
 // Decoration for the landing: a still nebula painted once, a view that pans across it as the
-// visitor moves through the page, a light that follows the pointer, a nearer layer of stars and the small black hole at the door.
+// visitor moves through the page, a light that follows the pointer, a nearer layer of stars and the ringed planet at the door.
 // Everything here is optional; the page reads fine without it.
 import { paintNebula } from './nebula';
 import { easeToward, fadeTrail, lightMask, pushPoint, wanderer, type TrailPoint } from './trail';
@@ -158,7 +158,10 @@ export function startSky(): void {
     sky.globalAlpha = 1;
   }
 
-  // ---------- the black hole at the door ----------
+  // ---------- the ringed planet at the door ----------
+  // Where the journey starts: a planet against the light, a crescent on its limb, its rings
+  // bright with the light behind them, the star just past its edge. The black hole stays a
+  // surprise for later.
   const rc = ring.getContext('2d');
   let ringVisible = false;
   new IntersectionObserver(([e]) => (ringVisible = !!e?.isIntersecting), {
@@ -172,45 +175,60 @@ export function startSky(): void {
     rc.setTransform(dpr, 0, 0, dpr, 0, 0);
     rc.clearRect(0, 0, size, size);
     const c = size / 2;
-    const r = size * 0.2;
-    // The far side of the disk, bent over the top of the hole.
-    for (let i = 0; i < 60; i++) {
-      rc.beginPath();
-      rc.ellipse(c, c, r * (1.25 + i * 0.012), r * (1.25 + i * 0.012), 0, Math.PI, 2 * Math.PI);
-      rc.strokeStyle = `rgba(255,${180 + i},${120 + i},${0.05 + 0.25 * (1 - i / 60)})`;
-      rc.lineWidth = 1;
-      rc.stroke();
-    }
-    const flat = (front: boolean): void => {
-      for (let i = 0; i < 70; i++) {
-        const rr = r * (1.3 + i * 0.03);
-        const flicker = reduce ? 1 : 0.7 + 0.3 * (0.5 + 0.5 * Math.sin(now / 700 + i));
+    const r = size * 0.19;
+    const tilt = -0.3;
+    const rings = (front: boolean): void => {
+      rc.save();
+      rc.translate(c, c);
+      rc.rotate(tilt);
+      for (let i = 0; i < 64; i++) {
+        const k = i / 64;
+        const rr = r * (1.28 + k * 0.95);
+        // Bands and a dark gap, like the real thing.
+        const band = 0.55 + 0.45 * Math.sin(k * 40) * Math.sin(k * 11 + 1);
+        const gap = Math.abs(k - 0.62) < 0.035 ? 0.1 : 1;
         rc.beginPath();
-        rc.ellipse(
-          c,
-          c + r * 0.05,
-          rr,
-          rr * 0.13,
-          0,
-          front ? 0 : Math.PI,
-          front ? Math.PI : 2 * Math.PI,
-        );
-        rc.strokeStyle = `rgba(255,${150 + i},${90 + i},${(0.03 + 0.12 * (1 - i / 70)) * flicker})`;
-        rc.lineWidth = 1.2;
+        rc.ellipse(0, 0, rr, rr * 0.2, 0, front ? 0 : Math.PI, front ? Math.PI : 2 * Math.PI);
+        rc.strokeStyle = `rgba(226,206,174,${(0.05 + 0.2 * (1 - k)) * band * gap})`;
+        rc.lineWidth = 1.3;
         rc.stroke();
       }
+      rc.restore();
     };
-    flat(false);
+    rings(false);
+    // The planet: lit from behind and above-left, so only a crescent of its limb shows.
     rc.beginPath();
     rc.arc(c, c, r, 0, Math.PI * 2);
-    rc.fillStyle = '#000';
+    rc.fillStyle = 'rgb(214,192,156)';
     rc.fill();
     rc.beginPath();
-    rc.arc(c, c, r * 1.02, 0, Math.PI * 2);
-    rc.strokeStyle = 'rgba(255,225,190,.7)';
-    rc.lineWidth = 1.5;
+    rc.arc(c + r * 0.1, c + r * 0.07, r * 0.985, 0, Math.PI * 2);
+    rc.fillStyle = '#060608';
+    rc.fill();
+    rc.beginPath();
+    rc.arc(c, c, r * 1.03, Math.PI * 0.85, Math.PI * 1.6);
+    rc.strokeStyle = 'rgba(255,226,186,.35)';
+    rc.lineWidth = 2;
     rc.stroke();
-    flat(true);
+    rings(true);
+    // The star, just past the planet's edge.
+    const sx = c - r * 1.55;
+    const sy = c - r * 1.05;
+    const pulse = reduce ? 1 : 0.85 + 0.15 * Math.sin(now / 900);
+    const glow = rc.createRadialGradient(sx, sy, 0, sx, sy, r * 0.5);
+    glow.addColorStop(0, `rgba(255,246,230,${0.95 * pulse})`);
+    glow.addColorStop(0.08, `rgba(255,214,160,${0.5 * pulse})`);
+    glow.addColorStop(1, 'rgba(255,200,140,0)');
+    rc.fillStyle = glow;
+    rc.fillRect(sx - r * 0.5, sy - r * 0.5, r, r);
+    rc.strokeStyle = `rgba(255,236,210,${0.5 * pulse})`;
+    rc.lineWidth = 1;
+    rc.beginPath();
+    rc.moveTo(sx - r * 0.7, sy);
+    rc.lineTo(sx + r * 0.7, sy);
+    rc.moveTo(sx, sy - r * 0.45);
+    rc.lineTo(sx, sy + r * 0.45);
+    rc.stroke();
   }
 
   function paint(now: number): void {

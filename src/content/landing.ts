@@ -22,7 +22,7 @@ export const landing = {
   },
   door: {
     title: 'That was the short version',
-    text: 'The long one starts at the edge of a black hole.',
+    text: 'The long one starts out past Saturn.',
     cta: 'Begin the journey ↓',
     // The journey continues right below the door (it fades in as you scroll). The link jumps
     // to its first scene; the engine handles scene hashes.

@@ -1,13 +1,14 @@
 ---
 /**
- * Horizon: the journey opens at a wormhole. Scroll plays it: into the sphere, a tunnel, a hard
- * stop at a black hole, the arrival at the Off-axis view, then a first-person fall with
- * instruments and alerts.
+ * Horizon: the journey opens at a ringed planet. Scroll plays it: a wormhole, its tunnel, a
+ * calm, a still sky, then a black hole, the arrival at the Off-axis view and a first-person
+ * fall with instruments and alerts.
  * src/scenes/horizon/controller.ts draws it (WebGL shader + a 2D lens flare); the beats and
  * the camera come from src/scenes/horizon/beats.ts.
  *
  * Before the shader is ready, and without WebGL or JS, CSS gradients stand in: a still
- * wormhole first, the black hole once past it. Every line of copy stays readable.
+ * ringed planet first, the black hole once past the departure. Every line of copy stays
+ * readable.
  */
 import { horizon } from '../../content/horizon';
 
@@ -16,7 +17,7 @@ const centered = new Set([0, 3]);
 
 <section class="horizon" data-scene="horizon" aria-labelledby="horizon-title">
   <div class="sky" data-shake>
-    <div class="still worm" aria-hidden="true"></div>
+    <div class="still planet" aria-hidden="true"></div>
     <div class="still hole" aria-hidden="true"></div>
     <canvas class="gl" data-gl role="img" aria-label={horizon.label}></canvas>
     <canvas class="fx" data-fx aria-hidden="true"></canvas>
@@ -94,29 +95,73 @@ const centered = new Set([0, 3]);
   }
 
   /*
-   * The still wormhole, the journey's opening: a sphere with another galaxy inside it and a
-   * pale rim, in a field of stars. What waits past it stays a surprise.
+   * The still ringed planet, the journey's opening (the same place as the shader's first
+   * frame): a dark planet with a lit crescent on its limb, tilted rings, a star past its edge.
+   * What waits past it stays a surprise.
    */
-  .worm {
+  .planet {
+    --px: 89%;
+    --py: 30%;
+    --pr: 24vh;
+    --sx: 65%;
+    --sy: 15%;
+
     background:
-      radial-gradient(circle at 63% 41%, rgb(255 238 214 / 0.8) 0 0.4vmin, transparent 1.8vmin),
-      radial-gradient(ellipse 6vmin 2.2vmin at 63% 41%, rgb(255 196 140 / 0.35), transparent 70%),
       radial-gradient(
-        circle at 62% 42%,
-        rgb(16 22 36) 0 8.4vmin,
-        rgb(150 160 185 / 0.35) 8.9vmin,
-        rgb(240 232 220 / 0.6) 9.2vmin,
-        rgb(140 160 200 / 0.12) 9.8vmin,
-        transparent 12vmin
+        circle at var(--sx) var(--sy),
+        #fff6e6 0 0.25vmin,
+        rgb(255 214 160 / 0.5) 0.6vmin,
+        transparent 3vmin
+      ),
+      radial-gradient(
+        circle at calc(var(--px) + var(--pr) * 0.2) calc(var(--py) + var(--pr) * 0.13),
+        #07070a 0 calc(var(--pr) * 0.99),
+        transparent calc(var(--pr) * 1.01)
+      ),
+      radial-gradient(
+        circle at var(--px) var(--py),
+        rgb(232 214 182 / 0.85) 0 var(--pr),
+        rgb(255 228 190 / 0.12) calc(var(--pr) + 2px),
+        transparent calc(var(--pr) * 1.08)
       ),
       radial-gradient(1.5px 1.5px at 12% 18%, #fff, transparent),
       radial-gradient(1px 1px at 28% 64%, #dfe8ff, transparent),
       radial-gradient(1.5px 1.5px at 41% 27%, #ffe9d2, transparent),
       radial-gradient(1px 1px at 18% 84%, #fff, transparent),
       radial-gradient(1px 1px at 84% 72%, #dfe8ff, transparent),
-      radial-gradient(1.5px 1.5px at 90% 16%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 90% 86%, #fff, transparent),
       radial-gradient(1px 1px at 52% 88%, #ffe9d2, transparent),
-      radial-gradient(1px 1px at 74% 12%, #fff, transparent), #040508;
+      radial-gradient(1px 1px at 74% 62%, #fff, transparent), #040508;
+  }
+
+  /* The rings: a thin tilted ellipse, bright with the light behind them. */
+  .planet::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--px) - var(--pr) * 2.1);
+    top: calc(var(--py) - var(--pr) * 0.42);
+    width: calc(var(--pr) * 4.2);
+    height: calc(var(--pr) * 0.84);
+    border-radius: 50%;
+    background: radial-gradient(
+      ellipse closest-side,
+      transparent 56%,
+      rgb(214 196 166 / 0.55) 58%,
+      rgb(214 196 166 / 0.25) 80%,
+      rgb(214 196 166 / 0.6) 86%,
+      transparent 100%
+    );
+    transform: rotate(-17deg);
+  }
+
+  @media (max-aspect-ratio: 4 / 5) {
+    .planet {
+      --px: 80%;
+      --py: 20%;
+      --pr: 15vh;
+      --sx: 30%;
+      --sy: 11%;
+    }
   }
 
   /* The still black hole, past the wormhole: a shadow, a hot ring and a flat disk. */
@@ -139,7 +184,7 @@ const centered = new Set([0, 3]);
       radial-gradient(ellipse at 70% 38%, rgb(255 160 80 / 0.12), transparent 45%), #040508;
   }
 
-  .horizon[data-past] .worm {
+  .horizon[data-past] .planet {
     opacity: 0;
   }
 
@@ -427,7 +472,8 @@ const centered = new Set([0, 3]);
       width: calc(100% - 32px);
     }
 
-    .still {
+    /* On a phone the still black hole sits above the copy, centered. */
+    .hole {
       background:
         radial-gradient(circle at 50% 34%, #000 0 12vmin, transparent 12.3vmin),
         radial-gradient(

@@ -1,5 +1,6 @@
 // The black hole, computed per pixel: rays bent around a Schwarzschild hole, a disk of gas
-// with Doppler brightening, diffuse glow and the photon ring; before it, the wormhole.
+// with Doppler brightening, diffuse glow and the photon ring; before it, the departure: a
+// ringed planet against the light, the wormhole, its tunnel and a still sky.
 // WebGL1 fragment shader, no libraries.
 
 export const VERTEX = 'attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }';
@@ -9,7 +10,9 @@ precision highp float;
 uniform vec2 uRes; uniform float uTime; uniform float uClock;
 uniform float uDist, uTilt, uYaw, uRoll, uFov, uWarp, uSteps;
 uniform vec2 uShift;
-uniform vec2 uWormC; uniform float uWormR, uIn;
+uniform vec2 uWormC; uniform float uWormR, uIn, uReveal;
+uniform float uPlanet, uPan, uSatR, uCalm, uStill, uFlash;
+uniform vec2 uSatC, uSun, uTunC;
 
 float hash(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
 float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
@@ -74,13 +77,31 @@ vec3 galaxy(vec2 q){
   return c;
 }
 
-// The tunnel: dark blue, with sparks of warm light rushing out of the center.
+// A still sky after the tunnel: fine stars, a few small galaxies, a nebula at one side.
+vec3 stillSky(vec2 q){
+  vec3 c = stars2(q, 70.0) * 0.9 + stars2(q + 2.3, 170.0) * 0.55;
+  vec2 g = q * 3.0;
+  float n = pow(fbm(g * 0.7 + 11.0), 4.0) * smoothstep(0.2, -0.6, q.x);
+  c += vec3(0.95, 0.78, 0.62) * n * 0.9 + vec3(0.45, 0.55, 0.75) * pow(fbm(g * 1.3 - 4.0), 5.0) * 0.25;
+  // Small galaxies: soft warm smudges on a coarse grid.
+  vec2 cell = floor(q * 4.0), f = fract(q * 4.0) - 0.5;
+  float h = hash(vec3(cell, 21.0));
+  c += vec3(1.0, 0.82, 0.62) * step(0.86, h) * exp(-dot(f, f) * 260.0) * 1.2;
+  return c;
+}
+
+// The tunnel, seen from near its wall: the far end sits up and to one side, the universe is
+// smeared on the walls and rushes past; sparks streak out of the far end.
 vec3 tunnel(vec2 uv){
-  float r = length(uv), a = atan(uv.y, uv.x);
+  vec2 t = uv - uTunC;
+  float r = length(t), a = atan(t.y, t.x);
   float z = 0.5 / (r + 0.02) + uClock * 5.0;
   vec2 around = vec2(cos(a), sin(a));
-  vec3 c = mix(vec3(0.004, 0.012, 0.04), vec3(0.03, 0.07, 0.17), pow(fbm(around * 1.5 + vec2(0.0, z * 0.35)), 1.6));
-  // Sparks: thin streaks along the radius, in lanes around the center.
+  // The wall waves as it passes.
+  vec2 wave = around * (1.0 + 0.08 * sin(z * 0.9 + a * 3.0) * (1.0 - uCalm));
+  float wall = pow(fbm(wave * 1.6 + vec2(0.0, z * 0.12)), 2.2);
+  vec3 c = mix(vec3(0.004, 0.01, 0.03), vec3(0.06, 0.08, 0.15), wall);
+  c += vec3(0.85, 0.66, 0.5) * pow(fbm(wave * 2.4 + vec2(3.0, z * 0.2)), 5.0) * 1.6 * (1.0 - uCalm * 0.7);
   for (int k = 0; k < 2; k++){
     float bins = k == 0 ? 70.0 : 150.0;
     float u = (a / 6.2832 + 0.5) * bins;
@@ -91,42 +112,97 @@ vec3 tunnel(vec2 uv){
     float on = step(k == 0 ? 0.9 : 0.94, h);
     float streak = on * pow(1.0 - across, 10.0) * smoothstep(0.0, 0.12, along) * smoothstep(0.75, 0.15, along);
     vec3 tint = mix(vec3(1.0, 0.62, 0.3), vec3(1.0, 0.92, 0.8), hash(vec3(lane, cell, 8.0)));
-    c += tint * streak * (k == 0 ? 1.6 : 0.9);
+    c += tint * streak * (k == 0 ? 1.6 : 0.9) * (1.0 - uCalm * 0.8);
   }
   c *= smoothstep(0.02, 0.3, r);
-  c += vec3(0.95, 0.9, 1.0) * exp(-r * 14.0) * 0.9;
-  return c;
+  // The far end: a point at first, opening wide in the calm.
+  c += vec3(0.95, 0.9, 1.0) * exp(-r * mix(14.0, 2.6, uCalm)) * mix(0.9, 0.45, uCalm);
+  c += vec3(1.0, 0.96, 0.9) * uFlash * 0.6;
+  return mix(c, stillSky(uv * 0.9 + vec2(uPan * 0.4, 0.0)), uStill);
 }
 
 // A wormhole is a sphere: through it, another galaxy, squeezed towards its edge; around it,
-// our own stars bent outward; on its rim, smeared arcs of light.
+// our own stars bent outward, flicking past its rim. From far it is only a lens; its light
+// shows as it comes closer.
 vec3 wormhole(vec2 uv){
   vec2 d = uv - uWormC;
   float R = uWormR;
   float r = length(d) / R;
   float a = atan(d.y, d.x);
+  vec2 around = vec2(cos(a), sin(a));
   vec3 col;
   if (r < 1.0) {
     float k = r / sqrt(max(0.004, 1.0 - r * r * 0.96));
-    vec2 q = vec2(cos(a), sin(a)) * k * 0.55 + vec2(0.18, -0.08) + vec2(uClock * 0.004, 0.0);
-    col = galaxy(q);
+    vec2 q = around * k * 0.55 + vec2(0.18, -0.08) + vec2(uClock * 0.004, 0.0);
+    vec3 lens = stars2(d * 1.7 + 3.0, 60.0) * 0.7;
+    col = mix(lens, galaxy(q), uReveal);
     col *= mix(0.9, 0.3, smoothstep(0.55, 1.0, r));
-    // Our own sky wraps around the inside of the rim: smeared arcs and stretched stars.
     float band = exp(-pow((r - 0.955) / 0.03, 2.0));
-    vec2 around = vec2(cos(a), sin(a));
     float blot = pow(fbm(around * 1.6 + 4.0 + uClock * 0.02), 3.2) * 4.0;
     float wide = exp(-pow((r - 0.9) / 0.08, 2.0)) * pow(fbm(around * 1.1 + 9.0), 2.5) * 1.6;
-    col += vec3(0.95, 0.92, 0.88) * (band * (0.05 + blot) + wide * 0.5);
-    col += stars2(vec2(a * 1.6, (1.0 - r) * 7.0), 30.0) * smoothstep(0.6, 0.97, r) * 1.6;
-    col += vec3(0.9, 0.93, 1.0) * pow(smoothstep(0.96, 1.0, r), 4.0) * 0.5;
+    col += vec3(0.95, 0.92, 0.88) * (band * (0.05 + blot) + wide * 0.5) * (0.25 + 0.75 * uReveal);
+    col += stars2(vec2(a * 1.6, (1.0 - r) * 7.0), 30.0) * smoothstep(0.6, 0.97, r) * 1.6 * uReveal;
+    col += vec3(0.9, 0.93, 1.0) * pow(smoothstep(0.96, 1.0, r), 4.0) * 0.5 * (0.3 + 0.7 * uReveal);
     col = mix(col, tunnel(d / R * 0.9), uIn);
   } else {
-    // Lensing outside: stars near the sphere are pushed out along the radius.
-    vec2 bent = uv - normalize(d) * R * R / length(d) * 0.85;
+    // Lensing outside: stars near the sphere are pushed out along the radius, and close to the
+    // rim they smear into thin, quick flashes.
+    vec2 bent = uv - around * R * R / length(d) * 0.85;
     col = stars2(bent, 60.0) + stars2(bent + 1.7, 140.0) * 0.6;
     col += vec3(0.25, 0.3, 0.45) * pow(fbm(bent * 1.4 + 2.0), 3.0) * 0.18;
+    float near = exp(-(r - 1.0) * 6.0);
+    col += stars2(vec2(a * 9.0 + uClock * 0.3, log(r) * 3.0), 14.0) * near * 2.2 * uReveal;
     col += vec3(0.85, 0.88, 1.0) * exp(-(r - 1.0) * 14.0) * 0.06;
   }
+  return col;
+}
+
+// A ringed gas giant, lit from behind: a thin crescent on its limb, its rings bright with
+// forward-scattered light, the star just past its edge.
+vec3 planet(vec2 uv, vec3 bg){
+  vec2 d = (uv - uSatC) / uSatR;
+  float tilt = -0.3;
+  vec2 rd = mat2(cos(tilt), sin(tilt), -sin(tilt), cos(tilt)) * d;
+  float ry = rd.y / 0.2;
+  float rq = length(vec2(rd.x, ry));
+  float ring = smoothstep(1.24, 1.3, rq) * (1.0 - smoothstep(2.15, 2.25, rq));
+  ring *= 0.55 + 0.45 * sin(rq * 52.0) * sin(rq * 13.0 + 1.0);
+  ring *= 1.0 - 0.9 * exp(-pow((rq - 1.86) / 0.035, 2.0));
+  ring *= 1.0 - 0.6 * exp(-pow((rq - 1.52) / 0.02, 2.0));
+  vec3 ringCol = vec3(0.86, 0.78, 0.66) * (0.55 + 0.45 * smoothstep(2.2, 1.4, rq));
+  float r2 = dot(d, d);
+  vec3 col = bg;
+  // Back half of the rings first, then the planet, then the front half over it.
+  if (rd.y > 0.0) col = mix(col, ringCol, clamp(ring, 0.0, 1.0) * 0.85);
+  if (r2 < 1.0) {
+    vec3 n = vec3(d, sqrt(1.0 - r2));
+    vec3 L = normalize(vec3(-0.62, 0.42, -0.66));
+    float lit = max(dot(n, L), 0.0);
+    float band = 0.5 + 0.5 * sin(n.y * 26.0 + sin(n.y * 7.0) * 1.6 + fbm(n.xy * 5.0) * 1.5);
+    vec3 albedo = mix(vec3(0.78, 0.68, 0.52), vec3(0.96, 0.9, 0.78), band);
+    vec3 pc = albedo * (pow(lit, 0.8) * 1.6 + 0.012);
+    // Light through the thin upper atmosphere on the lit limb.
+    pc += vec3(1.0, 0.9, 0.75) * pow(1.0 - n.z, 6.0) * smoothstep(-0.2, 0.6, dot(normalize(d), L.xy)) * 0.9;
+    // The rings' shadow across the night side.
+    pc *= 1.0 - 0.5 * smoothstep(0.03, 0.0, abs(rd.y - 0.06)) * step(1.0, length(rd.x));
+    col = pc;
+  } else {
+    // A faint halo of scattered light just outside the lit limb.
+    float halo = exp(-(sqrt(r2) - 1.0) * 18.0) * smoothstep(-0.2, 0.7, dot(normalize(d), vec2(-0.62, 0.42)));
+    col += vec3(1.0, 0.88, 0.72) * halo * 0.35;
+  }
+  if (rd.y <= 0.0) col = mix(col, ringCol, clamp(ring, 0.0, 1.0) * 0.9);
+  // The star: a hard point with a soft glow and four thin spikes.
+  vec2 s = uv - uSun;
+  float sr = length(s);
+  float spikes = exp(-abs(s.x) * 260.0) * exp(-abs(s.y) * 9.0) + exp(-abs(s.y) * 260.0) * exp(-abs(s.x) * 9.0);
+  col += vec3(1.0, 0.95, 0.86) * (exp(-sr * 110.0) * 4.0 + exp(-sr * 14.0) * 0.12 + spikes * 0.5);
+  return col;
+}
+
+vec3 departure(vec2 uv){
+  vec3 col = wormhole(uv);
+  if (uPlanet > 0.001) col = mix(col, planet(uv, col), uPlanet);
   return col;
 }
 
@@ -179,7 +255,7 @@ void main(){
     float ring = exp(-pow((b - 2.6) / 0.012, 2.0)) + 0.35 * exp(-pow((b - 2.62) / 0.05, 2.0));
     col += vec3(1.0, 0.85, 0.45) * ring * (captured ? 0.0 : 1.0) * 1.8;
   }
-  if (uWarp > 0.001) col = mix(col, wormhole(uv0), uWarp);
+  if (uWarp > 0.001) col = mix(col, departure(uv0), uWarp);
   col = 1.0 - exp(-col * 1.2);
   col = pow(col, vec3(0.9));
   gl_FragColor = vec4(col, 1.0);
@@ -200,4 +276,14 @@ export const UNIFORMS = [
   'uWormC',
   'uWormR',
   'uIn',
+  'uReveal',
+  'uPlanet',
+  'uPan',
+  'uSatR',
+  'uCalm',
+  'uStill',
+  'uFlash',
+  'uSatC',
+  'uSun',
+  'uTunC',
 ] as const;

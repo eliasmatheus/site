@@ -64,3 +64,18 @@ Prints: `docs/screens/fase-4/horizon-*.jpg`.
 - A abertura mostrava o buraco negro e estragava a surpresa. Agora é a esfera do wormhole (estilo das referências em `reference/inspiration/2026-11-26-tesseract-wormhole/`, fora do repositório), que cresce com o scroll, vira túnel e só então para no buraco negro.
 - **Scroll com massa:** a câmera segue o scroll por uma mola criticamente amortecida (`src/engine/follow.ts`): começa e termina devagar, sem passar do ponto. O texto continua no scroll cru. No túnel, as faíscas aceleram com a velocidade do scroll. Reduced motion desliga a mola.
 - Rótulo e aviso sem WebGL não falam mais do buraco negro na abertura.
+
+## Ato I, a partida (26/11/2026, ver `docs/viagem.md`)
+
+- **Linha do tempo:** a partida ocupa o começo do dwell (agora 8000 px) e o buraco negro mantém a linha do tempo dele (`q`), remapeada para depois. Saturno até 0,11; o wormhole revelado aos poucos até a boca em 0,2; o túnel até 0,27; a calmaria até 0,31; o céu parado até 0,36. Os beats e enquadramentos do buraco negro não mudaram, só a posição deles no scroll (`atQ`).
+- **Saturno contra a luz** (shader): crescente na borda iluminada, faixas, anéis com a divisão escura, iluminados por trás, a metade da frente sobre o planeta, e a estrela logo além da borda com quatro raios. O flare da tela fica preso à estrela; o pan leva o planeta para a esquerda (a estrela, mais longe, anda menos), então o flare muda. O ponteiro dá um pouco de paralaxe. No celular o planeta fica acima do texto.
+- **O wormhole revelado aos poucos:** de longe é só uma lente (as estrelas se curvam em volta); a galáxia de dentro e a borda ganham luz conforme ele chega perto. A aproximação é de lado: a esfera entra pela direita e só parte dela aparece. Perto da borda, as estrelas viram flashes finos.
+- **O túnel visto da borda:** o fundo fica em cima e à esquerda, a parede com o universo borrado ondula e passa, faíscas saem do fundo. A tela chacoalha e clarões cortam o túnel.
+- **A calmaria:** as faíscas desaceleram até parar, a parede escurece e o fundo se abre. **O céu parado:** estrelas finas, galáxias pequenas e uma nebulosa num canto, sem movimento. Daí o buraco negro aparece (a revelação como estrela vem no Ato II).
+- **Sem o tranco** na saída do wormhole: a virada é a calmaria, como na cena descrita.
+- **Imagem parada:** Saturno em gradientes CSS (crescente, anel inclinado, estrela). Uma regra antiga do celular pintava o buraco negro em todo `.still`; agora vale só para `.hole`.
+- **Landing:** a porta mostrava um buraco negro e dizia "The long one starts at the edge of a black hole.", o que estragava a surpresa. Agora desenha um planeta com anéis contra a luz e diz "The long one starts out past Saturn." (a descrição de `/journey` acompanha).
+
+Não verificado: LCP mobile de `/journey` deu 2,6 s com a máquina carregada (load average 9); medir de novo com a máquina tranquila. A partida ainda não tem o piloto automático do ponto de não retorno (passo próprio no plano).
+
+Prints: `docs/screens/fase-4b/horizon-departure-*.jpg` e `landing-door-planet.jpg`.

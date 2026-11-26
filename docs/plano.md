@@ -51,7 +51,7 @@ Protótipos em `reference/prototype/` (`landing-orbit.html`, `black-hole.html`).
 
 A nova narrativa é a direção. O que não fizer mais sentido do que já foi feito pode ser descartado. Uma PR por passo, em stack.
 
-- [ ] Horizon v3, a partida: Saturno contra a luz com o flare no pan, o wormhole revelado aos poucos, o túnel visto da borda, a calmaria, o universo parado (Ato I).
+- [x] Horizon v3, a partida: Saturno contra a luz com o flare no pan, o wormhole revelado aos poucos, o túnel visto da borda, a calmaria, o universo parado (Ato I). A porta da landing também troca o buraco negro pelo planeta. Falta medir o LCP com a máquina tranquila.
 - [ ] Horizon v3, o buraco negro: a estrela que vira buraco negro, a órbita sobre o disco, a queda, a tempestade de partículas e fagulhas, o apagão, a ejeção, a paz (Ato II).
 - [ ] Piloto automático no ponto de não retorno (engine), com rewind na ida e corte em reduced motion.
 - [ ] The fall v4, a chegada: a colmeia cúbica, o poço, zero G, a fresta, o quarto do Elias e a interação (Ato III, momentos 11 a 14).

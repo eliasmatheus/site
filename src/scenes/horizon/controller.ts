@@ -6,14 +6,53 @@
  */
 import { createFollow } from '../../engine/follow';
 import type { SceneController } from '../registry';
-import { beatAt, horizonFrame, instruments, smooth, WARP_END, type HorizonFrame } from './beats';
+import {
+  beatAt,
+  DEPARTURE_END,
+  horizonFrame,
+  instruments,
+  smooth,
+  type HorizonFrame,
+} from './beats';
 import { createFlare } from './flare';
 import { FRAGMENT, UNIFORMS, VERTEX } from './shader';
 
 type Uniform = (typeof UNIFORMS)[number];
 
+/** Where things sit in the departure, in screen units (fractions of the height). */
+interface Layout {
+  planet: { x: number; y: number; r: number };
+  sun: { x: number; y: number };
+  worm: { x: number; y: number; r: number };
+  tunnel: { x: number; y: number };
+}
+
+/**
+ * The departure's layout for a frame. The pan carries the planet across the view (the star,
+ * farther away, moves less, so the flare changes); the pointer adds a little parallax. The
+ * wormhole comes in from the side, so only part of it is in view until the camera is close.
+ */
+function departureLayout(f: HorizonFrame, aspect: number, look: { x: number; y: number }): Layout {
+  const phone = aspect < 0.8;
+  // Above and to the right of the title (above it on a phone), drifting left with the pan.
+  const r = phone ? 0.15 : 0.24;
+  const px = (phone ? 0.14 : 0.62) - f.pan * (phone ? 0.28 : 0.5) - look.x * 0.03;
+  const py = (phone ? 0.3 : 0.2) + look.y * 0.02;
+  const near = Math.pow(f.approach, 2.4);
+  const wx = phone ? 0.32 : 0.95 * Math.min(1, aspect / 1.6);
+  const wy = phone ? 0.3 : 0.12;
+  return {
+    planet: { x: px, y: py, r },
+    sun: { x: px - r * 1.55 + f.pan * 0.12 - look.x * 0.01, y: py + r * 0.62 },
+    worm: { x: wx * (1 - near), y: wy * (1 - near), r: 0.11 + near * 1.8 },
+    // Inside, we are near the right wall looking at the far end, up and to the left; the calm
+    // drifts us towards the middle.
+    tunnel: { x: -0.3 * (1 - f.calm * 0.8), y: 0.16 * (1 - f.calm * 0.8) },
+  };
+}
+
 interface Renderer {
-  draw(f: HorizonFrame, time: number, clock: number): void;
+  draw(f: HorizonFrame, time: number, clock: number, lay: Layout, flash: number): void;
   slower(): boolean;
 }
 
@@ -50,7 +89,7 @@ function createRenderer(canvas: HTMLCanvasElement, coarse: boolean): Renderer | 
   let steps = coarse ? 120 : 200;
 
   return {
-    draw(f, time, clock) {
+    draw(f, time, clock, lay, flash) {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const w = Math.max(1, Math.round(canvas.clientWidth * dpr * scale));
       const h = Math.max(1, Math.round(canvas.clientHeight * dpr * scale));
@@ -70,15 +109,19 @@ function createRenderer(canvas: HTMLCanvasElement, coarse: boolean): Renderer | 
       gl.uniform1f(u.uWarp, f.warp);
       gl.uniform1f(u.uSteps, steps);
       gl.uniform2f(u.uShift, f.sx, f.sy);
-      // The sphere grows from a marble far ahead to filling the screen, drifting to center.
-      const near = Math.pow(f.approach, 2.4);
-      const aspect = w / h;
-      // Off the title: up and to the right on a wide screen, above it on a phone.
-      const cx = aspect < 0.8 ? 0.02 : 0.34 * Math.min(1, aspect / 1.6);
-      const cy = aspect < 0.8 ? 0.24 : 0.14;
-      gl.uniform2f(u.uWormC, cx * (1 - near), cy * (1 - near));
-      gl.uniform1f(u.uWormR, 0.11 + near * 1.8);
+      gl.uniform2f(u.uWormC, lay.worm.x, lay.worm.y);
+      gl.uniform1f(u.uWormR, lay.worm.r);
       gl.uniform1f(u.uIn, f.inside);
+      gl.uniform1f(u.uReveal, f.reveal);
+      gl.uniform1f(u.uPlanet, f.planet);
+      gl.uniform1f(u.uPan, f.pan);
+      gl.uniform2f(u.uSatC, lay.planet.x, lay.planet.y);
+      gl.uniform1f(u.uSatR, lay.planet.r);
+      gl.uniform2f(u.uSun, lay.sun.x, lay.sun.y);
+      gl.uniform2f(u.uTunC, lay.tunnel.x, lay.tunnel.y);
+      gl.uniform1f(u.uCalm, f.calm);
+      gl.uniform1f(u.uStill, f.still);
+      gl.uniform1f(u.uFlash, flash);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     },
     slower() {
@@ -142,8 +185,8 @@ const horizonScene: SceneController = ({ el, mode }) => {
   let last = performance.now();
   let clock = 0;
   let diskTime = 0;
-  let prevWarp = 1;
-  let kick = 0;
+  let burst = 0;
+  const look = { x: 0, y: 0 };
   let slowFrames = 0;
 
   const frame = (now: number): void => {
@@ -155,27 +198,32 @@ const horizonScene: SceneController = ({ el, mode }) => {
     if (reduce || Math.abs(p - view.value) > 0.3) view.snap(p);
     const shown = view.step(p, dt);
     const f = horizonFrame(shown, w / Math.max(1, h));
-    // Moving fast through the wormhole, the sparks rush faster.
-    clock += dt * (reduce ? 0.3 : 1 + Math.min(5, Math.abs(view.speed) * 40));
+    // Moving fast through the wormhole, the sparks rush faster; in the calm they slow away to
+    // nothing, and the still sky does not move at all.
+    const rush = (1 + f.turbulence * 2) * (1 - f.calm * 0.9) * (1 - f.still);
+    clock += dt * (reduce ? 0.3 : (1 + Math.min(5, Math.abs(view.speed) * 40)) * rush);
     diskTime += dt * (reduce ? 0.25 : 1);
 
-    // The hard stop out of the wormhole: a jolt and a flash.
-    if (prevWarp > 0.5 && f.warp <= 0.5) kick = 1;
-    prevWarp = f.warp;
-    kick = Math.max(0, kick - dt * 1.6);
-    const quake = reduce ? 0 : kick * 14 + Math.pow(f.fall, 2) * 18;
+    // In the tunnel the view shakes and bright parts of the universe flash past.
+    if (!reduce && f.turbulence > 0.3 && Math.random() < dt * 2.5) burst = 1;
+    burst = Math.max(0, burst - dt * 4);
+    const quake = reduce ? 0 : f.turbulence * 9 + Math.pow(f.fall, 2) * 18;
+    if (pointer.active) {
+      look.x += ((pointer.x / Math.max(1, w) - 0.5) * 2 - look.x) * 0.05;
+      look.y += ((0.5 - pointer.y / Math.max(1, h)) * 2 - look.y) * 0.05;
+    }
+    const lay = departureLayout(f, w / Math.max(1, h), look);
     if (shake) {
       shake.style.transform =
         quake > 0.2
           ? `translate(${((Math.random() - 0.5) * quake).toFixed(1)}px, ${((Math.random() - 0.5) * quake).toFixed(1)}px)`
           : '';
     }
-    if (flash)
-      flash.style.opacity = String(Math.max(reduce ? 0 : kick * 0.85, smooth(0.94, 1, shown)));
+    if (flash) flash.style.opacity = String(smooth(0.94, 1, shown));
     if (vignette) vignette.style.opacity = String(f.fall * 0.9);
 
     if (renderer) {
-      renderer.draw(f, diskTime, clock);
+      renderer.draw(f, diskTime, clock, lay, burst * f.turbulence);
       if (!el.hasAttribute('data-ready')) el.setAttribute('data-ready', '');
       if (dt > 0.028) slowFrames++;
       else slowFrames = Math.max(0, slowFrames - 1);
@@ -184,10 +232,10 @@ const horizonScene: SceneController = ({ el, mode }) => {
         renderer.slower();
       }
     }
-    drawFx(f, w, h, now);
+    drawFx(f, w, h, now, lay);
   };
 
-  function drawFx(f: HorizonFrame, w: number, h: number, now: number): void {
+  function drawFx(f: HorizonFrame, w: number, h: number, now: number, lay: Layout): void {
     if (!fx || !fxCanvas) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     if (fxCanvas.width !== Math.round(w * dpr) || fxCanvas.height !== Math.round(h * dpr)) {
@@ -196,6 +244,12 @@ const horizonScene: SceneController = ({ el, mode }) => {
     }
     fx.setTransform(dpr, 0, 0, dpr, 0, 0);
     fx.clearRect(0, 0, w, h);
+    if (!renderer) return;
+    // At the planet, the flare belongs to the star; the pan moves it across the lens.
+    if (f.planet > 0.01) {
+      flare(fx, w / 2 + lay.sun.x * h, h / 2 - lay.sun.y * h, w, h, f.planet * 0.85, now);
+      return;
+    }
     const show = 1 - f.warp;
     if (show <= 0 || !renderer) return;
     // Without a pointer the flare rests on the disk's bright side.
@@ -255,7 +309,7 @@ const horizonScene: SceneController = ({ el, mode }) => {
         beats.forEach((node, i) => node.toggleAttribute('data-on', i === b));
       }
       if (hint) hint.style.opacity = p < 0.02 ? '1' : '0';
-      el.toggleAttribute('data-past', p > WARP_END);
+      el.toggleAttribute('data-past', p > DEPARTURE_END);
       const f = horizonFrame(p, el.clientWidth / Math.max(1, el.clientHeight));
       hud?.toggleAttribute('data-on', f.fall > 0.02 && f.fall < 0.97);
       if (f.fall <= 0) return;
