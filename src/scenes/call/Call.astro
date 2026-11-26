@@ -9,6 +9,8 @@
  * download queue are generic. "PENTIUM" is plain text on the boot screen (a fact).
  */
 import { call } from '../../content/call';
+import '@fontsource/press-start-2p/latin-400.css';
+import '@fontsource-variable/cinzel/wght.css';
 import { MONTAGE_LENGTH } from './beats';
 
 const v = call.vignettes;
@@ -19,9 +21,20 @@ const cards = [
 ] as const;
 const choiceStep = MONTAGE_LENGTH + 1;
 const saveStep = MONTAGE_LENGTH + 2;
+/** Step of a vignette (1..n), by id: the montage runs in the order of content/call.ts. */
+const k = (id: (typeof call.montage)[number]['id']): number =>
+  call.montage.findIndex((m) => m.id === id) + 1;
+/** A line that types in letter by letter: a hidden copy for screen readers, then the letters. */
+const letters = (text: string) => [...text].map((ch, i) => ({ ch, i }));
 ---
 
-<section class="call" data-scene="call" data-beat="boot" aria-labelledby="call-kicker">
+<section
+  class="call"
+  data-scene="call"
+  data-beat="boot"
+  data-look={call.boot.look}
+  aria-labelledby="call-kicker"
+>
   <div class="stripes" aria-hidden="true"></div>
   <div class="layout">
     <p class="kicker" id="call-kicker">
@@ -49,10 +62,10 @@ const saveStep = MONTAGE_LENGTH + 2;
               ))}
             </div>
 
-            <!-- 1 · emulators: a road into the sunset, parallax hills. -->
+            <!-- emulators: a road into the sunset, parallax hills. -->
             <svg
               class="vig px"
-              data-k="1"
+              data-k={k('emulators')}
               viewBox="0 0 160 120"
               preserveAspectRatio="xMidYMid slice"
             >
@@ -92,8 +105,8 @@ const saveStep = MONTAGE_LENGTH + 2;
               <polygon points="84,62 86,62 150,120 138,120" fill="#c94c4c"></polygon>
             </svg>
 
-            <!-- 2 · dial-up: modem wave and a flash game saving for offline. -->
-            <svg class="vig px" data-k="2" viewBox="0 0 160 120">
+            <!-- dial-up: modem wave and a flash game saving for offline. -->
+            <svg class="vig px" data-k={k('dialup')} viewBox="0 0 160 120">
               <rect width="160" height="120" fill="#0e1d3a"></rect>
               <text x="14" y="22" class="t">
                 {v.modem}
@@ -120,8 +133,8 @@ const saveStep = MONTAGE_LENGTH + 2;
               <rect class="fill-v" x="16" y="96" width="128" height="6" fill="#ffd166"></rect>
             </svg>
 
-            <!-- 3 · the file in the game folder: "Replace file?" Yes. -->
-            <svg class="vig px" data-k="3" viewBox="0 0 160 120">
+            <!-- the file in the game folder: "Replace file?" Yes. -->
+            <svg class="vig px" data-k={k('gameFolder')} viewBox="0 0 160 120">
               <rect width="160" height="120" fill="#2b7a78"></rect>
               <g transform="translate(104 34)">
                 <rect y="4" width="34" height="26" fill="#e8b84a"></rect>
@@ -167,8 +180,8 @@ const saveStep = MONTAGE_LENGTH + 2;
               </g>
             </svg>
 
-            <!-- 4 · memory editing: the money goes from 1000 to 999999. -->
-            <svg class="vig px" data-k="4" viewBox="0 0 160 120">
+            <!-- memory editing: the money goes from 1000 to 999999. -->
+            <svg class="vig px" data-k={k('memory')} viewBox="0 0 160 120">
               <rect width="160" height="120" fill="#1a1a22"></rect>
               <rect
                 x="12"
@@ -224,8 +237,8 @@ const saveStep = MONTAGE_LENGTH + 2;
               </text>
             </svg>
 
-            <!-- 5 · image editor: a layers panel filling up with every tutorial. -->
-            <svg class="vig px" data-k="5" viewBox="0 0 160 120">
+            <!-- image editor: a layers panel filling up with every tutorial. -->
+            <svg class="vig px" data-k={k('imageEditor')} viewBox="0 0 160 120">
               <rect width="160" height="120" fill="#2a2a30"></rect>
               <g class="canvas">
                 <rect x="8" y="10" width="86" height="100" fill="#11131c"></rect>
@@ -270,8 +283,8 @@ const saveStep = MONTAGE_LENGTH + 2;
               ))}
             </svg>
 
-            <!-- 6 · tech support: formatting, then the next computer, and the next. -->
-            <svg class="vig px" data-k="6" viewBox="0 0 160 120">
+            <!-- tech support: formatting, then the next computer, and the next. -->
+            <svg class="vig px" data-k={k('fixing')} viewBox="0 0 160 120">
               <rect width="160" height="120" fill="#000082"></rect>
               <text x="14" y="26" class="t">
                 {v.formatting}
@@ -296,8 +309,8 @@ const saveStep = MONTAGE_LENGTH + 2;
               ))}
             </svg>
 
-            <!-- 7 · downloads queued overnight. -->
-            <svg class="vig px" data-k="7" viewBox="0 0 160 120">
+            <!-- downloads queued overnight. -->
+            <svg class="vig px" data-k={k('downloads')} viewBox="0 0 160 120">
               <rect width="160" height="120" fill="#0b1026"></rect>
               <circle cx="138" cy="18" r="9" fill="#f4f1e6"></circle>
               <circle cx="134" cy="15" r="9" fill="#0b1026"></circle>
@@ -313,6 +326,46 @@ const saveStep = MONTAGE_LENGTH + 2;
                   <rect class="dl" x="62" y={33 + i * 20} width="86" height="8" fill="#7ee2a8" />
                 </g>
               ))}
+            </svg>
+
+            <!-- custom maps of a strategy game: the lobby, then the beta key in the inbox. -->
+            <svg class="vig px realm-vig" data-k={k('customMaps')} viewBox="0 0 160 120">
+              <rect width="160" height="120" fill="#120e0a"></rect>
+              <rect
+                x="8"
+                y="8"
+                width="144"
+                height="104"
+                fill="#241b12"
+                stroke="#9a7a3a"
+                stroke-width="2"
+              ></rect>
+              <rect x="11" y="11" width="138" height="98" fill="none" stroke="#3a2c1a"></rect>
+              <text x="80" y="22" class="t c gold">
+                {v.lobbyTitle}
+              </text>
+              {v.lobby.map((g, i) => (
+                <g class:list={['lobby-row', { pick: i === 0 }]}>
+                  <rect x="16" y={28 + i * 13} width="128" height="10" />
+                  <text x="20" y={35.5 + i * 13} class="t small">
+                    {g.name}
+                  </text>
+                  <text x="140" y={35.5 + i * 13} class="t small r">
+                    {g.slots}
+                  </text>
+                </g>
+              ))}
+              <g class="mail">
+                <rect x="16" y="84" width="128" height="20" fill="#0d0a07" stroke="#9a7a3a"></rect>
+                <rect x="21" y="88" width="16" height="11" fill="#e8d9a8"></rect>
+                <path d="M21 88l8 6 8-6" fill="none" stroke="#7a5a2a" stroke-width="1.2"></path>
+                <text x="42" y="93" class="t small gold">
+                  {v.betaKey}
+                </text>
+                <text x="42" y="101" class="t small match">
+                  {v.firstMatch}
+                </text>
+              </g>
             </svg>
           </div>
         </div>
@@ -369,25 +422,51 @@ const saveStep = MONTAGE_LENGTH + 2;
     </div>
 
     <div class="dialog">
-      <p class="line" data-k="0" data-on>
-        {call.boot.text}
+      <p class="when" data-when aria-hidden="true">
+        {call.boot.when}
+      </p>
+      <p class="line say" data-k="0" data-on>
+        <span class="sr">{call.boot.text}</span>
+        <span class="typed" aria-hidden="true">
+          {letters(call.boot.text).map((l) => (
+            <span class="ch" style={`--i: ${l.i}`}>
+              {l.ch}
+            </span>
+          ))}
+        </span>
       </p>
       {call.montage.map((m, i) => (
-        <p class="line" data-k={i + 1}>
-          {m.text}
+        <p class="line say" data-k={i + 1}>
+          <span class="sr">{m.text}</span>
+          <span class="typed" aria-hidden="true">
+            {letters(m.text).map((l) => (
+              <span class="ch" style={`--i: ${l.i}`}>
+                {l.ch}
+              </span>
+            ))}
+          </span>
         </p>
       ))}
-      <div class="line" data-k={choiceStep}>
-        <p>{call.choice[0]}</p>
-        <p class="late late-c">{call.choice[1]}</p>
-      </div>
-      <div class="line" data-k={saveStep}>
-        <p>{call.saved}</p>
-        <p class="late late-s">{call.outro}</p>
-      </div>
-      <span class="caret" aria-hidden="true">
-        ▼
-      </span>
+      {[
+        { step: choiceStep, lines: call.choice },
+        { step: saveStep, lines: [call.saved, call.outro] },
+      ].map(({ step, lines }) => (
+        <div class="line" data-k={step}>
+          {lines.map((text, j) => (
+            <p class:list={['say', { late: j > 0 }]}>
+              <span class="sr">{text}</span>
+              <span class="typed" aria-hidden="true">
+                {letters(text).map((l) => (
+                  <span class="ch" style={`--i: ${l.i}`}>
+                    {l.ch}
+                  </span>
+                ))}
+              </span>
+            </p>
+          ))}
+        </div>
+      ))}
+      <span class="caret" aria-hidden="true"></span>
     </div>
   </div>
 </section>
@@ -860,23 +939,181 @@ const saveStep = MONTAGE_LENGTH + 2;
     transform: scale(clamp(0.6, calc(1 - var(--s) * 0.5), 1));
   }
 
-  /* ---------- Dialog box (the narration) ---------- */
+  /* ---------- Dialog box (the narration) ----------
+     It dresses as the games of each era (data-look on the scene, from content/call.ts), all
+     drawn with CSS: a handheld RPG box, a Flash game bubble, a 16-bit console window, a life
+     sim's glossy panel, glass, a strategy game's gilded frame, a modern arena panel. Homage
+     in style only: no fonts, art or assets from the games. */
 
   .dialog {
+    --tab-bg: #262a30;
+    --tab-ink: #f8f8f4;
+    --caret: '▼';
+
     grid-area: dialog;
     justify-self: center;
     position: relative;
     display: grid;
+    align-content: start;
     width: min(860px, 100%);
-    min-height: calc(2 * 2em + 44px);
-    padding: 18px 44px 18px 24px;
-    border: 4px double var(--ink);
-    border-radius: 4px;
+    min-height: 136px;
+    padding: 22px 48px 18px 24px;
+    border: 4px double #262a30;
+    border-radius: 10px;
+    background: #f8f8f4;
+    color: #262a30;
+    box-shadow:
+      inset 0 0 0 3px #f8f8f4,
+      inset 0 0 0 5px #8fbcb8,
+      6px 6px 0 rgb(31 42 26 / 0.35);
+    font-family: 'Press Start 2P', var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 2;
+    transition:
+      background 0.3s steps(3),
+      color 0.3s steps(3),
+      border-color 0.3s steps(3),
+      border-radius 0.3s steps(3),
+      box-shadow 0.3s steps(3);
+  }
+
+  [data-look='flash'] .dialog {
+    --tab-bg: #d62828;
+    --tab-ink: #fff;
+    --caret: '►';
+
+    border: 3px solid #111;
+    border-radius: 20px;
     background: #fff;
-    box-shadow: 8px 8px 0 var(--ink);
+    color: #111;
+    box-shadow: 6px 6px 0 #d62828;
+    font-family: var(--font-sans);
+    font-size: clamp(15px, 1.4vw, 18px);
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  [data-look='console'] .dialog {
+    --tab-bg: #e9ecf5;
+    --tab-ink: #101a62;
+
+    border: 3px solid #e9ecf5;
+    border-radius: 6px;
+    background: linear-gradient(#3b50c4, #0f185e);
+    color: #fff;
+    text-shadow: 2px 2px 0 #0a0f3a;
+    box-shadow:
+      0 0 0 3px #1a1a2e,
+      inset 0 0 0 2px #8590d6;
     font-family: var(--font-mono);
-    font-size: clamp(14px, 1.3vw, 17px);
+    font-size: clamp(14px, 1.35vw, 17px);
+    font-weight: 600;
     line-height: 1.7;
+  }
+
+  [data-look='life'] .dialog {
+    --tab-bg: #2b62b0;
+    --tab-ink: #fff;
+    --caret: '▶';
+
+    border: 2px solid #2b62b0;
+    border-radius: 22px;
+    background: linear-gradient(#eef6ff, #a9cdf5);
+    color: #0f2c57;
+    box-shadow:
+      inset 0 2px 0 #fff,
+      inset 0 -8px 14px rgb(43 98 176 / 0.25),
+      0 6px 0 rgb(15 44 87 / 0.25);
+    font-family: var(--font-sans);
+    font-size: clamp(15px, 1.4vw, 18px);
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  [data-look='glass'] .dialog {
+    --tab-bg: rgb(16 30 46 / 0.92);
+    --tab-ink: #cfe8ff;
+    --caret: '›';
+
+    border: 1px solid rgb(255 255 255 / 0.5);
+    border-radius: 8px;
+    background:
+      linear-gradient(rgb(255 255 255 / 0.22), rgb(255 255 255 / 0.05) 48%, transparent 52%),
+      rgb(16 30 46 / 0.9);
+    color: #f2f7fb;
+    text-shadow: 0 0 10px rgb(140 200 255 / 0.45);
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.6),
+      0 10px 30px rgb(0 0 0 / 0.3),
+      inset 0 1px 0 rgb(255 255 255 / 0.6);
+    font-family: system-ui, sans-serif;
+    font-size: clamp(15px, 1.4vw, 18px);
+    line-height: 1.5;
+  }
+
+  [data-look='realm'] .dialog {
+    --tab-bg: #a9853f;
+    --tab-ink: #17110b;
+    --caret: '◆';
+
+    border: 3px solid #a9853f;
+    border-radius: 2px;
+    background:
+      radial-gradient(circle at 7px 7px, #e6c46c 0 3px, transparent 4px),
+      radial-gradient(circle at calc(100% - 7px) 7px, #e6c46c 0 3px, transparent 4px),
+      radial-gradient(circle at 7px calc(100% - 7px), #e6c46c 0 3px, transparent 4px),
+      radial-gradient(circle at calc(100% - 7px) calc(100% - 7px), #e6c46c 0 3px, transparent 4px),
+      radial-gradient(ellipse at 50% 0%, #3d2e1d, #17110b 70%);
+    color: #f3d98a;
+    text-shadow: 0 1px 0 #000;
+    box-shadow:
+      0 0 0 2px #0c0905,
+      inset 0 0 0 2px #4a3820,
+      inset 0 0 26px rgb(0 0 0 / 0.6);
+    font-family: 'Cinzel Variable', var(--font-serif);
+    font-size: clamp(15px, 1.5vw, 19px);
+    font-weight: 600;
+    line-height: 1.55;
+    letter-spacing: 0.02em;
+  }
+
+  [data-look='arena'] .dialog {
+    --tab-bg: #a8322d;
+    --tab-ink: #fff;
+    --caret: '▸';
+
+    border: 1px solid #3b4049;
+    border-top: 2px solid #a8322d;
+    border-radius: 0;
+    background: linear-gradient(#22262d, #0f1115);
+    color: #ebe6dc;
+    box-shadow:
+      0 12px 30px rgb(0 0 0 / 0.4),
+      inset 0 1px 0 rgb(255 255 255 / 0.06);
+    font-family: var(--font-sans);
+    font-size: clamp(15px, 1.4vw, 18px);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  /* The era tab on the box: the passing of time. */
+  .when {
+    position: absolute;
+    top: 0;
+    left: 18px;
+    margin: 0;
+    padding: 3px 8px;
+    background: var(--tab-bg);
+    color: var(--tab-ink);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 1.5px;
+    text-shadow: none;
+    text-transform: uppercase;
+    transform: translateY(-60%);
   }
 
   .line {
@@ -884,38 +1121,88 @@ const saveStep = MONTAGE_LENGTH + 2;
     margin: 0;
     opacity: 0;
     visibility: hidden;
-    /* The old line goes, then the new one types in: the box is never blank for long. */
     transition:
-      opacity 0.2s steps(2),
-      visibility 0s linear 0.2s;
+      opacity 0.15s steps(2),
+      visibility 0s linear 0.15s;
   }
 
   .line[data-on] {
     opacity: 1;
     visibility: inherit;
-    transition:
-      opacity 0.3s steps(3) 0.1s,
-      visibility 0s;
+    transition: visibility 0s;
   }
 
-  .line p {
+  .say {
     margin: 0;
   }
 
-  .late-c {
-    opacity: clamp(0, calc((var(--c) - 0.45) * 6), 1);
+  .say + .say {
+    margin-top: 0.35em;
   }
 
-  .late-s {
-    opacity: clamp(0, calc((var(--s) - 0.4) * 6), 1);
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Each line types in letter by letter, like the games did. */
+  :global(html.js) .call .ch {
+    opacity: 0;
+  }
+
+  .line[data-on] .ch {
+    animation: type 0s linear calc(var(--i) * 20ms + 0.12s) forwards;
+  }
+
+  /* A second line waits for its turn (the controller switches it on). */
+  .line[data-on] .late:not([data-on]) .ch {
+    animation: none;
+  }
+
+  @keyframes type {
+    to {
+      opacity: 1;
+    }
   }
 
   .caret {
     position: absolute;
     right: 16px;
     bottom: 10px;
+    font-family: var(--font-mono);
     font-size: 12px;
+    line-height: 1;
     animation: blink 0.8s steps(2) infinite;
+  }
+
+  .caret::before {
+    content: var(--caret);
+  }
+
+  /* Custom maps: the lobby, the first game picked, then the beta key arrives. */
+  .t.gold {
+    fill: #e8c66a;
+  }
+
+  .lobby-row rect {
+    fill: #2e2318;
+  }
+
+  .lobby-row.pick rect {
+    fill: color-mix(in srgb, #2e2318, #7a5a26 calc(clamp(0, (var(--v) - 0.15) * 8, 1) * 100%));
+  }
+
+  .mail {
+    opacity: clamp(0, calc((var(--v) - 0.4) * 8), 1);
+  }
+
+  .t.match {
+    fill: #f4f1e6;
+    opacity: clamp(0, calc((var(--v) - 0.62) * 8), 1);
   }
 
   @keyframes blink {
@@ -983,13 +1270,15 @@ const saveStep = MONTAGE_LENGTH + 2;
       flex-flow: row wrap;
       align-content: flex-start;
       justify-content: center;
-      gap: 6px;
+      gap: 5px 4px;
     }
 
+    /* Eight skills in two rows. */
     .chip {
       min-height: 0;
-      padding: 3px 6px;
-      font-size: 10px;
+      padding: 3px 5px;
+      font-size: 9px;
+      letter-spacing: 0.5px;
     }
 
     .chip:not([data-on]) {
@@ -1052,19 +1341,30 @@ const saveStep = MONTAGE_LENGTH + 2;
     }
 
     .dialog {
-      min-height: calc(3 * 1.6em + 36px);
-      padding: 14px 36px 14px 16px;
+      min-height: 140px;
+      padding: 18px 34px 14px 16px;
+    }
+
+    [data-look] .dialog {
       font-size: 15px;
-      line-height: 1.6;
-      box-shadow: 5px 5px 0 var(--ink);
+    }
+
+    [data-look='handheld'] .dialog {
+      font-size: 10px;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
+    /* No typing: the whole line shows at once. */
+    :global(html.js) .call .ch {
+      opacity: 1;
+    }
+
     .road-lines,
     .wave,
     .boot-line:last-child,
     .caret,
+    .ch,
     .card[data-over='cs'] {
       animation: none;
     }

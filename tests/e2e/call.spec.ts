@@ -39,12 +39,26 @@ test.describe('the call', () => {
     await page.goto('/journey');
     await at(page, 0.08);
     await expect(scene(page)).toHaveAttribute('data-beat', 'boot');
-    await expect(scene(page).getByText('Dad brought home our first computer.')).toBeVisible();
-    await at(page, 0.2);
+    await expect(scene(page).locator('.line[data-on] .sr')).toContainText(
+      'Dad brought home our first computer.',
+    );
+    await at(page, 0.13);
     await expect(scene(page)).toHaveAttribute('data-beat', 'montage');
     await expect(scene(page).locator('.chip[data-on]')).toHaveCount(1);
-    await at(page, 0.69);
-    await expect(scene(page).locator('.chip[data-on]')).toHaveCount(7);
+    await at(page, 0.71);
+    await expect(scene(page).locator('.chip[data-on]')).toHaveCount(8);
+  });
+
+  test('the dialog box dresses as the games of each era', async ({ page }) => {
+    await page.goto('/journey');
+    await at(page, 0.08);
+    await expect(scene(page)).toHaveAttribute('data-look', 'handheld');
+    await expect(scene(page).locator('[data-when]')).toHaveText('Late 90s');
+    await at(page, 0.68);
+    await expect(scene(page)).toHaveAttribute('data-look', 'realm');
+    await at(page, 0.8);
+    await expect(scene(page)).toHaveAttribute('data-look', 'arena');
+    await expect(scene(page).locator('[data-when]')).toHaveText('2011');
   });
 
   test('every point of the scene shows a picture and a line', async ({ page }) => {
@@ -71,9 +85,11 @@ test.describe('the call', () => {
     await at(page, 0.86);
     await expect(scene(page)).toHaveAttribute('data-chosen', '');
     await expect(scene(page).locator('[data-card="civil"]')).toHaveAttribute('data-picked', '');
-    await expect(scene(page).getByText('Code and design never crossed my mind.')).toBeVisible();
+    await expect(
+      scene(page).locator('.say.late', { hasText: 'Code and design never crossed my mind.' }),
+    ).toHaveAttribute('data-on', '');
     await at(page, 0.97);
-    await expect(scene(page).getByText('Saved for later.')).toBeVisible();
+    await expect(scene(page).locator('.line[data-on] .sr').first()).toHaveText('Saved for later.');
   });
 
   test('no brand names, anywhere in the scene', async ({ page }) => {
@@ -120,7 +136,7 @@ test.describe('the call', () => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await ctx.newPage();
     await page.goto('/journey');
-    await at(page, 0.71);
+    await at(page, 0.75);
     await expect(scene(page)).toHaveAttribute('data-beat', 'choice');
     await expect(scene(page)).toHaveAttribute('data-chosen', '');
     await ctx.close();

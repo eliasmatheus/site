@@ -13,9 +13,35 @@ export type CallBeat = 'boot' | 'montage' | 'choice' | 'save';
 export const MONTAGE_LENGTH = call.montage.length;
 
 // Share of the dwell for each beat. The montage gets most of it: one step per vignette.
-const BOOT_END = 0.12;
-const MONTAGE_END = 0.7;
+const BOOT_END = 0.1;
+const MONTAGE_END = 0.72;
 const CHOICE_END = 0.88;
+
+/**
+ * Where a gesture lands (src/engine/pacing.ts): one line of dialogue or one action per
+ * gesture. The boot once the memory test is done; each vignette once its action has played;
+ * the cursor hesitating over COMPUTER SCIENCE, then the pick; the save.
+ */
+export const CALL_STOPS: readonly number[] = [
+  BOOT_END * 0.85,
+  ...Array.from(
+    { length: MONTAGE_LENGTH },
+    (_, i) => BOOT_END + ((i + 0.85) / MONTAGE_LENGTH) * (MONTAGE_END - BOOT_END),
+  ),
+  MONTAGE_END + 0.45 * (CHOICE_END - MONTAGE_END),
+  MONTAGE_END + 0.95 * (CHOICE_END - MONTAGE_END),
+  CHOICE_END + 0.8 * (1 - CHOICE_END),
+];
+
+export type Look = 'handheld' | 'flash' | 'console' | 'life' | 'glass' | 'realm' | 'arena';
+
+/** The dialog box of each step (0 boot, 1..n montage, n+1 choice, n+2 save) and its era tab. */
+export const LOOKS: readonly { look: Look; when: string }[] = [
+  call.boot,
+  ...call.montage,
+  { look: call.choiceLook, when: call.when },
+  { look: call.choiceLook, when: call.when },
+];
 
 /** Size of the RAM in KB, as the BIOS memory test counted it (64 MB). */
 export const MEMORY_KB = 65536;

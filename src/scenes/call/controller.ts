@@ -7,6 +7,7 @@ import type { SceneController } from '../registry';
 import {
   callState,
   cursorAt,
+  LOOKS,
   MEMORY_KB,
   memoryCount,
   MONTAGE_LENGTH,
@@ -20,6 +21,8 @@ const callScene: SceneController = ({ el, mode }) => {
   const cards = [...el.querySelectorAll<HTMLElement>('[data-card]')];
   const mem = el.querySelector<HTMLElement>('[data-mem]');
   const toastSkill = el.querySelector<HTMLElement>('[data-toast-skill]');
+  const when = el.querySelector<HTMLElement>('[data-when]');
+  const lates = [...el.querySelectorAll<HTMLElement>('.late')];
   // Reduced motion: the choice appears already made.
   const settled = mode === 'fade';
 
@@ -30,6 +33,7 @@ const callScene: SceneController = ({ el, mode }) => {
   let toast = false;
   let over: string | undefined = 'none';
   let chosen = false;
+  let late = false;
 
   const setVar = (name: string, value: number): void => {
     el.style.setProperty(name, value.toFixed(4));
@@ -63,6 +67,20 @@ const callScene: SceneController = ({ el, mode }) => {
           const m = call.montage[step - 1];
           if (toastSkill && m) toastSkill.textContent = m.skill;
         }
+        // The dialog box dresses as the games of the time.
+        const look = LOOKS[step];
+        if (look) {
+          el.dataset['look'] = look.look;
+          if (when) when.textContent = look.when;
+        }
+      }
+
+      // The second line of the choice and of the save types in once the first has been read.
+      const l =
+        (s.beat === 'choice' && (settled || s.local > 0.6)) || (s.beat === 'save' && s.local > 0.5);
+      if (l !== late) {
+        late = l;
+        lates.forEach((x) => x.toggleAttribute('data-on', l));
       }
 
       if (mem) {

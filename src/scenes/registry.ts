@@ -5,6 +5,7 @@
  */
 import type { SceneHooks } from '../engine/engine';
 import type { ScenePlacement } from '../engine/timeline';
+import { CALL_STOPS } from './call/beats';
 
 export interface SceneContext {
   /** The scene's layer element. */
@@ -36,8 +37,10 @@ export const SCENES: readonly SceneEntry[] = [
   {
     id: 'call',
     label: 'The Call',
-    // Longer than the prototype's card scene: boot, seven vignettes, the choice and the save.
-    dwell: 4400,
+    // Longer than the prototype's card scene: boot, eight vignettes, the choice and the save.
+    // Told one gesture at a time, so a fast flick never skips a line.
+    dwell: 4800,
+    stops: CALL_STOPS,
     x: 520,
     y: -120,
     load: () => import('./call/controller'),
