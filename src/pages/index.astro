@@ -6,6 +6,7 @@ import Call from '../scenes/call/Call.astro';
 import Desert from '../scenes/desert/Desert.astro';
 import Prologue from '../scenes/prologue/Prologue.astro';
 import { DUNES_PLACEHOLDER } from '../scenes/prologue/placeholder';
+import Structures from '../scenes/structures/Structures.astro';
 import ToBeContinued from '../scenes/to-be-continued/ToBeContinued.astro';
 import { site } from '../content/site';
 ---
@@ -23,6 +24,7 @@ import { site } from '../content/site';
     <Stage>
       <Prologue placeholder={DUNES_PLACEHOLDER} />
       <Call />
+      <Structures />
       <Desert />
       <ToBeContinued />
     </Stage>

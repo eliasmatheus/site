@@ -40,6 +40,14 @@ export const SCENES: readonly SceneEntry[] = [
     load: () => import('./call/controller'),
   },
   {
+    id: 'structures',
+    label: 'Structures',
+    dwell: 3000,
+    x: -480,
+    y: 80,
+    load: () => import('./structures/controller'),
+  },
+  {
     id: 'desert',
     label: 'The Desert',
     dwell: 1500,
