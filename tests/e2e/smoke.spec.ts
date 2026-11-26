@@ -29,12 +29,31 @@ test.describe('landing', () => {
     expect(await noHorizontalScroll(page)).toBe(false);
   });
 
-  test('the door at the end opens the journey', async ({ page }) => {
+  test('scrolling past the door flies into the journey, no click needed', async ({ page }) => {
+    await page.goto('/');
+    const header = page.locator('[data-header]');
+    await expect(header).toBeHidden();
+    // Scroll down step by step, like a visitor, until the journey's stage fills the screen.
+    // The journey root overlaps the door by one screen: it starts one screen further down.
+    const start = await page
+      .locator('#journey')
+      .evaluate((el) => el.getBoundingClientRect().top + window.scrollY + window.innerHeight);
+    await page.evaluate((y) => {
+      window.scrollTo(0, y + 10);
+      window.dispatchEvent(new Event('scroll'));
+    }, start);
+    await expect(
+      page.getByRole('heading', { name: 'The long version starts far from here.' }),
+    ).toBeVisible();
+    await expect(header).toBeVisible();
+    await expect(page).toHaveURL(/\/$/);
+  });
+
+  test('the door link jumps to the start of the journey', async ({ page }) => {
     await page.goto('/');
     const door = page.getByRole('link', { name: 'Begin the journey ↓' });
     await door.scrollIntoViewIfNeeded();
     await door.click();
-    await expect(page).toHaveURL(/\/journey$/);
     await expect(
       page.getByRole('heading', { name: 'The long version starts far from here.' }),
     ).toBeVisible();

@@ -1,12 +1,6 @@
 ---
-import Header from '../components/Header.astro';
-import Stage from '../components/Stage.astro';
+import Journey from '../components/Journey.astro';
 import Base from '../layouts/Base.astro';
-import Call from '../scenes/call/Call.astro';
-import Desert from '../scenes/desert/Desert.astro';
-import Horizon from '../scenes/horizon/Horizon.astro';
-import Structures from '../scenes/structures/Structures.astro';
-import ToBeContinued from '../scenes/to-be-continued/ToBeContinued.astro';
 import { site } from '../content/site';
 ---
 
@@ -14,14 +8,7 @@ import { site } from '../content/site';
   title={site.title}
   description="Meet Elias. The long version, starting at the edge of a black hole."
 >
-  <Header />
   <main>
-    <Stage>
-      <Horizon />
-      <Call />
-      <Structures />
-      <Desert />
-      <ToBeContinued />
-    </Stage>
+    <Journey />
   </main>
 </Base>

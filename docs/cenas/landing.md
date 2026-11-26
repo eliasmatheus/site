@@ -34,12 +34,12 @@ Quem está com pressa resolve tudo aqui em 10 segundos: quem é, o que faz, onde
 - [x] Lighthouse mobile ≥ 95 em performance, SEO 100, acessibilidade 100. (100 / 100 / 100, LCP 0,9 s, TBT 0 ms, CLS 0,007. Best practices 96 só pelo script do Vercel Analytics, que dá 404 fora da Vercel.)
 - [x] Sem JS, a página inteira continua lá.
 - [x] Reduced motion: estrelas e satélite parados.
-- [x] A porta leva ao Horizon: "Begin the journey" abre `/journey`, que começa no wormhole. É uma navegação de página, não um scroll contínuo; juntar as duas num scroll só fica para depois, se valer a pena.
+- [x] A porta leva ao Horizon sem clique (pedido do Elias): a jornada continua na mesma página, logo depois da porta. Ao rolar, o wormhole surge num fade por cima da porta (a partir da metade dela) e a jornada começa; o header da jornada só aparece com ela inteira. O link "Begin the journey" só pula para o início (`#horizon`). `/journey` continua como entrada direta.
 
 ## Implementação
 
 - Página: `src/pages/index.astro`. Conteúdo: `src/content/landing.ts` + `src/content/work.ts`. Céu: `src/landing/` (`sky.ts`, `nebula.ts`, `view.ts` e `trail.ts` com testes).
-- A jornada mudou para `/journey`. `/work` redireciona para `/` (308 na Vercel via `vercel.json`, meta refresh no build estático).
+- A jornada está em `/` logo abaixo da porta (componente `src/components/Journey.astro`, com `below`) e também sozinha em `/journey`. `/work` redireciona para `/` (308 na Vercel via `vercel.json`, meta refresh no build estático).
 - O céu só liga na primeira interação (mouse, toque, scroll, tecla) ou 3 s depois do load, para não pesar no LCP nem no TBT.
 - Vista: `src/landing/view.ts` (pontos por seção, inclinação do mouse, suavização e brilho, com testes). Luz: `src/landing/trail.ts` (rastro, luz que passeia e a máscara CSS de uma cópia acesa da pintura, com testes). A nebulosa é repintada só quando muda a largura da janela. O rastro se apaga pelo tempo real, mesmo com quadros lentos. O texto do registro tem sombra escura.
 - Reduced motion: a vista pula direto para o ponto da seção, sem deslizar nem brilhar.

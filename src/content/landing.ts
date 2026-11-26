@@ -24,6 +24,8 @@ export const landing = {
     title: 'That was the short version',
     text: 'The long one starts at the edge of a black hole.',
     cta: 'Begin the journey ↓',
-    href: '/journey',
+    // The journey continues right below the door (it fades in as you scroll). The link jumps
+    // to its first scene; the engine handles scene hashes.
+    href: '#horizon',
   },
 } as const;

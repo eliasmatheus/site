@@ -245,6 +245,16 @@ export function startSky(): void {
   let last = performance.now();
   let time = 0;
   let raf = 0;
+  // The journey's stage covers the sky once the visitor scrolls past the door.
+  let covered = false;
+  window.addEventListener('journey:stage', (e) => {
+    covered = (e as CustomEvent<boolean>).detail;
+    cancelAnimationFrame(raf);
+    if (!covered && !document.hidden) {
+      last = performance.now();
+      raf = requestAnimationFrame(run);
+    }
+  });
   const run = (now: number): void => {
     const raw = (now - last) / 1000;
     const dt = Math.min(0.05, raw);
@@ -268,7 +278,7 @@ export function startSky(): void {
   raf = requestAnimationFrame(run);
   document.addEventListener('visibilitychange', () => {
     cancelAnimationFrame(raf);
-    if (!document.hidden) {
+    if (!document.hidden && !covered) {
       last = performance.now();
       raf = requestAnimationFrame(run);
     }

@@ -1,9 +1,16 @@
 ---
 import { site } from '../content/site';
 import { JOURNEY_QUESTS } from '../engine/quests';
+
+interface Props {
+  /** Start hidden: the journey is further down the page. */
+  away?: boolean;
+}
+
+const { away = false } = Astro.props;
 ---
 
-<header class="header" data-header>
+<header class="header" data-header data-away={away ? '' : undefined}>
   <a class="name" href="/">
     {site.header.name}
   </a>
@@ -46,6 +53,20 @@ import { JOURNEY_QUESTS } from '../engine/quests';
     color: #fff;
     mix-blend-mode: difference;
     pointer-events: none;
+    transition:
+      opacity 0.4s ease,
+      transform 0.4s ease,
+      visibility 0s;
+  }
+
+  .header[data-away] {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-100%);
+    transition:
+      opacity 0.4s ease,
+      transform 0.4s ease,
+      visibility 0s linear 0.4s;
   }
 
   .header a {

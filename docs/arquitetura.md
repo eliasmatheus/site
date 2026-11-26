@@ -27,6 +27,7 @@ O protótipo (`World.dc.html`, função `frame()` e `locate()`) já resolve o mo
 - Sem JS, as cenas viram seções normais em sequência (classe `js` no `<html>` liga o palco antes da primeira pintura).
 - `onEnter` antecipado (uma cena antes) é o gatilho do lazy load de assets e código pesado.
 - Hash/âncora por cena (`/#structures`) e header com progresso. A primeira cena fica sem hash.
+- A jornada pode começar abaixo de outro conteúdo (a landing em `/`). A engine mede onde o root começa no documento (`origin`) e trabalha com `scrollY - origin`. Enquanto o visitante está acima, as camadas ficam paradas (`onHide`), o hash não muda e só os primeiros controladores são pré-carregados a três telas de distância. Com `entry`, o root sobrepõe a última tela antes dele (`margin-top: -100vh`) e o palco fica preso nela, aparecendo num fade; enquanto o fade não termina, o palco não recebe cliques. `onStage(inView)` avisa quando a jornada cobre a tela (header aparece, o céu da landing para).
 - Modos do palco: `fly` (desktop, voo 3D, travel 1000 px), `stack` (mobile, scale + blur + fade, travel 600 px) e `fade` (reduced motion, só crossfade, travel 400 px). Trocar de modo mantém o visitante no mesmo ponto da jornada.
 
 ## Mobile

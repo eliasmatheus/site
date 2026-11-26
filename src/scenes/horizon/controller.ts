@@ -201,22 +201,29 @@ const horizonScene: SceneController = ({ el, mode }) => {
     raf = 0;
   };
 
-  // The shader waits for a visitor: the first paint is text and the still black hole, and
-  // the scene only moves on scroll anyway.
+  // The shader waits for a visitor and for the scene to be on screen: the first paint is
+  // text over the still black hole, and below the landing nothing compiles until the
+  // journey is reached.
+  let interacted = false;
   const start = (): void => {
-    if (started) return;
+    if (started || !interacted || !visible) return;
     started = true;
     renderer = createRenderer(glCanvas, coarse);
     if (!renderer) q<HTMLElement>('[data-no-webgl]')?.removeAttribute('hidden');
     run();
   };
+  const onFirstSign = (): void => {
+    interacted = true;
+    start();
+  };
   for (const type of ['pointermove', 'pointerdown', 'scroll', 'keydown', 'touchstart'] as const) {
-    window.addEventListener(type, start, { once: true, passive: true });
+    window.addEventListener(type, onFirstSign, { once: true, passive: true });
   }
 
   return {
     onShow() {
       visible = true;
+      start();
       run();
     },
     onHide() {

@@ -37,6 +37,7 @@ O monitor no meio da página (v1, `reference/prototype/my-computer.html`) foi su
 - **Scroll conduz a história; o mouse explora.** Cada etapa tem que tirar o fôlego de algum jeito: nostalgia, imersão, narrativa e showcase.
 - **Internet discada:** a espera e a expectativa da conexão, com o som do modem gerado na hora por Web Audio (tom de linha, DTMF, chamada, tom de resposta, negociação, treinamento), nunca uma gravação.
 - **Upgrades com detalhe:** instalador em modo texto, tabela de partições, formatação NTFS, reinício, tela azul no meio, wizard gráfico com "minutos restantes".
+  - **Referência de realismo (26/11/2026):** https://fakeupdate.net/vista/ (e as outras versões do mesmo site). O Elias quer o maior realismo possível nas telas de update e upgrade: o ritmo da porcentagem, as frases de "não desligue o computador", o fundo, a tipografia, o cursor de espera, os reinícios. Usar como guia de fidelidade, sem copiar: recriar com HTML e CSS nossos, sem logo do Windows, sem imagens ou fontes tiradas do site ou da Microsoft (regra de marcas do CLAUDE.md). O nome das versões pode aparecer como texto.
 - **Downloads e banda:** P2P na primeira banda larga (200 kbps, aproximado), depois 300 kbps, o primeiro 1 Mbps e a troca do P2P pelo torrent.
 - **Marcas:** MSN, eMule, uTorrent, provedores (UOL, IG, BOL) e afins só como estilo: apps com nomes e ícones genéricos ("Messenger", "P2P Downloader", "Torrent Client", "Portal online"). Windows pode aparecer em texto. Sem logos (inclusive o ícone do botão Iniciar é genérico), sons ou telas copiadas.
 

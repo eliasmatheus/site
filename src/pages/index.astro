@@ -1,4 +1,5 @@
 ---
+import Journey from '../components/Journey.astro';
 import Base from '../layouts/Base.astro';
 import { landing } from '../content/landing';
 import { site } from '../content/site';
@@ -120,6 +121,9 @@ const profiles = [work.contact.links.github, work.contact.links.linkedin];
       <a href={landing.door.href}>{landing.door.cta}</a>
     </div>
   </section>
+
+  <!-- The long version: keep scrolling past the door and the journey begins. -->
+  <Journey below />
 </Base>
 
 <script>

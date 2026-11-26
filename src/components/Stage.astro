@@ -8,10 +8,23 @@ import { createTimeline } from '../engine/timeline';
 import { MODE_CONFIG } from '../engine/engine';
 import { SCENES } from '../scenes/registry';
 
+interface Props {
+  id?: string;
+  /** Fade in over the last screen of the content above instead of scrolling up. */
+  entry?: boolean;
+}
+
+const { id, entry = false } = Astro.props;
 const length = createTimeline(SCENES, MODE_CONFIG.fly).length;
 ---
 
-<div class="journey" data-journey style={`--journey-length: ${length}px`}>
+<div
+  class="journey"
+  id={id}
+  data-journey
+  data-entry={entry ? '' : undefined}
+  style={`--journey-length: ${length}px`}
+>
   <div class="stage" data-stage data-mode="fly">
     <div class="stars" aria-hidden="true"></div>
     <slot />
@@ -33,8 +46,15 @@ const length = createTimeline(SCENES, MODE_CONFIG.fly).length;
         stage,
         layers,
         placements: SCENES,
+        entry: root.hasAttribute('data-entry'),
         onJourney(progress) {
           header?.style.setProperty('--journey', progress.toFixed(4));
+        },
+        onStage(inView) {
+          // Below the landing, the header shows up with the journey, and the landing's sky
+          // rests while the stage covers it.
+          header?.toggleAttribute('data-away', !inView);
+          window.dispatchEvent(new CustomEvent('journey:stage', { detail: inView }));
         },
       });
       SCENES.forEach((scene, j) => {
@@ -63,9 +83,37 @@ const length = createTimeline(SCENES, MODE_CONFIG.fly).length;
     display: none;
   }
 
-  :global(html.js) .journey {
+  /* Over anything fixed on the page before it (the landing's sky). */
+  .journey {
     position: relative;
+    z-index: 2;
+  }
+
+  :global(html.js) .journey {
     height: calc(var(--journey-length) + 100vh);
+  }
+
+  /* Entry: the root overlaps the screen above it, so the stage can fade in over it. */
+  :global(html.js) .journey[data-entry] {
+    height: calc(var(--journey-length) + 200vh);
+    margin-top: -100vh;
+    /* The root covers the door it overlaps: only the stage takes clicks, once it is in. */
+    pointer-events: none;
+  }
+
+  :global(html.js) .journey[data-entry] .stage:not([data-entering]) {
+    pointer-events: auto;
+  }
+
+  :global(html.js) .journey[data-entry] .stage {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  /* While fading in over the door, clicks go to the page underneath. */
+  .stage[data-entering],
+  .stage[data-entering] :global(*) {
+    pointer-events: none !important;
   }
 
   :global(html.js) .stage {
