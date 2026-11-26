@@ -2,7 +2,8 @@
  * The fall controller. Scroll (the dwell progress) drives the descent and the overlays; a
  * render loop draws the lattice only while the layer is visible. three.js loads on the first
  * sign of a visitor (scroll, pointer, touch or key), so it never weighs on the first paint.
- * Without WebGL a still gradient stands in and the old computer still opens.
+ * Without WebGL, or with a software one, a still gradient stands in and the old computer
+ * still opens.
  */
 import { theFall } from '../../content/the-fall';
 import type { SceneController } from '../registry';
@@ -10,6 +11,19 @@ import { fallState } from './beats';
 import type { World } from './world';
 
 const SIGNS = ['scroll', 'pointerdown', 'pointermove', 'wheel', 'touchstart', 'keydown'] as const;
+
+/**
+ * WebGL drawn by the CPU (no GPU, or a blocked one). Building the lattice there stalls the
+ * page for seconds, scroll included, so the still shaft stays instead.
+ */
+const softwareGl = (): boolean => {
+  const gl = document.createElement('canvas').getContext('webgl');
+  if (!gl) return false;
+  const info = gl.getExtension('WEBGL_debug_renderer_info');
+  const name = info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
+  gl.getExtension('WEBGL_lose_context')?.loseContext();
+  return /swiftshader|llvmpipe|softpipe|software/i.test(name);
+};
 
 const theFallScene: SceneController = ({ el, mode }) => {
   const q = <T extends Element>(sel: string): T | null => el.querySelector<T>(sel);
@@ -57,6 +71,10 @@ const theFallScene: SceneController = ({ el, mode }) => {
     if (loading || !canvas) return;
     loading = true;
     SIGNS.forEach((s) => window.removeEventListener(s, load));
+    if (softwareGl()) {
+      el.setAttribute('data-still', '');
+      return;
+    }
     void import('./world')
       .then(({ createWorld }) => {
         world = createWorld({ canvas, coarse, still });

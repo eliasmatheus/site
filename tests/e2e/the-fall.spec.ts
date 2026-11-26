@@ -75,6 +75,15 @@ test.describe('the fall', () => {
     await at(page, 0.3);
     await page.mouse.move(600, 400);
     await page.mouse.move(700, 450);
-    await expect(scene(page)).toHaveAttribute('data-ready', '', { timeout: 20_000 });
+    // On a software GPU (as on the CI machines) the still shaft stays: no 3D to stall the page.
+    const software = await page.evaluate(() => {
+      const gl = document.createElement('canvas').getContext('webgl');
+      const info = gl?.getExtension('WEBGL_debug_renderer_info');
+      const name = info ? String(gl?.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
+      return /swiftshader|llvmpipe|softpipe|software/i.test(name);
+    });
+    await expect(scene(page)).toHaveAttribute(software ? 'data-still' : 'data-ready', '', {
+      timeout: 20_000,
+    });
   });
 });
