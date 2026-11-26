@@ -34,7 +34,7 @@ Abrir a jornada com algo de tirar o fôlego e que mostre o tom do site: um burac
 
 - Shader de fragmento em WebGL1, sem three.js: integra o raio de luz em volta do buraco (passos adaptativos), disco com textura polar em riscos, brilho Doppler.
 - Resolução e número de passos caem sozinhos se o aparelho não aguentar.
-- Sem WebGL: versão em partículas 2D.
+- Antes do shader, sem WebGL e sem JS: um buraco negro parado feito de gradientes CSS (sombra, anel quente e disco achatado). O texto aparece por cima desde a primeira pintura.
 - Reduced motion: disco quase parado, sem tremor nem clarão, sem gás caindo.
 
 ## Mobile
@@ -44,6 +44,17 @@ Abrir a jornada com algo de tirar o fôlego e que mostre o tom do site: um burac
 
 ## Aceite
 
-- [ ] LCP < 2,5 s no mobile (texto aparece antes do shader).
-- [ ] 50 fps num celular médio, ou a qualidade cai sozinha.
-- [ ] Nenhuma marca, nome ou imagem de filme.
+- [x] LCP < 2,5 s no mobile (texto aparece antes do shader). Lighthouse mobile em `/journey`: 100 / 100 / 100, LCP 0,9 s, TBT 0 ms.
+- [ ] 50 fps num celular médio, ou a qualidade cai sozinha. A queda automática existe (resolução, depois passos); falta medir num celular real.
+- [x] Nenhuma marca, nome ou imagem de filme.
+
+## Implementação
+
+- Cena: `src/scenes/horizon/` (`Horizon.astro`, `controller.ts`, `beats.ts` com testes, `shader.ts`, `flare.ts`). Copy: `src/content/horizon.ts`. Primeira cena do registro, `dwell` 5200 px.
+- O shader só liga no primeiro sinal do visitante (mouse, toque, rolagem, tecla). Até lá, o buraco negro em CSS. Com o timer de 2,5 s do protótipo, o Lighthouse caía para 92 (TBT 240 ms).
+- O flare segue o mouse e, no celular, o dedo (eventos de toque continuam durante a rolagem). Sem ponteiro, descansa no lado brilhante do disco.
+- HUD da queda abaixo do header da jornada.
+- Visibilidade das falas e do HUD vira na hora ao aparecer e só depois do fade ao sumir, para nada vazar quando a camada é escondida.
+- A cena seguinte ainda é The Call (a The fall não existe no site). O clarão final faz a ponte.
+
+Prints: `docs/screens/fase-4/horizon-*.jpg`.

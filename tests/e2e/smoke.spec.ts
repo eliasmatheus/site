@@ -35,7 +35,9 @@ test.describe('landing', () => {
     await door.scrollIntoViewIfNeeded();
     await door.click();
     await expect(page).toHaveURL(/\/journey$/);
-    await expect(page.getByRole('heading', { level: 1, name: 'Meet Elias.' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'The long version starts far from here.' }),
+    ).toBeVisible();
   });
 
   test('the old work page lands here', async ({ page }) => {

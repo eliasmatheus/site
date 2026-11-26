@@ -34,7 +34,7 @@ Quem está com pressa resolve tudo aqui em 10 segundos: quem é, o que faz, onde
 - [x] Lighthouse mobile ≥ 95 em performance, SEO 100, acessibilidade 100. (100 / 100 / 100, LCP 0,9 s, TBT 0 ms, CLS 0,007. Best practices 96 só pelo script do Vercel Analytics, que dá 404 fora da Vercel.)
 - [x] Sem JS, a página inteira continua lá.
 - [x] Reduced motion: estrelas e satélite parados.
-- [ ] A porta leva ao Horizon sem frame vazio. Por enquanto leva à jornada atual em `/journey`; o texto da porta muda quando o Horizon existir.
+- [x] A porta leva ao Horizon: "Begin the journey" abre `/journey`, que começa no wormhole. É uma navegação de página, não um scroll contínuo; juntar as duas num scroll só fica para depois, se valer a pena.
 
 ## Implementação
 

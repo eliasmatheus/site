@@ -22,7 +22,7 @@ export const landing = {
   },
   door: {
     title: 'That was the short version',
-    text: 'The long one is a journey. It is still being built, and the first chapters are open.',
+    text: 'The long one starts at the edge of a black hole.',
     cta: 'Begin the journey ↓',
     href: '/journey',
   },

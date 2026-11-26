@@ -1,0 +1,430 @@
+---
+/**
+ * Horizon: the journey opens at a black hole. Scroll plays it: a wormhole, a hard stop, the
+ * arrival at the Off-axis view, then a first-person fall with instruments and alerts.
+ * src/scenes/horizon/controller.ts draws it (WebGL shader + a 2D lens flare); the beats and
+ * the camera come from src/scenes/horizon/beats.ts.
+ *
+ * Before the shader is ready, and without WebGL or JS, a still black hole made of CSS
+ * gradients stands in, and every line of copy stays readable.
+ */
+import { horizon } from '../../content/horizon';
+
+const centered = new Set([0, 3]);
+---
+
+<section class="horizon" data-scene="horizon" aria-labelledby="horizon-title">
+  <div class="sky" data-shake>
+    <div class="still" aria-hidden="true"></div>
+    <canvas class="gl" data-gl role="img" aria-label={horizon.label}></canvas>
+    <canvas class="fx" data-fx aria-hidden="true"></canvas>
+  </div>
+  <div class="vignette" data-vignette aria-hidden="true"></div>
+  <div class="flash" data-flash aria-hidden="true"></div>
+
+  <div class="copy">
+    {horizon.beats.map((b, i) => (
+      <div
+        class:list={['beat', { center: centered.has(i) }]}
+        data-beat={i}
+        data-on={i === 0 ? '' : undefined}
+      >
+        <p class="kicker">{b.kicker}</p>
+        {i === 1 ? <h1 id="horizon-title">{b.title}</h1> : <h2>{b.title}</h2>}
+        {'text' in b && <p class="lede">{b.text}</p>}
+      </div>
+    ))}
+  </div>
+
+  <div class="hud" data-hud aria-hidden="true">
+    <div class="row">
+      <span>{horizon.hud.distance}</span>
+      <b data-dist>-</b>
+    </div>
+    <div class="row">
+      <span>{horizon.hud.dilation}</span>
+      <b data-time>-</b>
+    </div>
+    <div class="row" data-hull-row>
+      <span>{horizon.hud.hull}</span>
+      <b data-hull>100%</b>
+    </div>
+    <div class="meter">
+      <span data-hull-bar></span>
+    </div>
+    <div class="alerts">
+      {horizon.hud.alerts.map((a, i) => (
+        <span class="alert" data-alert={i}>
+          {a}
+        </span>
+      ))}
+    </div>
+  </div>
+  <p class="hint" data-hint aria-hidden="true">
+    {horizon.hint}
+  </p>
+  <p class="no-webgl" data-no-webgl hidden>
+    {horizon.noWebgl}
+  </p>
+</section>
+
+<style>
+  .horizon {
+    --ember: #ffb46a;
+    --alert: #ff5a3c;
+    --line: rgb(236 231 220 / 0.14);
+
+    overflow: hidden;
+    background: #040508;
+    color: #ece7dc;
+  }
+
+  .sky {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+  }
+
+  /* The still black hole: a dark shadow, a hot ring and a flat disk, all gradients. */
+  .still {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 70% 38%, #000 0 7vmin, transparent 7.2vmin),
+      radial-gradient(
+        circle at 70% 38%,
+        rgb(255 226 170 / 0.9) 7.2vmin,
+        rgb(255 170 90 / 0.35) 8.5vmin,
+        transparent 13vmin
+      ),
+      radial-gradient(
+        ellipse 42vmin 5vmin at 70% 40%,
+        rgb(255 190 120 / 0.55),
+        rgb(160 80 30 / 0.2) 60%,
+        transparent 70%
+      ),
+      radial-gradient(ellipse at 70% 38%, rgb(255 160 80 / 0.12), transparent 45%), #040508;
+    transition: opacity 1s ease;
+  }
+
+  .gl,
+  .fx {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .gl {
+    opacity: 0;
+    transition: opacity 1s ease;
+    touch-action: pan-y;
+  }
+
+  .fx {
+    pointer-events: none;
+  }
+
+  .horizon[data-ready] .gl {
+    opacity: 1;
+  }
+
+  .horizon[data-ready] .still {
+    opacity: 0;
+  }
+
+  .flash,
+  .vignette {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .flash {
+    background: #fff8ee;
+  }
+
+  .vignette {
+    background: radial-gradient(ellipse at center, transparent 45%, rgb(120 10 0 / 0.55) 100%);
+  }
+
+  .copy {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .copy::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: min(900px, 100%);
+    height: 70vh;
+    background: radial-gradient(ellipse at 0% 100%, rgb(4 5 8 / 0.8), rgb(4 5 8 / 0) 70%);
+  }
+
+  .beat {
+    position: absolute;
+    right: max(16px, env(safe-area-inset-right, 0px));
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 72px);
+    left: max(16px, 6vw, env(safe-area-inset-left, 0px));
+    max-width: 640px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    /* Visibility flips after the fade out, and at once on the way in, so a hidden layer
+       never shows a line through a visibility transition. */
+    transition:
+      opacity 0.7s ease,
+      transform 0.7s ease,
+      visibility 0s linear 0.7s;
+  }
+
+  .beat[data-on] {
+    opacity: 1;
+    visibility: inherit;
+    transform: none;
+    transition:
+      opacity 0.7s ease,
+      transform 0.7s ease,
+      visibility 0s;
+  }
+
+  .beat.center {
+    top: 50%;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    max-width: 720px;
+    margin: 0 auto;
+    padding-inline: 16px;
+    text-align: center;
+    transform: translateY(-50%);
+  }
+
+  .kicker {
+    margin: 0 0 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ember);
+  }
+
+  h1,
+  h2 {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 300;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    text-shadow: 0 2px 24px rgb(4 5 8 / 0.7);
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-size: clamp(44px, 8vw, 104px);
+  }
+
+  h2 {
+    font-size: clamp(32px, 5vw, 68px);
+  }
+
+  .lede {
+    max-width: 52ch;
+    margin: 18px 0 0;
+    font-size: clamp(16px, 1.5vw, 19px);
+    line-height: 1.5;
+    opacity: 0.84;
+    text-wrap: pretty;
+  }
+
+  /* First-person instruments during the fall, below the journey header. */
+  .hud {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 72px);
+    right: max(16px, env(safe-area-inset-right, 0px));
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: min(300px, calc(100% - 32px));
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    background: rgb(4 5 8 / 0.72);
+    backdrop-filter: blur(6px);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #9b968c;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.4s ease,
+      visibility 0s linear 0.4s;
+    pointer-events: none;
+  }
+
+  .hud[data-on] {
+    opacity: 1;
+    visibility: inherit;
+    transition:
+      opacity 0.4s ease,
+      visibility 0s;
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .row b {
+    font-weight: 500;
+    color: #ece7dc;
+  }
+
+  [data-hull-row][data-bad] b {
+    color: var(--alert);
+  }
+
+  .meter {
+    height: 3px;
+    background: var(--line);
+  }
+
+  .meter span {
+    display: block;
+    height: 100%;
+    background: #ece7dc;
+    transform-origin: left;
+  }
+
+  .alerts {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .alert {
+    display: none;
+    padding: 6px 8px;
+    border: 1px solid var(--alert);
+    letter-spacing: 1.5px;
+    color: var(--alert);
+    animation: blink 0.9s steps(2) infinite;
+  }
+
+  .alert[data-on] {
+    display: block;
+  }
+
+  .hint {
+    position: absolute;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+    left: 50%;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #9b968c;
+    transform: translateX(-50%);
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+
+  .no-webgl {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 72px);
+    left: max(16px, env(safe-area-inset-left, 0px));
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #9b968c;
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  /* Without JS the scene is a plain section: the still black hole and every line in order. */
+  :global(html:not(.js)) .horizon .copy {
+    position: relative;
+    display: grid;
+    gap: 48px;
+    padding: 96px 6vw;
+  }
+
+  :global(html:not(.js)) .horizon .copy::before {
+    display: none;
+  }
+
+  :global(html:not(.js)) .horizon .beat {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    text-align: left;
+  }
+
+  :global(html:not(.js)) .horizon .hint {
+    display: none;
+  }
+
+  @media (max-width: 640px) {
+    .hud {
+      top: calc(env(safe-area-inset-top, 0px) + 64px);
+      width: calc(100% - 32px);
+    }
+
+    .still {
+      background:
+        radial-gradient(circle at 50% 34%, #000 0 12vmin, transparent 12.3vmin),
+        radial-gradient(
+          circle at 50% 34%,
+          rgb(255 226 170 / 0.9) 12.3vmin,
+          rgb(255 170 90 / 0.35) 14vmin,
+          transparent 22vmin
+        ),
+        radial-gradient(
+          ellipse 46vmin 6vmin at 50% 36%,
+          rgb(255 190 120 / 0.55),
+          rgb(160 80 30 / 0.2) 60%,
+          transparent 70%
+        ),
+        #040508;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .beat {
+      transform: none;
+      transition:
+        opacity 0.3s ease,
+        visibility 0s linear 0.3s;
+    }
+
+    .beat[data-on] {
+      transition:
+        opacity 0.3s ease,
+        visibility 0s;
+    }
+
+    .beat.center {
+      transform: translateY(-50%);
+    }
+
+    .alert {
+      animation: none;
+    }
+  }
+</style>

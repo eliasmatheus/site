@@ -61,7 +61,7 @@ test.describe('structures', () => {
     await width.focus();
     for (let i = 0; i < 21; i++) await page.keyboard.press('ArrowLeft');
     await expect(scene(page)).toHaveAttribute('data-state', 'ok');
-    await expect(page.getByText('QUESTS 1/3')).toBeVisible();
+    await expect(page.getByText('QUESTS 1/2')).toBeVisible();
     await expect(scene(page).locator('[data-kicker]')).toHaveText('QUEST COMPLETE · +25 XP');
   });
 
@@ -79,7 +79,7 @@ test.describe('structures', () => {
     await toQuest(page);
     await scene(page).getByRole('button', { name: 'SHOW ME THE SWEET SPOT' }).click();
     await expect(scene(page)).toHaveAttribute('data-state', 'ok');
-    await expect(page.getByText('QUESTS 1/3')).toBeVisible();
+    await expect(page.getByText('QUESTS 1/2')).toBeVisible();
   });
 
   test('three.js only loads once the previous scene starts', async ({ page }) => {

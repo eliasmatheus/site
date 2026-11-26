@@ -20,16 +20,19 @@ export interface SceneEntry extends ScenePlacement {
   load?: () => Promise<{ default: SceneController }>;
 }
 
-// Positions and dwells from the prototype (World.dc.html, this.SC).
+// Positions and dwells from the prototype (World.dc.html, this.SC), Horizon from black-hole.html.
 export const SCENES: readonly SceneEntry[] = [
   {
-    id: 'prologue',
-    label: 'Prologue',
-    dwell: 2800,
+    id: 'horizon',
+    label: 'Horizon',
+    // Wormhole, hard stop, arrival, then the fall: a long dwell so each beat gets room.
+    dwell: 5200,
     x: 0,
     y: 0,
-    load: () => import('./prologue/controller'),
+    load: () => import('./horizon/controller'),
   },
+  // The Prologue (photography) left the opening on 25/11/2026 (docs/plano.md, Fase 4). Its
+  // code stays in src/scenes/prologue until it gets a place in the timeline.
   {
     id: 'call',
     label: 'The Call',

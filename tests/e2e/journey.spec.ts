@@ -20,10 +20,12 @@ const toEnd = async (page: Page) => {
 test.describe('journey', () => {
   test('starts on the first scene with the header always visible', async ({ page }) => {
     await page.goto('/journey');
-    await expect(page.getByRole('heading', { level: 1, name: 'Meet Elias.' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'The long version starts far from here.' }),
+    ).toBeVisible();
     await expect.poll(() => active(page)).toBe(first.id);
     await expect(page.getByRole('link', { name: 'Work →' }).first()).toBeVisible();
-    await expect(page.getByText('QUESTS 0/3')).toBeVisible();
+    await expect(page.getByText('QUESTS 0/2')).toBeVisible();
   });
 
   test('scrolling flies to the next scene and updates the hash', async ({ page }) => {
@@ -128,6 +130,9 @@ test('without JavaScript every scene is readable in order', async ({ browser }) 
   const page = await ctx.newPage();
   await page.goto('/journey');
   await expect(page.getByRole('heading', { level: 1, name: 'Meet Elias.' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Past this line, there is only forward.' }),
+  ).toBeVisible();
   await page.getByRole('heading', { name: 'Next stop: the first job.' }).scrollIntoViewIfNeeded();
   await expect(page.getByRole('heading', { name: 'Next stop: the first job.' })).toBeVisible();
   await ctx.close();

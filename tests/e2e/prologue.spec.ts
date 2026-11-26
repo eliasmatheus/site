@@ -2,8 +2,8 @@ import { expect, test, type Page } from '@playwright/test';
 import { SCENES } from '../../src/scenes/registry';
 
 const prologue = SCENES.find((s) => s.id === 'prologue');
-if (!prologue) throw new Error('No prologue in the registry.');
-const dwell = prologue.dwell;
+// Parked: the Prologue is out of the registry for now, so the dwell falls back to 0.
+const dwell = prologue?.dwell ?? 0;
 const scene = (page: Page) => page.locator('[data-scene="prologue"]');
 
 /**
@@ -31,7 +31,9 @@ const toCamera = async (page: Page) => {
   await expect(scene(page)).toHaveAttribute('data-phase', '2');
 };
 
-test.describe('prologue', () => {
+// The Prologue left the opening (docs/plano.md, Fase 4). Its scene and these tests stay
+// until it gets a place in the timeline again.
+test.describe.skip('prologue', () => {
   test('arrives through the viewfinder, perfectly exposed', async ({ page }) => {
     await page.goto('/journey');
     await expect(page.getByRole('heading', { level: 1, name: 'Meet Elias.' })).toBeVisible();
@@ -49,10 +51,10 @@ test.describe('prologue', () => {
     await toCamera(page);
     const status = scene(page).locator('[data-status]');
     await expect(status).toHaveText('UNDEREXPOSED · -3.0 EV');
-    await expect(page.getByText('QUESTS 0/3')).toBeVisible();
+    await expect(page.getByText('QUESTS 0/2')).toBeVisible();
     await scene(page).getByRole('button', { name: 'AUTO' }).click();
     await expect(status).toHaveText('PERFECT · ±0.0 EV');
-    await expect(page.getByText('QUESTS 1/3')).toBeVisible();
+    await expect(page.getByText('QUESTS 1/2')).toBeVisible();
     await expect(scene(page).getByRole('link', { name: "GOOD LIGHT. LET'S GO ↓" })).toBeVisible();
   });
 
@@ -71,7 +73,7 @@ test.describe('prologue', () => {
     await expect(shutter).toHaveAttribute('aria-valuetext', '1/125');
     // ISO 1600 and 1/125 is exactly AUTO: the quest is done by hand too.
     await expect(scene(page).locator('[data-status]')).toHaveText('PERFECT · ±0.0 EV');
-    await expect(page.getByText('QUESTS 1/3')).toBeVisible();
+    await expect(page.getByText('QUESTS 1/2')).toBeVisible();
   });
 
   test('exposure only touches the image, never the camera', async ({ page }) => {

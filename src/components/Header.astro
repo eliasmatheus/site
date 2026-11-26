@@ -1,6 +1,6 @@
 ---
 import { site } from '../content/site';
-import { QUEST_IDS } from '../engine/quests';
+import { JOURNEY_QUESTS } from '../engine/quests';
 ---
 
 <header class="header" data-header>
@@ -11,7 +11,7 @@ import { QUEST_IDS } from '../engine/quests';
     <span class="fill" data-bar></span>
   </span>
   <span class="quests" data-quests aria-live="polite">
-    {site.header.quests(0, QUEST_IDS.length)}
+    {site.header.quests(0, JOURNEY_QUESTS.length)}
   </span>
   <a class="work" href="/">
     {site.header.work}
@@ -20,11 +20,14 @@ import { QUEST_IDS } from '../engine/quests';
 
 <script>
   import { site } from '../content/site';
-  import { loadQuests, QUEST_IDS, QUESTS_EVENT } from '../engine/quests';
+  import { JOURNEY_QUESTS, loadQuests, QUESTS_EVENT } from '../engine/quests';
 
   const el = document.querySelector<HTMLElement>('[data-quests]');
   const render = (): void => {
-    if (el) el.textContent = site.header.quests(loadQuests().size, QUEST_IDS.length);
+    if (!el) return;
+    const done = loadQuests();
+    const count = JOURNEY_QUESTS.filter((q) => done.has(q)).length;
+    el.textContent = site.header.quests(count, JOURNEY_QUESTS.length);
   };
   render();
   window.addEventListener(QUESTS_EVENT, render);
