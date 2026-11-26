@@ -42,6 +42,15 @@ O monitor no meio da página (v1, `reference/prototype/my-computer.html`) foi su
 
 Fatia vertical (Windows 2000 → XP): `reference/prototype/os-slice-2000-xp.html` (versão viva: https://claude.ai/artifact/VYdAsy9n24hShjCCUwcpZ3).
 
+### Jogos em Flash, a hora semanal e o emulador (v2 da fatia)
+
+- **A regra do pai (fato):** internet discada uma vez por semana, no fim de semana, por uma hora. Travava a linha e custava caro. O Elias abria várias janelas de jogos para deixar no cache e continuava jogando depois que a conexão caía.
+- **Portal de jogos em Flash:** homenagem ao estilo dos portais brasileiros da época (fundo preto, menu lateral cinza com plataformas, logo laranja arredondado, lista de jogos em duas colunas com categoria, página do jogo com instruções numeradas e o aviso do plugin). Nome inventado ("Game Zone"), sem logo nem nome do portal real. Jogos da lista com nomes genéricos.
+- **Quest:** abrir jogos em janelas novas enquanto o relógio da sessão desce. Cada jogo carrega a ~4,6 KB/s (mostrado 12x mais rápido). Quando a hora acaba, os que carregaram continuam rodando; os que não carregaram mostram "The page cannot be displayed". Se ninguém abrir nada, o jogo de luta já estava no cache da semana anterior.
+- **Stick Fight 9:** homenagem ao estilo das lutas de bonecos de palito em cima de uma mesa (copo, monitor, teclado). Jogo original, desenhado em canvas: setas, Z soco, X pulo, C especial com energia; botões de toque no celular; modo demo até o visitante clicar.
+- **Emulador (XP):** homenagem ao visual do ZSNES (fundo roxo com estrelas, menus cinza GAME/CONFIG/CHEAT/NETPLAY/MISC, Load Game com lista verde em 8.3). Sem ROMs comerciais: os "cartuchos" são originais (AERO~1.SFC, BRAWL97.SFC, DINOJMP.SFC, HYPER~1.SFC...). A mecânica é a lembrança real: menus em inglês, ele não conseguia ler e abria jogo por jogo até achar o certo. HYPER~1.SFC é jogável (pseudo-3D estilo Mode 7, setas ou toque). Botão "Show me the racer" guia até a resposta.
+- **Jurídico:** ROMs comerciais (Nintendo, Konami, SNK, Warner) não podem ser hospedadas. Um core real (bsnes, GPL) pode virar detour depois, só com homebrew de licença livre e crédito ao autor. Snes9x fica de fora (licença não comercial).
+
 Demais versões no mesmo formato:
 
 - Primeiro PC → 98: `reference/prototype/os-95-98.html` (versão viva: https://claude.ai/artifact/8h4TSUesujyg8a2Qz5zNNQ). Termina no setup em modo texto que entrega para a fatia 2000 → XP.

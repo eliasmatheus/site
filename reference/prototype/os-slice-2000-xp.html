@@ -1,5 +1,6 @@
 <title>Dial-up to Broadband</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap">
 <style>
   /* Layout: the viewport is the screen. A sticky full-screen OS; scroll moves the story, the mouse explores. Single era world. */
   :root {
@@ -96,20 +97,6 @@
   /* ---------- the 2001 web page ---------- */
   .browser .address { display: flex; gap: 6px; align-items: center; padding: 3px 6px; font-size: 11px; }
   .browser .address .input { flex: 1; }
-  .portal { font-family: Verdana, Arial, sans-serif; font-size: 12px; color: #000; background: #fff; }
-  .portal .head { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: linear-gradient(#ffd400, #ffb000); border-bottom: 3px solid #e02020; }
-  .portal .logo { font: bold italic 26px Georgia, serif; color: #c00000; letter-spacing: -1px; }
-  .portal .logo small { font-size: 12px; color: #333; letter-spacing: 0; }
-  .portal marquee, .portal .marquee { display: block; overflow: hidden; white-space: nowrap; background: #000080; color: #ff0; padding: 3px 0; font: bold 11px Verdana; }
-  .portal .marquee span { display: inline-block; padding-left: 100%; animation: marquee 14s linear infinite; }
-  .portal .cols { display: grid; grid-template-columns: 130px 1fr; gap: 10px; padding: 10px; }
-  .portal nav a { display: block; padding: 3px 0; color: #00c; text-decoration: underline; font-size: 11px; }
-  .portal h2 { margin: 0 0 6px; font: bold 16px Georgia, serif; color: #c00000; }
-  .portal p { margin: 0 0 8px; line-height: 1.45; }
-  .portal .game { display: flex; gap: 8px; align-items: center; margin: 6px 0; padding: 6px; border: 1px dashed #c00000; background: #fffbe6; }
-  .portal .game i { width: 48px; height: 36px; background: linear-gradient(#5ad 0 55%, #3a3 55%); border: 1px solid #333; }
-  .portal .counter { display: inline-block; margin-top: 8px; padding: 2px 6px; background: #000; color: #3f3; font: 12px var(--mono); letter-spacing: 2px; }
-  .portal .construction { display: inline-block; margin-left: 8px; padding: 2px 6px; background: repeating-linear-gradient(45deg, #000 0 6px, #ffd400 6px 12px); color: #000; font-weight: bold; font-size: 10px; }
   .loadimg { height: calc(var(--load, 1) * 100%); overflow: hidden; }
 
   /* ---------- messenger toast ---------- */
@@ -199,8 +186,100 @@
     .gsetup { grid-template-columns: 1fr; }
     .gsetup .steps { display: none; }
     .textsetup, .bsod, .black { font-size: 12px; }
-    .note { left: 8px !important; right: 8px; width: auto; }
+    .note { left: 8px !important; right: 8px; width: auto; top: auto !important; bottom: 64px; z-index: 60; }
   }
+
+  /* ---------- the Flash games portal (2001): black page, grey side menu, orange logo ---------- */
+  .portal { font-family: Verdana, Arial, sans-serif; font-size: 11px; color: #fff; background: #000; }
+  .portal .topnav { display: flex; gap: 1px; align-items: center; padding: 4px 8px; }
+  .portal .topnav b { margin-right: 10px; color: #f90; font: bold 12px Arial; }
+  .portal .topnav span { padding: 3px 9px; background: #5a5a5a; color: #fff; font: 9px Arial; }
+  .portal .topnav span:nth-child(odd) { background: #111; }
+  .portal .head { position: relative; height: 62px; margin: 0 8px; border-bottom: 3px solid #1a3fd0; }
+  .portal .head .stripes { position: absolute; left: 50%; right: 0; top: 4px; bottom: 0; border-left: 2px dotted #f90; border-top: 2px dotted #f90; background: repeating-linear-gradient(#4a4a4a 0 1px, #1a1a1a 1px 3px); }
+  .portal .logo { position: absolute; left: 2px; bottom: 0; padding: 4px 30px 2px 14px; border-radius: 12px 12px 0 0; background: linear-gradient(#3550c8, #0b1a78); font: italic bold 30px 'Arial Rounded MT Bold', 'Trebuchet MS', sans-serif; color: #ffa800; -webkit-text-stroke: 1px #3a1a00; letter-spacing: 1px; text-shadow: 2px 2px 0 #000; }
+  .portal .logo i { position: absolute; right: -14px; top: 4px; width: 24px; height: 24px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #a0a0a0 45%, #2a2a2a); }
+  .portal .logo i::after { content: ''; position: absolute; left: -20px; top: 24px; width: 36px; height: 7px; border-radius: 4px; background: #f39a1e; transform: rotate(-20deg); }
+  .portal .cols { display: grid; grid-template-columns: 124px 1fr; gap: 10px; padding: 8px; }
+  .portal nav a { display: block; margin-bottom: 1px; padding: 3px 6px 3px 16px; background: #6a6a6a; color: #fff; font-size: 11px; box-shadow: inset 0 1px #8a8a8a; text-decoration: none; }
+  .portal nav a.h { padding-left: 6px; background: #4a4a4a; font-weight: bold; font-size: 12px; }
+  .portal nav small { display: block; margin-top: 2px; text-align: right; color: #666; font-size: 9px; }
+  .portal .featured { position: relative; height: 118px; border: 2px solid #8a8a8a; overflow: hidden; cursor: pointer; background: linear-gradient(#cfe3f5, #9cc2e8 66%, #c79f63 66%, #a57c43); }
+  .portal .featured svg { position: absolute; left: 10px; bottom: 6px; height: 92px; }
+  .portal .featured b { position: absolute; left: 118px; top: 22px; font: 900 32px Impact, 'Arial Black', sans-serif; color: #2a2a2a; letter-spacing: 1px; text-shadow: 2px 2px 0 #fff, 4px 4px 0 rgb(0 0 0 / 0.2); }
+  .portal .featured em { position: absolute; right: 14px; bottom: 10px; font: bold 13px 'Comic Sans MS', 'Trebuchet MS', sans-serif; font-style: normal; color: #111; }
+  .portal .featured:hover em { text-decoration: underline; }
+  .portal .lead { margin: 8px 0; line-height: 1.45; }
+  .portal .lead b { display: block; color: #f90; font-size: 13px; }
+  .portal table.list { width: 100%; border-collapse: collapse; color: #000; background: #d8d8d8; }
+  .portal .list th { padding: 3px 6px; text-align: left; font-size: 9px; font-weight: normal; color: #666; background: #bdbdbd; }
+  .portal .list td { padding: 2px 6px; font-size: 10px; border-top: 1px solid #ececec; cursor: pointer; white-space: nowrap; }
+  .portal .list tr:nth-child(odd) td { background: #c9c9c9; }
+  .portal .list td.cat { color: #777; font-size: 9px; }
+  .portal .list tr td:hover, .portal .list tr td:hover + td { background: #fff1b8; }
+  .portal .list i { display: inline-block; width: 16px; height: 16px; margin-right: 6px; vertical-align: middle; border: 1px solid #333; }
+  .portal .list td.cached b::after { content: ' (saved)'; font-weight: normal; color: #1f7a1f; }
+  .browser .statusbar { display: flex; justify-content: space-between; gap: 8px; padding: 2px 6px; font-size: 11px; }
+  .browser .statusbar b.low { color: #c00000; }
+
+  /* ---------- a Flash game page in its own browser window ---------- */
+  .gpage { display: grid; grid-template-columns: 1fr 150px; gap: 6px; padding: 6px !important; background: #000 !important; color: #000; font-family: Verdana, Arial, sans-serif; }
+  .gpage .stage { position: relative; aspect-ratio: 16 / 10; background: #fff; overflow: hidden; }
+  .gpage canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: pointer; }
+  .gpage .gload, .gpage .gerr { position: absolute; inset: 0; display: grid; place-content: center; gap: 8px; text-align: center; background: #fff; font-size: 11px; }
+  .gpage .gload .progress { width: min(240px, 60vw); }
+  .gpage .gerr { display: none; place-content: start; text-align: left; padding: 18px; font: 12px Arial; line-height: 1.5; }
+  .gpage .gerr b { font: bold 17px Arial; }
+  .gamewin.loaded .gload { display: none; }
+  .gamewin.failed .gload { display: none; }
+  .gamewin.failed .gerr { display: grid; }
+  .gpage .howto { background: #cfcfcf; font-size: 10px; line-height: 1.45; padding-bottom: 6px; }
+  .gpage .howto h4 { margin: 0 0 4px; padding: 3px 6px; background: #e6b06a; font-size: 11px; }
+  .gpage .howto ol { margin: 0; padding: 0 6px 0 22px; }
+  .gpage .howto li { margin-bottom: 4px; }
+  .gpage .plugin { grid-column: 1 / -1; display: flex; gap: 10px; align-items: center; padding: 6px 8px; background: #cfcfcf; font-size: 10px; }
+  .gpage .plugin i { flex: none; padding: 3px 6px; border: 1px solid #999; background: #fff; color: #b00; font: bold 8px/1.1 Arial; font-style: normal; text-align: left; }
+  .pads { display: none; gap: 4px; padding: 4px 0 0; }
+  .pads button { flex: 1; height: 44px; border: 0; border-radius: 6px; background: #333; color: #fff; font: bold 13px var(--ui); touch-action: none; }
+  @media (pointer: coarse) { .gamewin.fight.loaded .pads, .emu .pads { display: flex; } }
+
+  /* ---------- the emulator: purple starfield, chunky grey menus, green file list ---------- */
+  .zs { padding: 0 !important; background-color: #3d3192 !important; background-image: radial-gradient(1.3px 1.3px at 13px 17px, #fff 50%, transparent 60%), radial-gradient(1px 1px at 71px 43px, #d8e0ff 50%, transparent 60%), radial-gradient(1.5px 1.5px at 37px 81px, #fff 50%, transparent 60%), radial-gradient(1px 1px at 101px 9px, #e0e8ff 50%, transparent 60%); background-size: 120px 96px, 150px 110px, 170px 130px, 110px 140px; animation: zstars 40s linear infinite; font-family: 'Silkscreen', var(--mono); color: #ddd; box-shadow: none !important; }
+  @keyframes zstars { to { background-position: -120px 0, -300px 0, -170px 0, -440px 0; } }
+  .zbar { display: flex; gap: 6px; align-items: center; padding: 4px 6px; background: linear-gradient(#2a50f0, #0f2ca8 55%, #2a56f6); }
+  .zb { padding: 1px 8px; border: 0; background: #5c5c5c; box-shadow: inset 1px 1px #a0a0a0, inset -1px -1px #262626; color: #e4e4e4; font: 700 13px 'Silkscreen', var(--mono); letter-spacing: 1px; text-shadow: 1px 1px #000; }
+  button.zb { cursor: pointer; }
+  button.zb:hover { background: #a3195b; }
+  .zr { display: flex; gap: 2px; margin-left: auto; }
+  .zview { position: relative; width: min(100%, calc(62vh * 256 / 224)); aspect-ratio: 256 / 224; margin: 0 auto; }
+  #zs-canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; touch-action: none; }
+  .zload { position: absolute; inset: 3% 3%; display: flex; flex-direction: column; gap: 6px; padding: 0 8px 8px; background: #2828a8; box-shadow: 0 0 0 2px #7a7a7a, 6px 6px 0 rgb(0 0 0 / 0.35); font: 700 11px 'Silkscreen', var(--mono); }
+  .zh { margin: 0 -8px; padding: 2px 8px; display: flex; justify-content: space-between; background: linear-gradient(#7a7a7a, #555); color: #e4e4e4; letter-spacing: 2px; }
+  .zcols { flex: 1; min-height: 0; display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+  .zcols > div { display: flex; flex-direction: column; min-height: 0; }
+  .zl { margin-bottom: 3px; color: #e8c84a; letter-spacing: 1px; }
+  .zlist { flex: 1; min-height: 0; margin: 0; padding: 2px; overflow: auto; list-style: none; background: #000; box-shadow: inset 0 0 0 2px #3a3ab0; }
+  .zlist li { padding: 0 4px; color: #4ee04e; letter-spacing: 1px; cursor: pointer; white-space: nowrap; }
+  .zlist li:hover, .zlist li.sel { background: #b0185a; color: #fff; }
+  .zlist li.tried { color: #2a9a2a; }
+  .zlist li.pulse { animation: zpulse .5s steps(2) infinite; }
+  @keyframes zpulse { 50% { background: #e8c84a; color: #000; } }
+  .zpath { padding: 1px 4px; background: #000; color: #4ee04e; }
+  .zfoot { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; color: #e8c84a; }
+  .zfoot span + span { color: #ccc; }
+  .zbtn { margin-left: auto; padding: 2px 14px; border: 0; background: #8a8ad6; color: #f0f0f0; font: 700 12px 'Silkscreen', var(--mono); box-shadow: inset 1px 1px #c8c8f4, inset -1px -1px #40408a; cursor: pointer; }
+  .zs.playing .zload { display: none; }
+  .zmsg { position: absolute; left: 6px; bottom: 4px; color: #fff; font: 700 10px 'Silkscreen', var(--mono); text-shadow: 1px 1px #000; pointer-events: none; }
+  .note .btn { margin-top: 8px; font: 11px var(--ui); transform: rotate(2deg); }
+  @media (max-width: 700px) {
+    .gpage { grid-template-columns: 1fr; }
+    .gpage .howto { display: none; }
+    .zcols { grid-template-columns: 1fr; }
+    .portal .list .cat, .portal .list th:nth-child(even) { display: none; }
+    .zcols > div + div, .zfoot span { display: none; }
+    .zb { padding: 1px 4px; font-size: 10px; }
+  }
+
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 
@@ -217,7 +296,7 @@
       <section class="win" id="w-readme" style="left:22%;top:12%;width:min(440px,70vw)">
         <div class="title"><span>readme.txt - Notepad</span><button class="x" aria-label="Close">×</button></div>
         <div class="menu"><u>F</u>ile <u>E</u>dit F<u>o</u>rmat <u>H</u>elp</div>
-        <div class="body" style="font:13px var(--mono);line-height:1.5;min-height:140px">2001.<br><br>Windows 2000 and a 56k modem.<br>Going online meant taking over the phone line.<br><br>Double-click "Connect to the Internet".<br>Or keep scrolling.</div>
+        <div class="body" style="font:13px var(--mono);line-height:1.5;min-height:140px">2001.<br><br>Windows 2000 and a 56k modem.<br>Going online took over the phone line, and the bill was huge.<br>Dad's rule: one hour, once a week, on the weekend.<br><br>Double-click "Connect to the Internet".<br>Or keep scrolling.</div>
       </section>
 
       <section class="win" id="w-pc" hidden style="left:30%;top:20%;width:min(380px,80vw)">
@@ -245,26 +324,86 @@
         </div>
       </section>
 
-      <section class="win browser" id="w-web" hidden style="left:6%;top:4%;width:min(760px,88vw);height:min(560px,78vh)">
-        <div class="title"><span>Portal Online - Web Browser</span><button class="x" aria-label="Close">×</button></div>
+      <section class="win browser" id="w-web" hidden style="left:4%;top:3%;width:min(780px,90vw);height:min(600px,80vh)">
+        <div class="title"><span>Game Zone - Web Browser</span><button class="x" aria-label="Close">×</button></div>
         <div class="menu"><u>F</u>ile <u>E</u>dit <u>V</u>iew F<u>a</u>vorites <u>T</u>ools <u>H</u>elp</div>
-        <div class="address"><span>Address</span><span class="input">http://www.portalonline.com.br/jogos/</span><button class="btn" style="min-width:40px">Go</button></div>
+        <div class="address"><span>Address</span><span class="input">http://www.gamezone.com.br/online/</span><button class="btn" style="min-width:40px">Go</button></div>
         <div class="body portal" style="padding:0">
           <div class="loadimg" id="web-load">
-            <div class="head"><span class="logo">Portal<small> online</small></span><span>Thursday, 22 March 2001</span></div>
-            <div class="marquee"><span>*** Welcome! *** New games this week *** Save them to play offline *** Mind the phone bill ***</span></div>
+            <div class="topnav"><b>● portal</b><span>SUBSCRIBE</span><span>CHAT</span><span>SEARCH</span><span>MEMBERS</span><span>E-MAIL</span><span>SHOPPING</span></div>
+            <div class="head"><span class="logo">Game Zone<i></i></span><span class="stripes"></span></div>
             <div class="cols">
-              <nav><a>Home</a><a>News</a><a>Chat</a><a>Games</a><a>Downloads</a><a>Horoscope</a><a>Guestbook</a></nav>
+              <nav><a class="h">Online games</a><a class="h">Downloads</a><a class="h">Emulators</a><a class="h">Tips &amp; cheats</a><a>Dreamcast</a><a>Game Boy</a><a>Mega Drive</a><a>Nintendo 64</a><a>PC / Windows</a><a>PlayStation</a><a>PlayStation 2</a><a>Super Nintendo</a><small>advertising</small></nav>
               <div>
-                <h2>Flash games</h2>
-                <p>Dial-up at night. Flash games saved to play offline.</p>
-                <div class="game"><i></i><div><b>Street racer</b><br>File: racer.swf, 312 KB<div class="progress" style="margin-top:4px;width:180px"><span id="save-bar"></span></div><small id="save-txt">Saving: 0 of 312 KB at 4.2 KB/s</small></div></div>
-                <div class="game"><i style="background:linear-gradient(#222 0 30%, #e33 30% 60%, #ffd400 60%)"></i><div><b>Tower defense</b><br>File: towers.swf, 498 KB</div></div>
-                <span class="counter">0 0 4 1 2 7</span><span class="construction">UNDER CONSTRUCTION</span>
+                <div class="featured" id="featured" title="Stick Fight 9">
+                  <svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="#111" stroke-width="5" stroke-linecap="round"><circle cx="38" cy="16" r="9" fill="#111"/><path d="M38 26 L44 58 M44 58 L30 92 M44 58 L82 46 M40 36 L22 48 M40 36 L62 30"/></g><g fill="none" stroke="#c21" stroke-width="5" stroke-linecap="round"><circle cx="88" cy="30" r="8" fill="#c21"/></g></svg>
+                  <b>STICK FIGHT 9</b><em>Click here to play!</em>
+                </div>
+                <p class="lead"><b>Online games</b>Over 100 games to play right now. Pick one, click and play for free. New games every week!</p>
+                <table class="list" id="game-list"></table>
               </div>
             </div>
           </div>
         </div>
+        <div class="statusbar"><span id="web-done">Done</span><b id="web-session">Online · 60 min left</b></div>
+      </section>
+
+      <!-- Flash game pages, each in its own browser window, so they stay in the cache -->
+      <section class="win browser gamewin" id="w-g1" hidden style="left:16%;top:9%;width:min(620px,94vw)">
+        <div class="title"><span>Game - Web Browser</span><button class="x" aria-label="Close">×</button></div>
+        <div class="address"><span>Address</span><span class="input" data-url></span></div>
+        <div class="body gpage">
+          <div class="stage"><canvas></canvas><div class="gload"><b>Loading...</b><div class="progress"><span></span></div><small></small></div><div class="gerr"><b>The page cannot be displayed</b>You are not connected to the Internet.<br>Try again next weekend.</div></div>
+          <aside class="howto"><h4></h4><ol></ol></aside>
+          <div class="plugin"><i>Get<br>FLASH PLAYER</i><span>This game needs the <b>Flash Player</b> plugin.<br>Click the image to install or update it.</span></div>
+        </div>
+        <div class="pads"><button data-k="arrowleft">◀</button><button data-k="arrowright">▶</button><button data-k="x">JUMP</button><button data-k="z">PUNCH</button><button data-k="c">SPECIAL</button></div>
+      </section>
+      <section class="win browser gamewin" id="w-g2" hidden style="left:26%;top:16%;width:min(560px,94vw)">
+        <div class="title"><span>Game - Web Browser</span><button class="x" aria-label="Close">×</button></div>
+        <div class="address"><span>Address</span><span class="input" data-url></span></div>
+        <div class="body gpage">
+          <div class="stage"><canvas></canvas><div class="gload"><b>Loading...</b><div class="progress"><span></span></div><small></small></div><div class="gerr"><b>The page cannot be displayed</b>You are not connected to the Internet.<br>Try again next weekend.</div></div>
+          <aside class="howto"><h4></h4><ol></ol></aside>
+          <div class="plugin"><i>Get<br>FLASH PLAYER</i><span>This game needs the <b>Flash Player</b> plugin.<br>Click the image to install or update it.</span></div>
+        </div>
+        <div class="pads"><button data-k="arrowleft">◀</button><button data-k="arrowright">▶</button><button data-k="x">JUMP</button><button data-k="z">PUNCH</button><button data-k="c">SPECIAL</button></div>
+      </section>
+      <section class="win browser gamewin" id="w-g3" hidden style="left:34%;top:22%;width:min(560px,94vw)">
+        <div class="title"><span>Game - Web Browser</span><button class="x" aria-label="Close">×</button></div>
+        <div class="address"><span>Address</span><span class="input" data-url></span></div>
+        <div class="body gpage">
+          <div class="stage"><canvas></canvas><div class="gload"><b>Loading...</b><div class="progress"><span></span></div><small></small></div><div class="gerr"><b>The page cannot be displayed</b>You are not connected to the Internet.<br>Try again next weekend.</div></div>
+          <aside class="howto"><h4></h4><ol></ol></aside>
+          <div class="plugin"><i>Get<br>FLASH PLAYER</i><span>This game needs the <b>Flash Player</b> plugin.<br>Click the image to install or update it.</span></div>
+        </div>
+        <div class="pads"><button data-k="arrowleft">◀</button><button data-k="arrowright">▶</button><button data-k="x">JUMP</button><button data-k="z">PUNCH</button><button data-k="c">SPECIAL</button></div>
+      </section>
+
+      <section class="win" id="w-off" hidden style="left:calc(50% - 170px);top:34%;width:min(340px,92vw)">
+        <div class="title"><span>Dial-up Connection</span><button class="x" aria-label="Close">×</button></div>
+        <div class="body grey"><p style="margin:4px 0 12px;line-height:1.5"><b>You have been disconnected.</b><br>Time online: 1:00:00.<br>The phone line is free again.</p><div class="row"><button class="btn primary" data-close>OK</button></div></div>
+      </section>
+
+      <section class="win emu" id="w-emu" hidden style="left:calc(50% - 330px);top:3%;width:min(660px,96vw)">
+        <div class="title"><span>SNES Emulator</span><button class="x" aria-label="Close">×</button></div>
+        <div class="body zs" id="zs">
+          <div class="zbar"><span class="zb">↓</span><button class="zb" id="zs-game">GAME</button><span class="zb">CONFIG</span><span class="zb">CHEAT</span><span class="zb">NETPLAY</span><span class="zb">MISC</span><span class="zr"><span class="zb">_</span><span class="zb">X</span></span></div>
+          <div class="zview">
+            <canvas id="zs-canvas" width="256" height="224"></canvas>
+            <div class="zload">
+              <div class="zh"><span>LOAD GAME</span><span>X</span></div>
+              <div class="zcols">
+                <div><div class="zl">FILENAME</div><ul class="zlist" id="zs-files"></ul></div>
+                <div><div class="zl">DIRECTORY</div><ul class="zlist"><li>.</li><li>..</li><li>[A:]</li><li>[C:]</li><li>[D:]</li><li>[E:]</li></ul></div>
+              </div>
+              <div class="zpath">C:\GAMES\SNES\</div>
+              <div class="zfoot"><span>DISPLAY TYPE:</span><span>◉ NORMAL 8.3 FORMAT</span><span>○ HEADER NAME</span><button class="zbtn" id="zs-ok">LOAD</button></div>
+            </div>
+            <div class="zmsg" id="zs-msg"></div>
+          </div>
+        </div>
+        <div class="pads"><button data-k="arrowleft">◀ LEFT</button><button data-k="arrowright">RIGHT ▶</button></div>
       </section>
 
       <section class="win p2p" id="w-p2p" hidden style="left:8%;top:8%;width:min(720px,86vw)">
@@ -317,7 +456,7 @@
   </div>
 </div>
 
-<div class="chrome"><button type="button" id="sound">Sound: on</button><span>Prototype · OS slice</span></div>
+<div class="chrome"><button type="button" id="sound">Sound: on</button><span>Prototype · 2000 to XP</span></div>
 <p class="hint" id="hint">Scroll to move the story · Click around to explore</p>
 
 <script>
@@ -418,13 +557,436 @@
     if (k >= 1) { dialState = 'online'; screen.classList.add('online'); $('w-dial').classList.remove('dialing'); setTimeout(() => { closeWin('w-dial'); openWin('w-web'); }, 700); }
   }
 
+
+  // ---------- game input: keys go to the game window you clicked, never to the page ----------
+  const inputs = [];
+  const GAME_KEYS = ['arrowleft', 'arrowright', 'arrowup', 'arrowdown', 'z', 'x', 'c', 'enter', ' '];
+  function makeInput(win, surface) {
+    const inp = { win, keys: {}, engaged: false, last: -1e9 };
+    surface.addEventListener('pointerdown', () => { inp.engaged = true; inp.last = performance.now(); });
+    win.querySelectorAll('.pads [data-k]').forEach((b) => {
+      const k = b.dataset.k;
+      b.addEventListener('pointerdown', (e) => { e.preventDefault(); inp.keys[k] = true; inp.engaged = true; inp.last = performance.now(); });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => b.addEventListener(ev, () => (inp.keys[k] = false)));
+    });
+    inputs.push(inp);
+    return inp;
+  }
+  addEventListener('keydown', (e) => {
+    const k = e.key.toLowerCase();
+    if (!GAME_KEYS.includes(k)) return;
+    const inp = inputs.find((i) => i.engaged && !i.win.hidden && i.win.classList.contains('active'));
+    if (!inp) return;
+    e.preventDefault(); inp.keys[k] = true; inp.last = performance.now();
+  });
+  addEventListener('keyup', (e) => { const k = e.key.toLowerCase(); inputs.forEach((i) => (i.keys[k] = false)); });
+  addEventListener('wheel', () => inputs.forEach((i) => { i.engaged = false; i.keys = {}; }), { passive: true });
+
+  // ---------- the games portal: one hour online, once a week ----------
+  const GAMES = [
+    { id: 'stick', name: 'Stick Fight 9', cat: 'Fighting', kb: 286, icon: 'linear-gradient(#fff 0 40%, #111 40%)', how: ['Wait for the game to load. It can take a few minutes.', 'Click the game to play.', 'Arrows move. Z punches, X jumps. C is the special move, it uses energy.'] },
+    { id: 'lander', name: 'Moon Lander', cat: 'Classics', kb: 142, icon: '#334' },
+    { id: 'snake', name: 'Snake', cat: 'Classics', kb: 64, icon: '#0a0' },
+    { id: 'hockey', name: 'Air Hockey', cat: 'Sports', kb: 178, icon: '#39c' },
+    { id: 'sheep', name: 'Sheep Jump', cat: 'Action', kb: 210, icon: '#eee' },
+    { id: 'tangram', name: 'Tangram', cat: 'Puzzle', kb: 96, icon: '#fc0' },
+    { id: 'penalty', name: 'Penalty Kicks', cat: 'Sports', kb: 254, icon: '#2a2' },
+    { id: 'tanks', name: 'Tank Wars', cat: 'Action', kb: 320, icon: '#774' },
+    { id: 'memory', name: 'Memory', cat: 'Puzzle', kb: 88, icon: '#c3c' },
+    { id: 'golf', name: 'Mini Golf', cat: 'Sports', kb: 190, icon: '#6c3' },
+    { id: 'blocks', name: 'Falling Blocks', cat: 'Puzzle', kb: 72, icon: '#33f' },
+    { id: 'snow', name: 'Snowball Fight', cat: 'Action', kb: 230, icon: '#cdf' },
+  ];
+  const DEFAULT_HOW = ['Wait for the game to load. It can take a few minutes.', 'Click the game to start.', 'Use the mouse or the arrow keys.'];
+  {
+    let rows = '<tr><th>GAME</th><th>CATEGORY</th><th>GAME</th><th>CATEGORY</th></tr>';
+    for (let i = 0; i < GAMES.length; i += 2) {
+      rows += '<tr>' + [GAMES[i], GAMES[i + 1]].map((g) => `<td data-g="${g.id}"><i style="background:${g.icon}"></i><b>${g.name.toUpperCase()}</b></td><td class="cat" data-g="${g.id}">${g.cat.toUpperCase()}</td>`).join('') + '</tr>';
+    }
+    $('game-list').innerHTML = rows;
+    $('game-list').addEventListener('click', (e) => { const td = e.target.closest('[data-g]'); if (td) openGame(td.dataset.g); });
+    $('featured').addEventListener('click', () => openGame('stick'));
+  }
+  const isOnline = () => screen.classList.contains('online');
+  const SLOTS = ['w-g1', 'w-g2', 'w-g3'].map((id) => {
+    const el = $(id);
+    return { id, el, game: null, start: 0, state: 'empty', runner: null, canvas: el.querySelector('canvas'), inp: makeInput(el, el.querySelector('.stage')) };
+  });
+  function markCached(gid) { document.querySelectorAll(`#game-list td[data-g="${gid}"]:not(.cat)`).forEach((td) => td.classList.add('cached')); }
+  function openGame(gid, cached = false) {
+    const g = GAMES.find((x) => x.id === gid);
+    let s = SLOTS.find((x) => x.game === g);
+    if (!s) {
+      s = SLOTS.find((x) => !x.game) || SLOTS[SLOTS.length - 1];
+      s.game = g; s.start = performance.now();
+      s.state = cached ? 'loaded' : isOnline() ? 'loading' : 'failed';
+      s.el.classList.remove('loaded', 'failed');
+      if (s.state !== 'loading') s.el.classList.add(s.state);
+      if (cached) markCached(gid);
+      s.el.querySelector('.title span').textContent = `${g.name} - Web Browser`;
+      s.el.querySelector('[data-url]').textContent = `http://www.gamezone.com.br/online/${g.id}/`;
+      s.el.querySelector('.howto h4').textContent = g.name.toUpperCase();
+      s.el.querySelector('.howto ol').innerHTML = (g.how || DEFAULT_HOW).map((x) => `<li>${x}</li>`).join('');
+      s.el.classList.toggle('fight', g.id === 'stick');
+      s.runner = g.id === 'stick' ? fightRunner(s.canvas, s.inp) : attractRunner(s.canvas, g);
+    }
+    openWin(s.id);
+    return s;
+  }
+  function stepGames(now) {
+    for (const s of SLOTS) {
+      if (!s.game) continue;
+      if (s.state === 'loading') {
+        const secs = s.game.kb / 4.6;                       // real time at 56k, about 4.6 KB/s
+        const k = clamp((now - s.start) / 1000 / (secs / 12), 0, 1); // shown twelve times faster
+        s.el.querySelector('.gload .progress span').style.setProperty('--p', Math.round(k * 100) + '%');
+        s.el.querySelector('.gload small').textContent = `${Math.round(k * s.game.kb)} of ${s.game.kb} KB · about ${formatLeft((1 - k) * secs)} left`;
+        if (k >= 1) { s.state = 'loaded'; s.el.classList.add('loaded'); markCached(s.game.id); }
+      }
+      if (s.state === 'loaded' && !s.el.hidden) s.runner.frame(now);
+    }
+  }
+  let disconnected = false;
+  function disconnect() {
+    if (disconnected) return;
+    disconnected = true;
+    screen.classList.remove('online');
+    dialState = 'done'; closeWin('w-dial');
+    if ($('w-web').hidden) openWin('w-web');
+    $('web-load').style.setProperty('--load', '1');
+    for (const s of SLOTS) if (s.state === 'loading') { s.state = 'failed'; s.el.classList.add('failed'); }
+    // The fight was already in the cache from last weekend.
+    const fight = SLOTS.find((s) => s.game?.id === 'stick');
+    if (!fight || fight.state !== 'loaded') {
+      if (fight) { fight.state = 'loaded'; fight.el.classList.remove('failed'); fight.el.classList.add('loaded'); markCached('stick'); openWin(fight.id); }
+      else openGame('stick', true);
+    }
+    $('web-session').textContent = 'Offline · see you next weekend';
+    $('web-session').classList.remove('low');
+    if (soundOn && ac) { tone([440], ac.currentTime, 0.12, 0.05); tone([330], ac.currentTime + 0.14, 0.2, 0.05); }
+    openWin('w-off');
+  }
+
+  // A stick figure fight on top of a desk. Plays itself until you click it.
+  function fightRunner(cv, inp) {
+    const c = cv.getContext('2d'), W = 640, H = 400, FLOOR = 322;
+    cv.width = W; cv.height = H;
+    const COLORS = ['#c0282a', '#2a8a3e', '#7a3ab0', '#d07a10'];
+    const mk = (x, col) => ({ x, y: FLOOR, vx: 0, vy: 0, dir: 1, col, hp: 3, punch: 0, hurt: 0, kick: 0, cd: 0, walk: 0, dead: 0 });
+    const P = mk(220, '#111'); P.hp = 10; P.en = 10;
+    let foes = [], spawn = 1, last = 0, score = 0, shake = 0, cont = 0;
+    function strike(a, dmg, reach, targets) {
+      for (const f of targets) {
+        if (f.dead) continue;
+        const d = (f.x - a.x) * a.dir;
+        if (d > 0 && d < reach && Math.abs(f.y - a.y) < 50) {
+          f.hp -= dmg; f.hurt = 0.35; f.vx = a.dir * (dmg > 1 ? 420 : 240); f.vy = dmg > 1 ? -260 : -90; shake = 6;
+          if (f !== P) { score += 100 * dmg; if (f.hp <= 0) { f.dead = 1.2; P.en = Math.min(10, P.en + 1); } }
+        }
+      }
+    }
+    function physics(f, dt) {
+      f.vy += 1300 * dt; f.x += f.vx * dt; f.y += f.vy * dt;
+      if (f.y >= FLOOR) { f.y = FLOOR; f.vy = 0; }
+      if (f.hurt > 0 || f.dead) f.vx *= 0.9;
+      f.x = clamp(f.x, 24, W - 24);
+      for (const k of ['punch', 'hurt', 'kick', 'cd']) f[k] = Math.max(0, f[k] - dt);
+      if (Math.abs(f.vx) > 20 && f.y >= FLOOR) f.walk += dt * 12;
+    }
+    function stick(f) {
+      c.save();
+      c.translate(f.x, f.y);
+      let lean = f.hurt > 0 ? -0.35 * f.dir : 0;
+      if (f.dead) lean = -f.dir * Math.min(1.5, (1.2 - f.dead) * 5);
+      c.rotate(lean);
+      c.globalAlpha = f.dead ? Math.min(1, f.dead * 2) : 1;
+      c.strokeStyle = c.fillStyle = f.col; c.lineWidth = 6; c.lineCap = 'round'; c.lineJoin = 'round';
+      const s = Math.sin(f.walk), air = f.y < FLOOR;
+      c.beginPath(); c.arc(0, -100, 12, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.moveTo(0, -86); c.lineTo(0, -44);
+      if (f.kick > 0) { c.moveTo(0, -44); c.lineTo(f.dir * 46, -60); c.moveTo(0, -44); c.lineTo(-f.dir * 14, 0); }
+      else if (air) { c.moveTo(0, -44); c.lineTo(16, -18); c.lineTo(8, 0); c.moveTo(0, -44); c.lineTo(-14, -20); c.lineTo(-20, -4); }
+      else { c.moveTo(0, -44); c.lineTo(s * 16, 0); c.moveTo(0, -44); c.lineTo(-s * 16, 0); }
+      if (f.punch > 0) { c.moveTo(0, -76); c.lineTo(f.dir * 42, -78); c.moveTo(0, -76); c.lineTo(-f.dir * 12, -56); }
+      else { c.moveTo(0, -76); c.lineTo(f.dir * 14 + s * 8, -52); c.lineTo(f.dir * 22, -62); c.moveTo(0, -76); c.lineTo(-f.dir * 10 - s * 8, -50); }
+      c.stroke();
+      c.restore();
+    }
+    function scene() {
+      const g = c.createLinearGradient(0, 0, 0, FLOOR);
+      g.addColorStop(0, '#ece8df'); g.addColorStop(1, '#d4ccbd');
+      c.fillStyle = g; c.fillRect(0, 0, W, FLOOR);
+      // the monitor in the back, with a tiny desktop on it
+      c.fillStyle = '#d8d3c6'; c.fillRect(372, 40, 248, 214);
+      c.fillStyle = '#bdb7a8'; c.fillRect(470, 254, 52, 30); c.fillRect(440, 284, 112, 10);
+      c.fillStyle = '#fff'; c.fillRect(388, 54, 216, 170);
+      c.fillStyle = '#e8eef8'; c.fillRect(404, 70, 184, 136);
+      c.fillStyle = '#2a5ac8'; c.fillRect(404, 70, 184, 10);
+      c.strokeStyle = '#99a'; c.lineWidth = 1;
+      for (let i = 0; i < 5; i++) { c.beginPath(); c.moveTo(414, 96 + i * 20); c.lineTo(578, 96 + i * 20); c.stroke(); }
+      // the cup
+      const cg = c.createLinearGradient(70, 0, 140, 0);
+      cg.addColorStop(0, '#1d4fc0'); cg.addColorStop(0.5, '#4a86ec'); cg.addColorStop(1, '#173f9c');
+      c.fillStyle = cg; c.beginPath(); c.moveTo(64, 160); c.lineTo(146, 160); c.lineTo(138, FLOOR); c.lineTo(72, FLOOR); c.fill();
+      c.fillStyle = '#123'; c.beginPath(); c.ellipse(105, 160, 41, 8, 0, 0, Math.PI * 2); c.fill();
+      // the desk
+      const d = c.createLinearGradient(0, FLOOR, 0, H);
+      d.addColorStop(0, '#b77a3e'); d.addColorStop(1, '#8a5424');
+      c.fillStyle = d; c.fillRect(0, FLOOR, W, H - FLOOR);
+      c.strokeStyle = 'rgb(90 50 20 / .35)';
+      for (let i = 0; i < 6; i++) { c.beginPath(); c.moveTo(0, FLOOR + 10 + i * 13); c.bezierCurveTo(200, FLOOR + 4 + i * 13, 420, FLOOR + 18 + i * 13, W, FLOOR + 8 + i * 13); c.stroke(); }
+      c.fillStyle = '#d8d4cc'; c.beginPath(); c.moveTo(250, H); c.lineTo(276, FLOOR + 40); c.lineTo(600, FLOOR + 40); c.lineTo(620, H); c.fill();
+      c.fillStyle = '#bcb8ae';
+      for (let r = 0; r < 3; r++) for (let k = 0; k < 14; k++) c.fillRect(282 + k * 23 + r * 3, FLOOR + 46 + r * 10, 19, 7);
+    }
+    function hud(demo) {
+      c.fillStyle = '#1d4fc0'; c.fillRect(12, 12, 40, 22);
+      c.fillStyle = '#fff'; c.font = 'bold 14px Verdana'; c.fillText('1UP', 16, 28);
+      c.fillStyle = '#d02020'; c.fillRect(58, 14, 200, 10);
+      c.fillStyle = '#f2d21a'; c.fillRect(58, 14, 20 * P.hp, 10);
+      c.fillStyle = '#2a8ae0'; c.fillRect(58, 27, 12 * P.en, 5);
+      c.fillStyle = '#c80'; c.font = 'bold 13px Verdana'; c.fillText(String(score).padStart(6, '0'), 270, 25);
+      if (demo) { c.fillStyle = '#222'; c.font = 'bold 13px Verdana'; c.fillText('DEMO · click to play', W - 172, 26); }
+      if (cont > 0) { c.fillStyle = '#c00'; c.font = 'bold 30px Impact, Arial Black'; c.fillText('CONTINUE?', W / 2 - 70, 150); }
+    }
+    return {
+      frame(now) {
+        const dt = Math.min(0.05, (now - (last || now)) / 1000); last = now;
+        const demo = now - inp.last > 5000;
+        let L = inp.keys.arrowleft, R = inp.keys.arrowright, J = inp.keys.x || inp.keys.arrowup, A = inp.keys.z, S = inp.keys.c;
+        if (demo) {
+          const f = foes.filter((x) => !x.dead).sort((a, b) => Math.abs(a.x - P.x) - Math.abs(b.x - P.x))[0];
+          L = R = A = S = J = false;
+          if (f) { const d = f.x - P.x; L = d < -48; R = d > 48; if (Math.abs(d) < 58) { P.dir = Math.sign(d) || 1; A = Math.random() < 0.12; S = Math.random() < 0.01; } J = Math.random() < 0.004; }
+        }
+        if (P.hurt <= 0 && P.kick <= 0) { P.vx = (R - L) * 230; if (L) P.dir = -1; if (R) P.dir = 1; }
+        if (J && P.y >= FLOOR) P.vy = -470;
+        if (A && P.cd <= 0) { P.punch = 0.2; P.cd = 0.28; strike(P, 1, 62, foes); }
+        if (S && P.kick <= 0 && P.en >= 3) { P.kick = 0.45; P.en -= 3; P.vx = P.dir * 560; strike(P, 2, 110, foes); }
+        physics(P, dt);
+        spawn -= dt;
+        if (spawn <= 0 && foes.filter((f) => !f.dead).length < 3) {
+          const side = Math.random() < 0.5 ? 30 : W - 30;
+          const f = mk(side, COLORS[Math.floor(Math.random() * COLORS.length)]);
+          f.dir = side < W / 2 ? 1 : -1; foes.push(f); spawn = 2 + Math.random() * 1.5;
+        }
+        for (const f of foes) {
+          if (f.dead) { f.dead -= dt; physics(f, dt); continue; }
+          const d = P.x - f.x;
+          if (f.hurt <= 0) { f.dir = Math.sign(d) || 1; f.vx = Math.abs(d) > 46 ? f.dir * 120 : 0; }
+          if (Math.abs(d) <= 52 && f.cd <= 0 && f.hurt <= 0 && Math.random() < 0.03) {
+            f.punch = 0.2; f.cd = 1 + Math.random();
+            const before = P.hp; strike(f, 1, 60, [P]);
+            if (P.hp < before && P.hp <= 0) { P.hp = 10; P.en = 10; score = 0; cont = 1.2; }
+          }
+          physics(f, dt);
+        }
+        foes = foes.filter((f) => !f.dead || f.dead > 0);
+        cont = Math.max(0, cont - dt);
+        c.save();
+        if (shake > 0) { c.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake); shake *= 0.85; if (shake < 0.5) shake = 0; }
+        scene();
+        foes.forEach(stick); stick(P);
+        c.restore();
+        hud(demo);
+      },
+    };
+  }
+
+  // The other games only show their title screen in this prototype.
+  function attractRunner(cv, g) {
+    const c = cv.getContext('2d'), W = 640, H = 400;
+    cv.width = W; cv.height = H;
+    return {
+      frame(now) {
+        const t = now / 1000;
+        c.fillStyle = g.icon.startsWith('#') ? g.icon : '#223'; c.fillRect(0, 0, W, H);
+        c.fillStyle = 'rgb(0 0 0 / .35)'; c.fillRect(0, 0, W, H);
+        if (g.id === 'lander') {
+          for (let i = 0; i < 40; i++) { c.fillStyle = '#fff'; c.fillRect((i * 97) % W, (i * 53) % 260, 2, 2); }
+          c.fillStyle = '#aab'; c.beginPath(); c.moveTo(0, H); c.lineTo(0, 330); c.lineTo(160, 300); c.lineTo(260, 340); c.lineTo(400, 340); c.lineTo(520, 290); c.lineTo(W, 320); c.lineTo(W, H); c.fill();
+          const y = 80 + ((t * 30) % 200);
+          c.fillStyle = '#eee'; c.beginPath(); c.moveTo(330, y); c.lineTo(350, y + 30); c.lineTo(310, y + 30); c.fill();
+          c.fillStyle = '#fa0'; c.beginPath(); c.moveTo(322, y + 30); c.lineTo(330, y + 44 + Math.random() * 10); c.lineTo(338, y + 30); c.fill();
+        } else {
+          const x = 320 + Math.sin(t * 2) * 200, y = 300 - Math.abs(Math.sin(t * 3)) * 140;
+          c.fillStyle = '#fff'; c.beginPath(); c.arc(x, y, 16, 0, Math.PI * 2); c.fill();
+        }
+        c.fillStyle = '#fff'; c.font = 'bold 44px Impact, Arial Black, sans-serif'; c.textAlign = 'center';
+        c.fillText(g.name.toUpperCase(), W / 2, 150);
+        if (Math.floor(t * 2) % 2) { c.font = 'bold 16px Verdana'; c.fillText('CLICK TO START', W / 2, 200); }
+        c.textAlign = 'left';
+      },
+    };
+  }
+
+  // ---------- the emulator: a list of names I could not read ----------
+  const CARTS = [
+    { f: 'AERO~1.SFC', t: 'AERO BLAST', g: 'shooter', c: ['#06063a', '#2a1a6a'] },
+    { f: 'BRAWL97.SFC', t: "BRAWL '97", g: 'fighter', c: ['#3a0a0a', '#b0481a'] },
+    { f: 'DINOJMP.SFC', t: 'DINO JUMP', g: 'platform', c: ['#4aa0f0', '#cdeeff'] },
+    { f: 'GALAXY~1.SFC', t: 'GALAXY RAID', g: 'shooter', c: ['#000', '#1a1a4a'] },
+    { f: 'HYPER~1.SFC', t: 'HYPER RACER', g: 'racer', c: ['#0a1a5a', '#6a4ac8'] },
+    { f: 'JUNGL~2.SFC', t: 'JUNGLE RUN 2', g: 'platform', c: ['#0a3a1a', '#3a8a3a'] },
+    { f: 'KNIGHT.SFC', t: 'KNIGHT QUEST', g: 'rpg', c: ['#14143a', '#5a3a8a'] },
+    { f: 'PUZZL~3.SFC', t: 'PUZZLE PANIC', g: 'puzzle', c: ['#3a0a4a', '#e05aa0'] },
+    { f: 'SOLDR~1.SFC', t: 'SOLDIER FORCE', g: 'shooter', c: ['#2a1a0a', '#8a5a1a'] },
+    { f: 'TOONRUN.SFC', t: 'TOON RUN', g: 'platform', c: ['#ff8ac8', '#ffe2f2'] },
+  ];
+  const zsCv = $('zs-canvas'), zc = zsCv.getContext('2d');
+  const zsInp = makeInput($('w-emu'), zsCv);
+  const zs = { cart: null, t0: 0, sel: 0, user: false, auto: 0, found: false };
+  $('zs-files').innerHTML = CARTS.map((k, i) => `<li data-i="${i}">${k.f}</li>`).join('');
+  const fileLis = [...$('zs-files').children];
+  function zsSelect(i) { zs.sel = i; fileLis.forEach((li, k) => li.classList.toggle('sel', k === i)); }
+  function zsLoad(i) {
+    zsSelect(i);
+    zs.cart = CARTS[i]; zs.t0 = performance.now();
+    fileLis[i].classList.add('tried'); fileLis[i].classList.remove('pulse');
+    $('zs').classList.add('playing');
+    $('zs-msg').textContent = 'LOADED ' + zs.cart.f;
+    if (zs.cart.g === 'racer') { zs.found = true; race.reset(); }
+  }
+  $('zs-files').addEventListener('click', (e) => { const li = e.target.closest('li'); if (!li) return; zs.user = true; zsLoad(+li.dataset.i); });
+  $('zs-ok').addEventListener('click', () => { zs.user = true; zsLoad(zs.sel); });
+  $('zs-game').addEventListener('click', () => { $('zs').classList.remove('playing'); zs.cart = null; $('zs-msg').textContent = ''; });
+  zsSelect(0);
+  function showMe() { const i = CARTS.findIndex((k) => k.g === 'racer'); $('zs').classList.remove('playing'); zs.cart = null; fileLis[i].classList.add('pulse'); fileLis[i].scrollIntoView({ block: 'nearest' }); zsSelect(i); }
+
+  function pixText(text, x, y, size, fill) {
+    zc.font = `700 ${size}px Silkscreen, monospace`; zc.textAlign = 'center';
+    zc.lineWidth = 4; zc.strokeStyle = '#000'; zc.strokeText(text, x, y);
+    zc.fillStyle = fill; zc.fillText(text, x, y); zc.textAlign = 'left';
+  }
+  function titleScreen(k, t) {
+    const g = zc.createLinearGradient(0, 0, 0, 224);
+    g.addColorStop(0, k.c[0]); g.addColorStop(1, k.c[1]);
+    zc.fillStyle = g; zc.fillRect(0, 0, 256, 224);
+    if (k.g === 'shooter') {
+      zc.fillStyle = '#fff';
+      for (let i = 0; i < 50; i++) zc.fillRect((i * 37 + 256 - ((t * (40 + (i % 3) * 40)) % 256)) % 256, (i * 29) % 224, 1 + (i % 2), 1);
+      const y = 150 + Math.sin(t * 3) * 6;
+      zc.fillStyle = '#cfd8ff'; zc.fillRect(110, y, 36, 6); zc.fillStyle = '#4a6ae8'; zc.fillRect(118, y - 6, 16, 6); zc.fillStyle = '#ff9a2a'; zc.fillRect(104, y + 1, 6, 4);
+    } else if (k.g === 'fighter') {
+      zc.fillStyle = '#000'; zc.fillRect(0, 170, 256, 54);
+      zc.fillStyle = '#111'; zc.fillRect(60, 110, 20, 60); zc.fillRect(176, 110, 20, 60); zc.fillRect(64, 96, 12, 12); zc.fillRect(180, 96, 12, 12);
+      pixText('VS', 128, 150, 18, '#ffd84a');
+    } else if (k.g === 'platform') {
+      zc.fillStyle = 'rgb(0 0 0 / .25)';
+      for (let x = 0; x < 256; x += 4) { const h = 40 + Math.sin((x + t * 30) / 30) * 14; zc.fillRect(x, 224 - h - 30, 4, h + 30); }
+      zc.fillStyle = '#5a3'; zc.fillRect(0, 196, 256, 28);
+      const jy = 180 - Math.abs(Math.sin(t * 4)) * 30;
+      zc.fillStyle = '#e33'; zc.fillRect(120, jy, 14, 16); zc.fillStyle = '#fc9'; zc.fillRect(123, jy + 2, 8, 6);
+    } else if (k.g === 'rpg') {
+      zc.fillStyle = '#0a0a22'; zc.fillRect(60, 120, 136, 104); zc.fillRect(50, 96, 24, 128); zc.fillRect(182, 96, 24, 128); zc.fillRect(112, 84, 32, 140);
+      zc.fillStyle = '#ffd84a'; zc.fillRect(124, 110, 8, 10); zc.fillRect(70, 140, 6, 8); zc.fillRect(180, 140, 6, 8);
+    } else if (k.g === 'puzzle') {
+      const cols = ['#f44', '#4af', '#fd4', '#4e6', '#c6f'];
+      for (let i = 0; i < 24; i++) { zc.fillStyle = cols[i % 5]; zc.fillRect((i * 41) % 240, ((i * 23 + t * 40) % 260) - 30, 14, 14); }
+    }
+    pixText(k.t, 128, 70, k.t.length > 11 ? 18 : 22, '#ffd84a');
+    if (Math.floor(t * 2) % 2) pixText('PUSH START BUTTON', 128, 120, 8, '#fff');
+    pixText('© 1995 PIXEL SOFT', 128, 196, 7, '#ccc');
+  }
+
+  // Hyper Racer: a pseudo-3D floor, one sample per pixel, like the old scaling hardware.
+  const race = (() => {
+    const T = 512, tex = new Uint32Array(T * T);
+    const px = (r, g, b) => 0xff000000 | (b << 16) | (g << 8) | r;
+    const R0 = 180, RY = 1.35;
+    for (let y = 0; y < T; y++) for (let x = 0; x < T; x++) {
+      const dx = x - 256, dy = (y - 256) * RY, r = Math.hypot(dx, dy), a = Math.atan2(dy, dx), d = Math.abs(r - R0);
+      let col;
+      if (d < 24) col = (d < 1.5 && Math.floor(a * 40) % 2) ? px(230, 230, 240) : px(104, 104, 120);
+      else if (d < 30) col = Math.floor(a * 60) % 2 ? px(240, 210, 40) : px(60, 200, 90);
+      else { const ch = ((x >> 4) + (y >> 4)) & 1; col = r < R0 ? (ch ? px(48, 32, 110) : px(40, 26, 92)) : (ch ? px(34, 40, 120) : px(26, 30, 100)); if (!(x & 15) || !(y & 15)) col = px(80, 70, 170); }
+      tex[y * T + x] = col;
+    }
+    const img = zc.createImageData(256, 224), buf = new Uint32Array(img.data.buffer);
+    const HOR = 72, CAMH = 12, F = 150;
+    const sky = [];
+    for (let y = 0; y < HOR; y++) { const k = y / HOR; sky.push(px(Math.round(40 + 120 * k), Math.round(60 + 90 * k), Math.round(160 + 70 * k))); }
+    let s = { x: 256 + R0, y: 256, h: Math.PI / 2, v: 0, lap: 0, steer: 0 };
+    return {
+      reset() { s = { x: 256 + R0, y: 256, h: Math.PI / 2, v: 0, lap: 0, steer: 0 }; },
+      frame(dt, now) {
+        const demo = now - zsInp.last > 4000;
+        const a = Math.atan2((s.y - 256) * RY, s.x - 256);
+        const tx = 256 + R0 * Math.cos(a + 0.3), ty = 256 + (R0 / RY) * Math.sin(a + 0.3);
+        let want = Math.atan2(ty - s.y, tx - s.x) - s.h;
+        want = Math.atan2(Math.sin(want), Math.cos(want));
+        const manual = (zsInp.keys.arrowright ? 1 : 0) - (zsInp.keys.arrowleft ? 1 : 0);
+        s.steer = demo ? clamp(want * 3, -1, 1) : manual;
+        s.h += s.steer * 1.8 * dt;
+        const r = Math.hypot(s.x - 256, (s.y - 256) * RY), off = Math.abs(r - R0) > 26;
+        s.v += ((off ? 60 : 150) - s.v) * dt * (off ? 2.5 : 0.8);
+        s.x += Math.cos(s.h) * s.v * dt; s.y += Math.sin(s.h) * s.v * dt;
+        s.x = clamp(s.x, 4, T - 4); s.y = clamp(s.y, 4, T - 4);
+        s.lap += dt;
+        const ch = Math.cos(s.h), sh = Math.sin(s.h);
+        for (let y = 0; y < 224; y++) {
+          if (y <= HOR) { buf.fill(sky[Math.min(y, HOR - 1)], y * 256, y * 256 + 256); continue; }
+          const dz = (CAMH * F) / (y - HOR);
+          for (let x = 0; x < 256; x++) {
+            const lat = ((x - 128) * dz) / F;
+            const wx = (s.x + ch * dz - sh * lat) | 0, wy = (s.y + sh * dz + ch * lat) | 0;
+            buf[y * 256 + x] = wx >= 0 && wx < T && wy >= 0 && wy < T ? tex[wy * T + wx] : (((wx >> 4) + (wy >> 4)) & 1 ? 0xff5a1a22 : 0xff4a1418);
+          }
+        }
+        zc.putImageData(img, 0, 0);
+        // skyline that turns with you
+        const off2 = ((s.h * 160) % 256 + 256) % 256;
+        zc.fillStyle = '#1a1040';
+        for (let i = 0; i < 24; i++) { const bx = ((i * 23 - off2) % 256 + 256) % 256, bh = 10 + ((i * 37) % 26); zc.fillRect(bx, HOR - bh, 16, bh); }
+        zc.fillStyle = '#ffd84a';
+        for (let i = 0; i < 24; i++) { const bx = ((i * 23 - off2) % 256 + 256) % 256; zc.fillRect(bx + 4, HOR - 8, 2, 2); }
+        // the car
+        const cx = 128 + s.steer * 6, cy = 182;
+        zc.fillStyle = '#000'; zc.globalAlpha = 0.35; zc.fillRect(cx - 18, cy + 18, 36, 5); zc.globalAlpha = 1;
+        zc.fillStyle = '#1d4fd8'; zc.fillRect(cx - 16, cy + 4, 32, 14);
+        zc.fillStyle = '#4ad8ff'; zc.fillRect(cx - 6, cy, 12, 8);
+        zc.fillStyle = '#ffd84a'; zc.fillRect(cx - 20, cy + 8, 6, 10); zc.fillRect(cx + 14, cy + 8, 6, 10);
+        zc.fillStyle = Math.floor(now / 60) % 2 ? '#ff7a2a' : '#ffd84a'; zc.fillRect(cx - 10, cy + 18, 6, 3); zc.fillRect(cx + 4, cy + 18, 6, 3);
+        // HUD
+        pixText('POWER', 34, 14, 8, '#ffd84a');
+        zc.fillStyle = '#fff'; zc.fillRect(56, 7, 62, 8); zc.fillStyle = '#e0306a'; zc.fillRect(57, 8, off ? 40 : 60, 6);
+        pixText(`SPEED ${Math.round(s.v * 2.05)} km/h`, 190, 14, 8, '#fff');
+        const m = Math.floor(s.lap / 60), sec = (s.lap % 60).toFixed(2).padStart(5, '0');
+        pixText(`${m}'${sec.replace('.', '"')}`, 210, 28, 8, '#ffd84a');
+        if (demo) pixText('DEMO · CLICK, THEN ← →', 128, 214, 7, '#fff');
+      },
+    };
+  })();
+
+  let zsLast = 0;
+  function stepEmu(now) {
+    const dt = Math.min(0.05, (now - (zsLast || now)) / 1000); zsLast = now;
+    if ($('w-emu').hidden) return;
+    if (!zs.cart) { zc.fillStyle = '#000'; zc.fillRect(0, 0, 256, 224); return; }
+    const t = (now - zs.t0) / 1000;
+    if (t < 0.35) { zc.fillStyle = '#000'; zc.fillRect(0, 0, 256, 224); return; }
+    if (zs.cart.g === 'racer' && t > 1.6) race.frame(dt, now);
+    else titleScreen(zs.cart, t);
+  }
+
   // ---------- the story by scroll ----------
   // Each step is one screen of scroll. enter() runs once when the step starts; tick(t) every frame.
   const P2P_FILES = [['song_live.mp3', '4.8 MB', 0.62], ['racing_game_demo.zip', '212 MB', 0.08], ['documentary_part1.avi', '700 MB', 0.02]];
+  const auto = { a: false, b: false, since: 0 };
   const STEPS = [
     { enter: () => { openWin('w-readme'); } },
     { enter: () => { openWin('w-dial'); $('hint').style.opacity = '0'; }, tick: (t) => { if (t > 0.35) startDial(false); } },
-    { enter: () => { if (dialState === 'idle') startDial(false); }, tick: (t) => { if (dialState === 'online') openWin('w-web'); const k = clamp(t * 1.4, 0, 1); $('web-load').style.setProperty('--load', Math.min(1, 0.25 + k).toFixed(2)); $('save-bar').style.setProperty('--p', Math.round(k * 100) + '%'); $('save-txt').textContent = k < 1 ? `Saving: ${Math.round(k * 312)} of 312 KB at 4.2 KB/s` : 'Saved. Ready to play offline.'; } },
+    { enter: () => { if (dialState === 'idle') startDial(false); }, tick: (t) => {
+        $('web-load').style.setProperty('--load', Math.min(1, 0.2 + t * 2).toFixed(2));
+        if (!isOnline()) return;
+        auto.since = auto.since || performance.now();
+        const settled = performance.now() - auto.since > 1200;
+        const left = Math.max(1, Math.round(60 - t * 57));
+        $('web-session').textContent = `Online · ${left} min left`; $('web-session').classList.toggle('low', left <= 10);
+        if (settled && t > 0.25 && !auto.a) { auto.a = true; if (!SLOTS.some((s) => s.game)) openGame('stick'); }
+        if (settled && t > 0.55 && !auto.b) { auto.b = true; if (SLOTS.filter((s) => s.game).length < 2) openGame('lander'); }
+      } },
+    { enter: () => { disconnect(); const n = $('note'); n.hidden = false; n.textContent = 'One hour a week. So I opened as many games as I could before the line dropped. They kept running offline.'; } },
     { enter: () => { $('toast').classList.add('on'); if (!reduce) { screen.classList.add('nudge'); setTimeout(() => screen.classList.remove('nudge'), 1100); } if (soundOn && ac) { tone([880, 1320], ac.currentTime, 0.12, 0.05); tone([1320], ac.currentTime + 0.14, 0.12, 0.05); } } },
     { full: 'f-setup', enter: () => { $('toast').classList.remove('on'); }, tick: (t) => {
         const main = $('setup-main');
@@ -440,8 +1002,19 @@
     { full: 'f-bsod', tick: (t) => { $('dump').textContent = String(Math.round(clamp(t * 1.6, 0, 1) * 100)); } },
     { full: 'f-gsetup', enter: () => { screen.classList.remove('era-2000'); screen.classList.add('era-xp'); }, tick: (t) => { $('g-bar').style.setProperty('--p', Math.round(t * 100) + '%'); $('g-left').textContent = `Setup will complete in approximately: ${Math.max(1, Math.round(39 * (1 - t)))} minutes`; } },
     { enter: () => {
-        ['w-readme', 'w-pc', 'w-bin', 'w-dial', 'w-web'].forEach(closeWin);
-        $('start-side').textContent = 'Windows XP'; $('clock').textContent = '23:12';
+        ['w-readme', 'w-pc', 'w-bin', 'w-dial', 'w-web', 'w-g1', 'w-g2', 'w-g3', 'w-off'].forEach(closeWin);
+        $('start-side').textContent = 'Windows XP'; $('clock').textContent = '15:40';
+        openWin('w-emu');
+        const n = $('note'); n.hidden = false;
+        n.innerHTML = 'Emulators. The menus were in English and I could not read them. So I opened one game after another until the right one showed up.<br><button class="btn" id="showme">Show me the racer</button>';
+        $('showme').addEventListener('click', (e) => { e.stopPropagation(); showMe(); });
+      }, tick: (t) => {
+        if (zs.user || zs.found) return;
+        const at = [0.12, 0.3, 0.46, 0.64], files = [0, 1, 2, 4];
+        while (zs.auto < at.length && t > at[zs.auto]) zsLoad(files[zs.auto++]);
+      } },
+    { enter: () => {
+        closeWin('w-emu');
         $('p2p-title').textContent = 'P2P Downloader';
         openWin('w-p2p');
         const n = $('note'); n.hidden = false; n.textContent = 'My first broadband. 200 kbps, if I remember right. A song took a few minutes. A movie, days.';
@@ -476,6 +1049,8 @@
     }
     STEPS[s].tick?.(t);
     stepDial();
+    stepGames(performance.now());
+    stepEmu(performance.now());
   }
   requestAnimationFrame(frame);
 })();
