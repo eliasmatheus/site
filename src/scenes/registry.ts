@@ -6,7 +6,6 @@
 import type { SceneHooks } from '../engine/engine';
 import type { ScenePlacement } from '../engine/timeline';
 import { CALL_STOPS } from './call/beats';
-import { FALL_STOPS } from './the-fall/beats';
 
 export interface SceneContext {
   /** The scene's layer element. */
@@ -36,12 +35,11 @@ export const SCENES: readonly SceneEntry[] = [
   {
     id: 'the-fall',
     label: 'The fall',
-    // Down the shaft past four moments, to the first computer and its save file. One gesture
-    // per sight, so no moment goes by unseen.
-    dwell: 4200,
+    // Down the tesseract past four moments, to the first computer and its save file. No
+    // stops: the camera follows the scroll with mass, like a flight in a 3D game.
+    dwell: 5600,
     x: 0,
     y: 0,
-    stops: FALL_STOPS,
     load: () => import('./the-fall/controller'),
   },
   // The Prologue (photography) left the opening on 25/11/2026 (docs/plano.md, Fase 4). Its

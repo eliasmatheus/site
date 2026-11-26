@@ -27,9 +27,6 @@ export const GAPS: readonly { at: number; side: readonly [number, number] }[] = 
 /** The first computer waits at the bottom: the descent slows on it. */
 export const BOTTOM_AT = 0.79;
 
-/** One gesture per sight (src/engine/pacing.ts): the title, each gap, the bottom, the save. */
-export const FALL_STOPS: readonly number[] = [0.07, ...GAPS.map((g) => g.at), BOTTOM_AT, 0.985];
-
 /** Depth (0 to 1 of the shaft) the camera has fallen at a point of the dwell. */
 export const fallAt = (p: number): number => smooth(FALL_START, FALL_END, p);
 

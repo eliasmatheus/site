@@ -36,7 +36,7 @@ A ideia do stabondar.com (blocos 3D com faces), mas invertida: em vez de ver a e
 - [x] Toda posição de scroll mostra a estrutura, o título ou a tela retrô.
 - [x] Reduced motion: sem tombo, poço sem girar e poeira parada.
 - [x] Sem WebGL: a transição para a tela retrô continua funcionando.
-- [x] A câmera não atravessa vigas (testado em `lattice.test.ts`).
+- [x] A câmera não atravessa vigas nem ripas (testado em `lattice.test.ts`).
 - [ ] Desempenho num celular médio de verdade (ainda não medido).
 
 ## Como ficou no site (26/11/2026)
@@ -48,3 +48,16 @@ A ideia do stabondar.com (blocos 3D com faces), mas invertida: em vez de ver a e
 - **Janelas legíveis:** ao passar por uma brecha o olhar centraliza a janela e a câmera se endireita (resolve o "texto girado" que estava em aberto); depois volta a girar descendo.
 - **Fim diferente do protótipo:** a tela retrô não repete o boot e a fala da The Call (que vem logo em seguida). Ela mostra "LOADING...", depois "SAVE FILE · LATE 90S" e um menu de RPG com "CONTINUE" e "NEW GAME", na mesma caixa de borda dupla com que a The Call abre. O ano ficou "Late 90s" porque a data exata do primeiro computador não está confirmada (1997 a 1999).
 - three.js só carrega no primeiro sinal de visitante (scroll, ponteiro, toque ou tecla). Antes disso, sem WebGL ou com WebGL por software (SwiftShader, llvmpipe: sem GPU), um gradiente parado faz o poço. Montar as vigas por software travava a página por segundos, scroll incluído. Lighthouse mobile de `/journey`: 100.
+
+## Revisão de 26/11/2026 (tarde)
+
+Pedido do Elias: estava parecida demais com o protótipo, o fluxo avançava "loucamente" para o fim e, voltando, mostrava detalhes em baixíssima qualidade. Referências em `reference/inspiration/2026-11-26-tesseract-wormhole/` (fora do repositório).
+
+- **Sem paradas:** as paradas por gesto saíram desta cena. A câmera segue o scroll por uma mola (`src/engine/follow.ts`): começa e termina devagar, como o voo de um jogo 3D. Texto e sobreposições continuam no scroll cru. Dwell de 5600 px.
+- **Tesseract novo:** um shader próprio pinta as vigas quase pretas, com faixas de luz ao longo do comprimento (âmbar, creme, um pouco de ciano e verde) e, em algumas faces, fileiras de compartimentos acesos. Nada de textura pequena: fica nítido de perto. Feixes de luz finos cruzam o espaço nos três eixos. Quanto mais rápido o scroll, mais compridos os rastros e um pouco mais aberto o campo de visão.
+- **Estrutura mais densa:** feixes de ripas finas ao lado das vigas. As duas regras continuam testadas (nada no caminho da câmera, linha de visão livre até cada memória), e agora nenhum pilar fica logo atrás de uma memória.
+- **Memórias em 3D:** cada brecha tem um pequeno cenário com luz própria, numa cor que o tesseract não tem, e essa luz vaza para as vigas em volta (o shader das vigas recebe as cinco luzes): mesa com notebook e o primeiro programa (azul frio), duna sob sol branco (deserto), sapata e pilar no solo em corte (verde), três cartas num palco com a primeira escolhida (violeta) e, no fundo, o primeiro computador bege com a tela de boot (verde fósforo). Código em `src/scenes/the-fall/memories.ts`.
+
+Em aberto:
+- Os cenários das memórias ainda são geometria simples (caixas, cilindros, uma duna deformada). Dá para refinar cada um.
+- Desempenho num celular médio real ainda não medido.

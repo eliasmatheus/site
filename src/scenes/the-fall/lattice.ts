@@ -1,6 +1,6 @@
 /**
- * The lattice the visitor falls through: posts along y and beams along x and z on a grid,
- * around an open shaft. Pure and seeded, so it is the same on every visit and testable.
+ * The tesseract the visitor falls through: posts along y and beams along x and z on a grid,
+ * bundles of thin slats beside them and hair-thin lines of light, around an open shaft. Pure and seeded, so it is the same on every visit and testable.
  *
  * Two rules the prototype broke: nothing may cross the camera's path (a column around the
  * shaft's axis, widened by how far the pointer can move the camera), and nothing may stand
@@ -15,6 +15,10 @@ export interface Lattice {
   posts: Box[];
   beamsX: Box[];
   beamsZ: Box[];
+  /** Thin beams in bundles beside the big ones: the lattice's fine grain. */
+  slats: Box[];
+  /** Hair-thin lines of light along the three axes. */
+  glints: Box[];
   floor: Box[];
   /** Shaft depth (world units). The camera falls from 0 to -(depth - 6). */
   depth: number;
@@ -67,11 +71,11 @@ export function createLattice(coarse: boolean): Lattice {
           (g.side[0] !== 0 &&
             z === 0 &&
             Math.sign(x) === g.side[0] &&
-            Math.abs(x) <= windowDistance) ||
+            Math.abs(x) <= windowDistance + CELL) ||
           (g.side[1] !== 0 &&
             x === 0 &&
             Math.sign(z) === g.side[1] &&
-            Math.abs(z) <= windowDistance),
+            Math.abs(z) <= windowDistance + CELL),
       );
       const th = 1.2 + rnd() * 1.6;
       const jx = (rnd() - 0.5) * 1.5;
@@ -105,6 +109,55 @@ export function createLattice(coarse: boolean): Lattice {
     }
   }
 
+  // Bundles of slats beside the beams, along x, y and z, under the same two rules.
+  const slats: Box[] = [];
+  const glints: Box[] = [];
+  const free = (b: Box): boolean =>
+    !overlapsColumn(b, CAMERA_COLUMN) &&
+    !GAPS.some((g, i) => {
+      const y = gapY[i] ?? 0;
+      if (Math.abs(b[1] - y) > b[4] / 2 + 3) return false;
+      // Anything between the axis and the window, on the gap's side.
+      const [sx, sz] = g.side;
+      const along = sx !== 0 ? b[0] * sx : b[2] * sz;
+      const off = sx !== 0 ? Math.abs(b[2]) - b[5] / 2 : Math.abs(b[0]) - b[3] / 2;
+      const reach = sx !== 0 ? b[3] / 2 : b[5] / 2;
+      return off < 5 && along + reach > 0 && along - reach < windowDistance + CELL;
+    });
+  const bundles = coarse ? 260 : 520;
+  for (let k = 0; k < bundles; k++) {
+    const axis = Math.floor(rnd() * 3);
+    const y = -rnd() * depth;
+    const gx = grid[Math.floor(rnd() * grid.length)] ?? 0;
+    const gz = grid[Math.floor(rnd() * grid.length)] ?? 0;
+    const count = 2 + Math.floor(rnd() * 4);
+    const len = CELL * (1 + Math.floor(rnd() * 4)) + rnd() * 4;
+    const step = 0.5 + rnd() * 0.6;
+    for (let c = 0; c < count; c++) {
+      const w = 0.18 + rnd() * 0.45;
+      const off = (c - count / 2) * step;
+      const b: Box =
+        axis === 0
+          ? [gx + (rnd() - 0.5) * CELL, y + off, gz + 1.6, len, w, w * (1 + rnd())]
+          : axis === 1
+            ? [gx + 1.6 + off, y, gz + 1.6, w, len * 1.4, w]
+            : [gx + 1.6, y + off, gz + (rnd() - 0.5) * CELL, w * (1 + rnd()), w, len];
+      if (free(b)) slats.push(b);
+    }
+  }
+  const lines = coarse ? 140 : 300;
+  for (let k = 0; k < lines; k++) {
+    const axis = Math.floor(rnd() * 3);
+    const x = (rnd() - 0.5) * 2 * span * CELL;
+    const z = (rnd() - 0.5) * 2 * span * CELL;
+    const y = -rnd() * depth;
+    const len = 10 + rnd() * 60;
+    const t = 0.03 + rnd() * 0.06;
+    const b: Box =
+      axis === 0 ? [x, y, z, len, t, t] : axis === 1 ? [x, y, z, t, len, t] : [x, y, z, t, t, len];
+    if (free(b)) glints.push(b);
+  }
+
   // The floor under the first computer: a frame around it and a few long beams beyond.
   const fy = -depth - 1.2;
   const floor: Box[] = [
@@ -121,5 +174,5 @@ export function createLattice(coarse: boolean): Lattice {
     floor.push(along ? [0, y, off, 80, th, th] : [off, y, 0, th, th, 80]);
   }
 
-  return { posts, beamsX, beamsZ, floor, depth, windowDistance, gapY };
+  return { posts, beamsX, beamsZ, slats, glints, floor, depth, windowDistance, gapY };
 }

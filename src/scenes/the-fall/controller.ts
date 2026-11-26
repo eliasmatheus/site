@@ -1,11 +1,12 @@
 /**
- * The fall controller. Scroll (the dwell progress) drives the descent and the overlays; a
- * render loop draws the lattice only while the layer is visible. three.js loads on the first
+ * The fall controller. Scroll (the dwell progress) drives the overlays at once and the descent
+ * through a spring; a render loop draws the tesseract only while the layer is visible. three.js loads on the first
  * sign of a visitor (scroll, pointer, touch or key), so it never weighs on the first paint.
  * Without WebGL, or with a software one, a still gradient stands in and the old computer
  * still opens.
  */
 import { theFall } from '../../content/the-fall';
+import { createFollow } from '../../engine/follow';
 import type { SceneController } from '../registry';
 import { fallState } from './beats';
 import type { World } from './world';
@@ -42,6 +43,10 @@ const theFallScene: SceneController = ({ el, mode }) => {
   let visible = false;
   let raf = 0;
   let p = 0;
+  // The camera follows the scroll with mass: a flick becomes one flight that starts and ends
+  // slow. Copy and overlays stay on the raw scroll.
+  const view = createFollow(3.6);
+  let last = 0;
   let glimpseAt = -2;
   let screen = -1;
   let hole = -1;
@@ -58,8 +63,20 @@ const theFallScene: SceneController = ({ el, mode }) => {
     if (!visible || !world) return;
     look.x += (look.tx - look.x) * 0.05;
     look.y += (look.ty - look.y) * 0.05;
-    const s = fallState(p);
-    world.draw(s.fall, s.through, look.x, look.y, now);
+    const dt = last ? Math.min(0.1, (now - last) / 1000) : 1 / 60;
+    last = now;
+    if (still || Math.abs(p - view.value) > 0.35) view.snap(p);
+    const s = fallState(view.step(p, dt));
+    // Progress per second: a hard flick is about 0.3.
+    const speed = Math.min(1, Math.abs(view.speed) / 0.3);
+    world.draw({
+      fall: s.fall,
+      through: s.through,
+      lookX: look.x,
+      lookY: look.y,
+      speed,
+      now,
+    });
     raf = requestAnimationFrame(loop);
   };
 
@@ -93,6 +110,8 @@ const theFallScene: SceneController = ({ el, mode }) => {
     },
     onShow() {
       visible = true;
+      view.snap(p);
+      last = 0;
       window.addEventListener('pointermove', onPointer, { passive: true });
       run();
     },

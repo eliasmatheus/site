@@ -1,11 +1,14 @@
 /**
- * The fall in 3D: the lattice (src/scenes/the-fall/lattice.ts) drawn with three.js, the
- * glowing windows in its gaps, the first computer at the bottom and gold dust in the shaft.
+ * The fall in 3D: a tesseract of beams (src/scenes/the-fall/lattice.ts) drawn with three.js.
  * Loaded by dynamic import from the controller, so three.js only ships when it is needed.
  *
- * Beams are three InstancedMeshes (one draw call per group) with a streaked texture made in
- * a canvas; light comes warm from below, cool from above, plus a lamp that travels with the
- * camera. Windows are pixel art drawn in small canvases.
+ * No lights and no image textures on the beams: one shader paints every face dark, with
+ * lanes of light running along its length (amber, cream, a little teal and green) and, on
+ * some faces, rows of lit compartments. The faster the visitor falls, the longer the
+ * streaks: the smeared look of a flight through it. Hair-thin lines of light cross the space
+ * on the three axes. In the gaps, moments of the story stand as small 3D scenes whose own
+ * light leaks onto the beams (src/scenes/the-fall/memories.ts); at the bottom waits the first
+ * computer.
  */
 import {
   AdditiveBlending,
@@ -15,32 +18,36 @@ import {
   BufferGeometry,
   CanvasTexture,
   Color,
-  DirectionalLight,
-  FogExp2,
   InstancedMesh,
-  Mesh,
-  MeshBasicMaterial,
-  MeshStandardMaterial,
   NearestFilter,
   Object3D,
   PerspectiveCamera,
-  PlaneGeometry,
-  PointLight,
   Points,
   PointsMaterial,
-  RepeatWrapping,
   Scene,
+  ShaderMaterial,
   SRGBColorSpace,
   Vector2,
+  Vector3,
   WebGLRenderer,
-  type Material,
 } from 'three';
 import { GAPS, smooth } from './beats';
 import { createLattice, type Box } from './lattice';
+import { createMemories } from './memories';
+
+export interface Frame {
+  fall: number;
+  through: number;
+  /** Pointer look, -1 to 1. */
+  lookX: number;
+  lookY: number;
+  /** How fast the visitor is falling, 0 (still) to 1 (a hard flick). */
+  speed: number;
+  now: number;
+}
 
 export interface World {
-  /** Dwell state to show, plus the pointer look (-1 to 1). */
-  draw(fall: number, through: number, lookX: number, lookY: number, now: number): void;
+  draw(f: Frame): void;
   dispose(): void;
 }
 
@@ -55,59 +62,145 @@ const seeded = (seed: number): (() => number) => {
   return () => (s = (s * 16807) % 2147483647) / 2147483647;
 };
 
-/** Long stripes of warm browns, cream and a little teal, as if smeared by motion. */
-function streaks(seed: number): CanvasTexture {
-  const c = document.createElement('canvas');
-  c.width = 256;
-  c.height = 32;
-  const g = c.getContext('2d');
-  const rnd = seeded(seed);
-  if (g) {
-    g.fillStyle = '#2a1d14';
-    g.fillRect(0, 0, 256, 32);
-    for (let y = 0; y < 32; y++) {
-      const r = rnd();
-      const col =
-        r < 0.06
-          ? [210, 225, 220]
-          : r < 0.12
-            ? [120, 170, 175]
-            : r < 0.4
-              ? [196, 160, 112]
-              : r < 0.75
-                ? [120, 82, 52]
-                : [60, 40, 28];
-      const k = 0.55 + rnd() * 0.6;
-      g.fillStyle = `rgb(${col.map((v) => Math.min(255, Math.round(v * k))).join(',')})`;
-      g.fillRect(0, y, 256, 1);
-    }
-    for (let i = 0; i < 40; i++) {
-      g.fillStyle = `rgba(255,236,200,${0.15 + rnd() * 0.35})`;
-      g.fillRect(rnd() * 256, Math.floor(rnd() * 32), 20 + rnd() * 120, 1);
-    }
+/** Lights the memories lend to the beams: four gaps and the first computer. */
+const SPILLS = 5;
+
+const VERTEX = /* glsl */ `
+varying vec3 vLocal;
+varying vec3 vNormal;
+varying vec3 vSeed;
+varying vec3 vScale;
+varying float vDepth;
+varying vec3 vWorld;
+varying vec3 vWN;
+void main() {
+  vWorld = (modelMatrix * instanceMatrix * vec4(position, 1.0)).xyz;
+  vWN = normalize(mat3(modelMatrix) * normal);
+  vec3 sc = vec3(length(instanceMatrix[0].xyz), length(instanceMatrix[1].xyz), length(instanceMatrix[2].xyz));
+  vScale = sc;
+  vLocal = position * sc;
+  vNormal = normal;
+  vSeed = instanceMatrix[3].xyz;
+  vec4 mv = modelViewMatrix * instanceMatrix * vec4(position, 1.0);
+  vDepth = -mv.z;
+  gl_Position = projectionMatrix * mv;
+}`;
+
+const BEAM = /* glsl */ `
+uniform float uSpeed;
+uniform float uGlow;
+uniform vec3 uLP[${SPILLS}];
+uniform vec3 uLC[${SPILLS}];
+varying vec3 vLocal;
+varying vec3 vNormal;
+varying vec3 vSeed;
+varying vec3 vScale;
+varying float vDepth;
+varying vec3 vWorld;
+varying vec3 vWN;
+
+float h1(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
+
+void main() {
+  vec3 n = abs(vNormal);
+  vec2 face; float lu; float lv;
+  if (n.x > 0.5) { face = vLocal.yz; lu = vScale.y; lv = vScale.z; }
+  else if (n.y > 0.5) { face = vLocal.xz; lu = vScale.x; lv = vScale.z; }
+  else { face = vLocal.xy; lu = vScale.x; lv = vScale.y; }
+  // u runs along the face's long side.
+  if (lv > lu) { face = face.yx; float t = lu; lu = lv; lv = t; }
+  float u = face.x;
+  float v = face.y;
+  float seed = h1(floor(vSeed * 7.0) + vNormal * 3.1);
+
+  // Lanes of light along the length, smeared like long exposures.
+  float lanes = max(2.0, floor(lv * 3.2));
+  float lw = (v / lv + 0.5) * lanes;
+  float lane = floor(lw);
+  float across = fract(lw);
+  float lh = h1(vec3(lane, seed * 91.0, 3.0));
+  float segLen = mix(2.0, 14.0, lh) * (1.0 + uSpeed * 4.0);
+  float su = u / segLen + lh * 17.0;
+  float seg = floor(su);
+  float along = fract(su);
+  float sh = h1(vec3(lane, seg, seed * 37.0));
+  float on = step(0.6, sh);
+  float line = pow(1.0 - abs(across - 0.5) * 2.0, 6.0);
+  float ends = smoothstep(0.0, 0.18, along) * smoothstep(1.0, 0.35, along);
+  float ph = h1(vec3(lane, seg, 5.0));
+  vec3 tint = ph < 0.5 ? vec3(1.0, 0.52, 0.16)
+    : ph < 0.78 ? vec3(1.0, 0.8, 0.52)
+    : ph < 0.9 ? vec3(0.25, 0.82, 0.95)
+    : ph < 0.96 ? vec3(0.45, 0.95, 0.55)
+    : vec3(1.0, 0.96, 0.9);
+  // The body: near black, with faint warm grain along the length.
+  vec3 col = vec3(0.0035, 0.003, 0.0028) + vec3(0.012, 0.008, 0.005) * lh * lh;
+  float bright = pow(sh, 6.0) * 5.0 + 0.25;
+  col += tint * on * line * ends * bright * uGlow;
+
+  // Some wide faces hold rows of lit compartments.
+  if (seed > 0.8 && lv > 1.1) {
+    vec2 g = vec2(u * 2.6, (v / lv + 0.5) * floor(lv * 3.0));
+    vec2 cell = floor(g);
+    vec2 f = fract(g);
+    float ch = h1(vec3(cell, seed * 11.0));
+    float box = step(0.16, f.x) * step(f.x, 0.84) * step(0.2, f.y) * step(f.y, 0.8);
+    float inner = smoothstep(0.2, 0.8, f.y) * 0.8 + 0.2;
+    vec3 lit = mix(vec3(1.0, 0.42, 0.1), vec3(1.0, 0.75, 0.42), ch * ch);
+    col += lit * box * step(0.55, ch) * inner * (0.15 + 0.9 * pow(ch, 3.0)) * uGlow;
   }
-  const t = new CanvasTexture(c);
-  t.colorSpace = SRGBColorSpace;
-  t.wrapS = t.wrapT = RepeatWrapping;
-  t.anisotropy = 4;
-  return t;
-}
+
+  // The memories' lights leak onto the beams around them.
+  for (int i = 0; i < ${SPILLS}; i++) {
+    vec3 L = uLP[i] - vWorld;
+    float d2 = dot(L, L);
+    float facing = max(0.0, dot(normalize(L), vWN)) * 0.75 + 0.25;
+    col += uLC[i] * facing * (0.03 + line * on * 0.7) * 16.0 / (1.0 + d2 * 0.16);
+  }
+
+  // Far beams sink into the dark.
+  col *= exp(-vDepth * 0.02);
+  col = 1.0 - exp(-col * 1.6);
+  gl_FragColor = vec4(pow(col, vec3(0.4545)), 1.0);
+}`;
+
+const GLINT = /* glsl */ `
+uniform float uSpeed;
+varying vec3 vLocal;
+varying vec3 vNormal;
+varying vec3 vSeed;
+varying vec3 vScale;
+varying float vDepth;
+float h1(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
+void main() {
+  float len = max(vScale.x, max(vScale.y, vScale.z));
+  float u = (vScale.x == len ? vLocal.x : vScale.y == len ? vLocal.y : vLocal.z) / len + 0.5;
+  float seed = h1(floor(vSeed * 3.0));
+  vec3 tint = seed < 0.55 ? vec3(1.0, 0.6, 0.22) : seed < 0.8 ? vec3(1.0, 0.88, 0.7) : vec3(0.3, 0.85, 1.0);
+  float core = sin(u * 3.14159);
+  float a = core * core * (0.5 + uSpeed * 1.2) * exp(-vDepth * 0.012);
+  gl_FragColor = vec4(tint * a, 1.0);
+}`;
 
 type Draw = (g: CanvasRenderingContext2D, w: number, h: number) => void;
 
+/** Drawn at four times the design size, so text stays sharp up close. */
+const SCALE = 4;
+
 function pixelWindow(draw: Draw, w = 64, h = 48): CanvasTexture {
   const c = document.createElement('canvas');
-  c.width = w;
-  c.height = h;
+  c.width = w * SCALE;
+  c.height = h * SCALE;
   const g = c.getContext('2d');
   if (g) {
     g.imageSmoothingEnabled = false;
+    g.scale(SCALE, SCALE);
     draw(g, w, h);
   }
   const t = new CanvasTexture(c);
   t.magFilter = NearestFilter;
-  t.minFilter = NearestFilter;
   t.colorSpace = SRGBColorSpace;
+  t.anisotropy = 4;
   return t;
 }
 
@@ -120,7 +213,7 @@ const text = (
   size = 6,
 ): void => {
   g.fillStyle = col;
-  g.font = `${size}px monospace`;
+  g.font = `600 ${size}px ui-monospace, Menlo, monospace`;
   g.fillText(s, x, y);
 };
 
@@ -180,6 +273,16 @@ const WINDOWS: Draw[] = [
   },
 ];
 
+/** The first computer's screen, booting. */
+const BOOT: Draw = (g, w, h) => {
+  g.fillStyle = '#0b0f0a';
+  g.fillRect(0, 0, w, h);
+  text(g, 'CPU: PENTIUM', 4, 10, '#b6f3a1');
+  text(g, 'MEMORY TEST:', 4, 19, '#b6f3a1');
+  text(g, '65536K OK', 4, 27, '#b6f3a1');
+  text(g, 'HDD 8 GB..OK', 4, 36, '#b6f3a1');
+};
+
 export function createWorld({ canvas, coarse, still }: Options): World | null {
   let renderer: WebGLRenderer;
   try {
@@ -191,36 +294,35 @@ export function createWorld({ canvas, coarse, still }: Options): World | null {
   } catch {
     return null;
   }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, coarse ? 1.25 : 1.75));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, coarse ? 1.5 : 1.75));
   renderer.outputColorSpace = SRGBColorSpace;
 
   const lattice = createLattice(coarse);
   const { depth, windowDistance } = lattice;
   const scene = new Scene();
-  scene.background = new Color(0x07060a);
-  scene.fog = new FogExp2(0x0b0907, 0.022);
+  scene.background = new Color(0x030304);
   const cam = new PerspectiveCamera(62, 1, 0.1, 400);
 
-  const texA = streaks(7);
-  const texB = streaks(91);
-  const matA = new MeshStandardMaterial({
-    map: texA,
-    emissive: 0xffffff,
-    emissiveMap: texA,
-    emissiveIntensity: 0.28,
-    roughness: 0.85,
-  });
-  const matB = new MeshStandardMaterial({
-    map: texB,
-    emissive: 0xffffff,
-    emissiveMap: texB,
-    emissiveIntensity: 0.22,
-    roughness: 0.9,
-  });
   const unit = new BoxGeometry(1, 1, 1);
-  const disposables: { dispose(): void }[] = [texA, texB, matA, matB, unit];
+  const uniforms = {
+    uSpeed: { value: 0 },
+    uGlow: { value: 1 },
+    uLP: { value: Array.from({ length: SPILLS }, () => new Vector3(0, 1e4, 0)) },
+    uLC: { value: Array.from({ length: SPILLS }, () => new Vector3()) },
+  };
+  const beamMat = new ShaderMaterial({ vertexShader: VERTEX, fragmentShader: BEAM, uniforms });
+  const glintMat = new ShaderMaterial({
+    vertexShader: VERTEX,
+    fragmentShader: GLINT,
+    uniforms,
+    blending: AdditiveBlending,
+    depthWrite: false,
+    transparent: true,
+  });
+  const disposables: { dispose(): void }[] = [unit, beamMat, glintMat];
 
-  const instance = (list: Box[], mat: Material): void => {
+  const instance = (list: Box[], mat: ShaderMaterial): void => {
+    if (!list.length) return;
     const m = new InstancedMesh(unit, mat, list.length);
     const o = new Object3D();
     list.forEach(([x, y, z, sx, sy, sz], i) => {
@@ -229,104 +331,54 @@ export function createWorld({ canvas, coarse, still }: Options): World | null {
       o.updateMatrix();
       m.setMatrixAt(i, o.matrix);
     });
+    m.frustumCulled = false;
     scene.add(m);
   };
-  instance(lattice.posts, matB);
-  instance(lattice.beamsX, matA);
-  instance(lattice.beamsZ, matA);
-  instance(lattice.floor, matA);
-
-  scene.add(new AmbientLight(0x3a2c22, 1.2));
-  const below = new PointLight(0xffc98a, 2.2, 0, 0);
-  below.position.set(0, -depth + 6, 0);
-  scene.add(below);
-  const lamp = new PointLight(0xffe2bc, 1.4, 60, 1.6);
-  scene.add(lamp);
-  const sky = new DirectionalLight(0x9fc7d0, 0.6);
-  sky.position.set(0.3, 1, 0.2);
-  scene.add(sky);
-
-  // The windows in the gaps, each with a halo and a light spilling out.
-  const windows = GAPS.map((gap, i) => {
-    const tex = pixelWindow(WINDOWS[i] ?? (() => undefined));
-    const geo = new PlaneGeometry(9, 6.75);
-    const mat = new MeshBasicMaterial({ map: tex, toneMapped: false, fog: false });
-    disposables.push(tex, geo, mat);
-    const mesh = new Mesh(geo, mat);
-    const y = lattice.gapY[i] ?? 0;
-    mesh.position.set(gap.side[0] * windowDistance, y, gap.side[1] * windowDistance);
-    mesh.lookAt(0, y, 0);
-    scene.add(mesh);
-    const haloGeo = new PlaneGeometry(21.6, 16.2);
-    const haloMat = new MeshBasicMaterial({
-      color: 0xffc98a,
-      transparent: true,
-      opacity: 0.12,
-      blending: AdditiveBlending,
-      depthWrite: false,
-      fog: false,
-    });
-    disposables.push(haloGeo, haloMat);
-    const halo = new Mesh(haloGeo, haloMat);
-    halo.position.set(gap.side[0] * windowDistance * 1.02, y, gap.side[1] * windowDistance * 1.02);
-    halo.lookAt(0, y, 0);
-    scene.add(halo);
-    const pl = new PointLight(0xffc98a, 1.2, 30, 1.8);
-    pl.position.set(gap.side[0] * (windowDistance - 2), y, gap.side[1] * (windowDistance - 2));
-    scene.add(pl);
-    return { x: mesh.position.x, y, z: mesh.position.z };
-  });
-
-  // The first computer at the bottom of the shaft, face up.
-  const bootTex = pixelWindow(
-    (g, w, h) => {
-      g.fillStyle = '#0b0f0a';
-      g.fillRect(0, 0, w, h);
-      text(g, 'CPU: PENTIUM', 4, 10, '#b6f3a1');
-      text(g, 'MEMORY TEST:', 4, 19, '#b6f3a1');
-      text(g, '65536K OK', 4, 27, '#b6f3a1');
-      text(g, 'HDD 8 GB..OK', 4, 36, '#b6f3a1');
-    },
-    64,
-    44,
+  instance(
+    [...lattice.posts, ...lattice.beamsX, ...lattice.beamsZ, ...lattice.slats, ...lattice.floor],
+    beamMat,
   );
-  const bootGeo = new PlaneGeometry(8, 5.5);
-  const bootMat = new MeshBasicMaterial({ map: bootTex, toneMapped: false, fog: false });
-  const tHaloGeo = new PlaneGeometry(30, 30);
-  const tHaloMat = new MeshBasicMaterial({
-    color: 0xb6f3a1,
-    transparent: true,
-    opacity: 0.08,
-    blending: AdditiveBlending,
-    depthWrite: false,
-    fog: false,
-  });
-  disposables.push(bootTex, bootGeo, bootMat, tHaloGeo, tHaloMat);
-  const target = new Mesh(bootGeo, bootMat);
-  target.rotation.x = -Math.PI / 2;
-  target.position.set(0, -depth - 2, 0);
-  scene.add(target);
-  const tHalo = new Mesh(tHaloGeo, tHaloMat);
-  tHalo.rotation.x = -Math.PI / 2;
-  tHalo.position.set(0, -depth - 1.9, 0);
-  scene.add(tHalo);
+  instance(lattice.glints, glintMat);
 
-  // Gold dust in the shaft.
-  const n = coarse ? 400 : 900;
+  // The memories: small 3D scenes in the gaps, each with a light that leaks onto the beams.
+  scene.add(new AmbientLight(0x2a2420, 0.6));
+  const places = GAPS.map((gap, i) => ({
+    x: gap.side[0] * windowDistance,
+    y: lattice.gapY[i] ?? 0,
+    z: gap.side[1] * windowDistance,
+  }));
+  const memories = createMemories(
+    scene,
+    places,
+    { x: 0, y: -depth - 1, z: 0 },
+    {
+      code: () => pixelWindow(WINDOWS[0] ?? (() => undefined)),
+      boot: () => pixelWindow(BOOT, 64, 44),
+    },
+  );
+  disposables.push(memories);
+  memories.spills.forEach((sp, i) => {
+    uniforms.uLP.value[i]?.copy(sp.position);
+    uniforms.uLC.value[i]?.set(sp.color.r, sp.color.g, sp.color.b);
+  });
+  const windows = places;
+
+  // Specks of light drifting in the shaft.
+  const n = coarse ? 500 : 1100;
   const rnd = seeded(4242);
   const pos = new Float32Array(n * 3);
   for (let i = 0; i < n; i++) {
-    pos[i * 3] = (rnd() - 0.5) * 16;
+    pos[i * 3] = (rnd() - 0.5) * 18;
     pos[i * 3 + 1] = -rnd() * depth;
-    pos[i * 3 + 2] = (rnd() - 0.5) * 16;
+    pos[i * 3 + 2] = (rnd() - 0.5) * 18;
   }
   const dustGeo = new BufferGeometry();
   dustGeo.setAttribute('position', new BufferAttribute(pos, 3));
   const dustMat = new PointsMaterial({
-    color: 0xffcf86,
-    size: 0.09,
+    color: 0xffc77a,
+    size: 0.08,
     transparent: true,
-    opacity: 0.8,
+    opacity: 0.85,
     blending: AdditiveBlending,
     depthWrite: false,
   });
@@ -338,7 +390,7 @@ export function createWorld({ canvas, coarse, still }: Options): World | null {
   const size = new Vector2();
 
   return {
-    draw(fall, through, lookX, lookY, now) {
+    draw({ fall, through, lookX, lookY, speed, now }) {
       const w = canvas.clientWidth;
       const h = canvas.clientHeight;
       if (!w || !h) return;
@@ -349,8 +401,8 @@ export function createWorld({ canvas, coarse, still }: Options): World | null {
       }
       const dt = Math.min(0.05, (now - lastNow) / 1000);
       lastNow = now;
+      uniforms.uSpeed.value = still ? 0 : speed;
 
-      // Descent: fast in the middle, slowing at the gaps' ends; then through the last gap.
       const y = -fall * (depth - 6) - through * 8;
       const tumble = still ? 0 : (1 - smooth(0, 0.1, fall)) * 0.8;
       const spin = fall * Math.PI * 0.9 + (still ? 0 : Math.sin(now / 2600) * 0.03);
@@ -377,9 +429,9 @@ export function createWorld({ canvas, coarse, still }: Options): World | null {
         .set(Math.sin(roll) * (1 - upright), upright, Math.cos(roll) * (1 - upright))
         .normalize();
       cam.lookAt(gx, gy, gz);
-      cam.fov = (w / h < 0.8 ? 82 : 62) + through * 20;
+      // Speed widens the view a little, like a jump.
+      cam.fov = (w / h < 0.8 ? 82 : 62) + through * 20 + (still ? 0 : speed * 10);
       cam.updateProjectionMatrix();
-      lamp.position.set(0, y - 4, 0);
       if (!still) dust.rotation.y += dt * 0.03;
       renderer.render(scene, cam);
     },

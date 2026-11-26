@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FALL_STOPS, GAPS, fallState } from './beats';
+import { GAPS, fallState } from './beats';
 import { CAMERA_COLUMN, createLattice, type Box } from './lattice';
 
 const crossesColumn = (b: Box, half: number) =>
@@ -10,7 +10,7 @@ describe('lattice', () => {
     const l = createLattice(coarse);
 
     it(`never puts a beam or a post in the camera's path (${coarse ? 'phone' : 'desktop'})`, () => {
-      const all = [...l.posts, ...l.beamsX, ...l.beamsZ];
+      const all = [...l.posts, ...l.beamsX, ...l.beamsZ, ...l.slats, ...l.glints];
       expect(all.length).toBeGreaterThan(100);
       expect(all.filter((b) => crossesColumn(b, CAMERA_COLUMN))).toEqual([]);
     });
@@ -22,7 +22,7 @@ describe('lattice', () => {
         for (let d = CAMERA_COLUMN; d < l.windowDistance - 1; d += 0.5) {
           const x = g.side[0] * d;
           const z = g.side[1] * d;
-          const hit = [...l.posts, ...l.beamsX, ...l.beamsZ].some(
+          const hit = [...l.posts, ...l.beamsX, ...l.beamsZ, ...l.slats].some(
             (b) =>
               Math.abs(x - b[0]) < b[3] / 2 &&
               Math.abs(y - b[1]) < b[4] / 2 &&
@@ -56,10 +56,5 @@ describe('fall beats', () => {
   it('opens the iris in hard steps', () => {
     const holes = new Set(Array.from({ length: 200 }, (_, i) => fallState(i / 199).hole));
     expect(holes.size).toBeLessThanOrEqual(13);
-  });
-
-  it('has its stops in order inside the dwell', () => {
-    expect([...FALL_STOPS].sort((a, b) => a - b)).toEqual(FALL_STOPS);
-    expect(FALL_STOPS.every((s) => s > 0 && s < 1)).toBe(true);
   });
 });
