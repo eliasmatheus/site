@@ -15,10 +15,11 @@ Quem está com pressa resolve tudo aqui em 10 segundos: quem é, o que faz, onde
 ## Tempero
 
 - Céu escuro com estrelas discretas e leve paralaxe.
-- Nebulosa no estilo da árvore de habilidades do Skyrim (homenagem só no estilo): uma pintura larga e parada do céu (faixa de gás com filamentos, faixas de poeira escura, aglomerados de estrelas), 1,7 tela de largura, pintada uma vez em WebGL. Paleta da primeira versão puxada para o Duna: sombras em preto esverdeado, gás verde-azulado apagado, laranja de especiaria e realces cor de areia.
-- O céu fica escuro (17% de opacidade em repouso). A luz em volta do mouse acende a nebulosa por inteiro, com um rastro que se apaga em ~2,5 s. Sem mouse (celular), uma luz fraca passeia sozinha.
+- Nebulosa no estilo da árvore de habilidades do Skyrim (homenagem só no estilo): uma pintura larga e parada do céu (faixa de gás com filamentos, faixas de poeira escura, aglomerados de estrelas), 1,7 tela de largura, pintada uma vez em WebGL. Paleta de Duna: Parte Três (referências do Elias, pôsteres e teasers): preto azulado com verde-azulado e um brilho ciano no alto do céu, laranja-dourado de especiaria embaixo, realces cor de areia e partículas douradas de poeira no ar quente. A troca entre frio e quente é curta para não virar verde-oliva.
+- O céu fica escuro (17% de opacidade em repouso). A luz em volta do mouse acende a nebulosa por inteiro, com um rastro que se apaga em ~2,5 s.
+- No celular o dedo é o mouse: tocar e arrastar (o próprio gesto de rolar) acende a nebulosa sob o dedo, com o mesmo rastro (eventos de toque continuam durante o scroll; os de ponteiro são cancelados). Sem dedo na tela, uma luz passeia sozinha (força 0,45 por ponto). Ao deslizar entre seções, o céu clareia mais no celular (até +45%) do que no desktop (+23%).
 - A nebulosa não se mexe; o que muda é para onde olhamos. Cada parte da página tem um ponto no céu (About, Experience, Projects, a porta). Ao rolar até outra parte, a vista desliza até lá e o céu clareia um pouco durante o movimento. O mouse inclina a vista de leve. Uma camada de estrelas mais próxima anda um pouco mais rápido (paralaxe).
-- Histórico: a primeira versão (gás revelado só pelo cursor) parecia arte abstrata; a segunda (nebulosa parada e clara, cores frias e quentes separadas) perdeu o contraste e a paleta antiga. Esta junta os desenhos da segunda com a luz e a paleta da primeira.
+- Histórico: a primeira versão (gás revelado só pelo cursor) parecia arte abstrata; a segunda (nebulosa parada e clara, frio à esquerda e quente à direita) perdeu o contraste. A atual junta os desenhos da segunda com a luz da primeira, na paleta de Duna: Parte Três. No celular, a primeira tentativa de luz que passeia era fraca demais e o céu parecia só estrelas.
 - Um satélite pequeno orbitando ao lado do nome.
 - Itens da lista se destacam ao passar o mouse (os outros esmaecem).
 

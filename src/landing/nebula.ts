@@ -1,5 +1,5 @@
 // The nebula behind the landing: a wide, still painting of gas, dust lanes and star clusters
-// in a Dune-like palette,
+// in the palette of Dune: Part Three,
 // rendered once in WebGL. It never moves on its own; the page pans the view across it.
 
 const VERTEX = 'attribute vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); }';
@@ -50,24 +50,32 @@ void main(){
   float wisps = ridged(uv * 2.8 + q * 1.8);
   float dens = band * smoothstep(0.25, 0.85, 0.55 * body + 0.6 * wisps * body);
 
-  // Dune-like palette: black teal shadows, muted teal gas, spice amber, pale sand highlights.
-  vec3 deep = vec3(0.02, 0.06, 0.09), teal = vec3(0.08, 0.32, 0.36);
-  vec3 amber = vec3(0.86, 0.52, 0.2), sand = vec3(1.0, 0.84, 0.58), rust = vec3(0.36, 0.12, 0.05);
-  float spice = smoothstep(0.35, 0.8, q.x * body * 1.7 + 0.3 * (x - 0.5));
-  vec3 tint = mix(mix(deep, teal, smoothstep(0.25, 0.75, body)), amber, spice);
-  vec3 gas = tint * dens * (0.45 + 1.3 * pow(body, 1.4)) * 1.6;
-  gas += sand * pow(wisps, 5.0) * band * (0.15 + 0.4 * spice);
+  // Dune: Part Three palette: blue-black teal above, spice gold below, sand highlights,
+  // a cyan glow in the cool gas and gold dust in the warm air.
+  float low = 1.0 - clamp(uv.y, 0.0, 1.0);
+  vec3 deep = vec3(0.015, 0.035, 0.045), teal = vec3(0.07, 0.30, 0.33);
+  vec3 gold = vec3(0.95, 0.56, 0.12), ember = vec3(0.55, 0.24, 0.05);
+  vec3 sand = vec3(1.0, 0.86, 0.6), rust = vec3(0.30, 0.12, 0.04);
+  // A short crossing, so teal and gold rarely mix into olive.
+  float spice = smoothstep(0.42, 0.6, low + 0.3 * (q.x * body - 0.3));
+  vec3 cool = mix(deep, teal, smoothstep(0.25, 0.75, body));
+  vec3 warm = mix(ember, gold, smoothstep(0.3, 0.8, body));
+  vec3 gas = mix(cool, warm, spice) * dens * (0.45 + 1.3 * pow(body, 1.4)) * 1.6;
+  gas += sand * pow(wisps, 5.0) * band * (0.12 + 0.45 * spice);
 
   // Dark dust lanes cut through the glow, rusty at their edges.
   float dust = smoothstep(0.5, 0.78, fbm(uv * 3.4 + q * 2.4 + 9.0));
   gas = mix(gas, rust * dens, 0.35 * dust * band);
   gas *= 1.0 - 0.75 * dust * band;
 
-  vec3 col = vec3(0.006, 0.009, 0.012) + gas;
+  // The empty sky is not flat black: cold at the top, a warm haze near the bottom.
+  vec3 col = mix(vec3(0.006, 0.012, 0.016), vec3(0.03, 0.016, 0.006), low * low) + gas;
   // Stars: a fine field everywhere, denser and brighter clusters inside the gas.
   col += stars(uv, 90.0, 0.55) * 0.5;
   col += stars(uv + 3.1, 38.0, 0.7 - 0.35 * band) * (0.6 + band);
   col += stars(uv + 7.7, 14.0, 0.85 - 0.2 * band) * 1.2;
+  // Gold dust floating in the warm air.
+  col += stars(uv + 11.3, 150.0, 0.5) * vec3(1.0, 0.72, 0.3) * spice * 0.9;
   // Soft glow of unresolved stars in the densest parts.
   col += sand * pow(dens, 3.0) * 0.08;
 

@@ -10,8 +10,10 @@ const PANORAMA = 1.7;
 /** Nebula opacity at rest: a dark sky. Moving the view adds up to GLOW_OPACITY more. */
 const REST_OPACITY = 0.17;
 const GLOW_OPACITY = 0.23;
-/** On touch screens a faint light wanders on its own, one weak point every 120 ms. */
-const WANDER_STRENGTH = 0.12;
+/** On touch screens a light wanders on its own while no finger is down, one point every 120 ms. */
+const WANDER_STRENGTH = 0.45;
+/** Touch screens have no hover, so sliding the view lights up more of the sky. */
+const TOUCH_GLOW_OPACITY = 0.45;
 
 interface Star {
   x: number;
@@ -59,23 +61,33 @@ export function startSky(): void {
   // ---------- the light around the pointer ----------
   const trail: TrailPoint[] = [];
   let lastPush = 0;
+  const lightAt = (x: number, y: number): void => {
+    const now = performance.now();
+    const head = trail[0];
+    if (now - lastPush > 40 || !head) {
+      pushPoint(trail, { x, y, s: 1 });
+      lastPush = now;
+    } else {
+      head.x = x;
+      head.y = y;
+      head.s = 1;
+    }
+  };
   window.addEventListener(
     'pointermove',
     (e) => {
-      if (e.pointerType !== 'mouse') return;
-      const now = performance.now();
-      const head = trail[0];
-      if (now - lastPush > 40 || !head) {
-        pushPoint(trail, { x: e.clientX, y: e.clientY, s: 1 });
-        lastPush = now;
-      } else {
-        head.x = e.clientX;
-        head.y = e.clientY;
-        head.s = 1;
-      }
+      if (e.pointerType === 'mouse') lightAt(e.clientX, e.clientY);
     },
     { passive: true },
   );
+  // On a phone the finger is the pointer: touching and scrolling light the sky under it.
+  // Touch events keep firing while the page scrolls (pointer events are cancelled).
+  const onTouch = (e: TouchEvent): void => {
+    const t = e.touches[0];
+    if (t) lightAt(t.clientX, t.clientY);
+  };
+  window.addEventListener('touchstart', onTouch, { passive: true });
+  window.addEventListener('touchmove', onTouch, { passive: true });
 
   // ---------- where we look ----------
   let section: string | null = null;
@@ -100,7 +112,8 @@ export function startSky(): void {
     const move = `translate3d(${(-pan).toFixed(1)}px, 0, 0)`;
     nebula.style.transform = move;
     light.style.transform = move;
-    nebula.style.setProperty('--glow', (REST_OPACITY + GLOW_OPACITY * view.glow).toFixed(3));
+    const glow = coarse ? TOUCH_GLOW_OPACITY : GLOW_OPACITY;
+    nebula.style.setProperty('--glow', (REST_OPACITY + glow * view.glow).toFixed(3));
     const mask = lightMask(trail, pan);
     light.style.maskImage = mask;
     light.style.setProperty('-webkit-mask-image', mask);
@@ -235,7 +248,7 @@ export function startSky(): void {
     // The light fades on real time, even when frames are slow.
     fadeTrail(trail, Math.min(0.5, raw));
     time += dt;
-    // With a mouse the sky goes dark again at rest; on touch a faint light keeps wandering.
+    // With a mouse the sky goes dark again at rest; on touch a light keeps wandering.
     if (coarse && isIdle(trail, 0.2) && now - lastWander > 120) {
       const p = wanderer(time, window.innerWidth, window.innerHeight);
       pushPoint(trail, { ...p, s: WANDER_STRENGTH });
