@@ -2,10 +2,12 @@
  * The fall: maps the scene's dwell progress (0 to 1) to the descent and the overlays. Pure.
  *
  *   0    to 0.03  the white flash of the fall fades; a slow tumble settles
- *   0.03 to 0.82  the descent down the shaft, past four gaps with moments in them
+ *   0.03 to 0.82  free fall down the shaft, then a diagonal glide past four memories
  *   0.82 to 0.9   through the last gap: a pixel iris opens on an old computer
  *   0.9  to 1     the old computer: loading, then a save file waiting to continue
  */
+import { MEMORY_T } from './path';
+
 export const clamp01 = (v: number): number => Math.min(1, Math.max(0, v));
 export const smooth = (a: number, b: number, v: number): number => {
   const t = clamp01((v - a) / (b - a));
@@ -16,18 +18,18 @@ export const FALL_START = 0.03;
 export const FALL_END = 0.82;
 export const THROUGH_END = 0.9;
 
-/** Where each moment's gap is, in dwell progress, and which wall it is on (x, z). */
-export const GAPS: readonly { at: number; side: readonly [number, number] }[] = [
-  { at: 0.24, side: [1, 0] },
-  { at: 0.39, side: [0, -1] },
-  { at: 0.54, side: [-1, 0] },
-  { at: 0.69, side: [0, 1] },
-];
+/** Inverse of the smoothstep in `fallAt`: the progress that reaches a point of the path. */
+const unsmooth = (y: number): number => 0.5 - Math.sin(Math.asin(1 - 2 * y) / 3);
+
+/** When each memory is passed, in dwell progress. */
+export const GAPS: readonly { at: number }[] = MEMORY_T.map((t) => ({
+  at: FALL_START + (FALL_END - FALL_START) * unsmooth(t),
+}));
 
 /** The first computer waits at the bottom: the descent slows on it. */
 export const BOTTOM_AT = 0.79;
 
-/** Depth (0 to 1 of the shaft) the camera has fallen at a point of the dwell. */
+/** How far along the path (0 to 1, src/scenes/the-fall/path.ts) the camera is. */
 export const fallAt = (p: number): number => smooth(FALL_START, FALL_END, p);
 
 export interface FallState {

@@ -18,10 +18,14 @@ import {
   BufferGeometry,
   CanvasTexture,
   Color,
+  HalfFloatType,
   InstancedMesh,
+  Mesh,
   NearestFilter,
   Object3D,
+  OrthographicCamera,
   PerspectiveCamera,
+  PlaneGeometry,
   Points,
   PointsMaterial,
   Scene,
@@ -30,10 +34,12 @@ import {
   Vector2,
   Vector3,
   WebGLRenderer,
+  WebGLRenderTarget,
 } from 'three';
-import { GAPS, smooth } from './beats';
+import { smooth } from './beats';
 import { createLattice, type Box } from './lattice';
 import { createMemories } from './memories';
+import { COMPUTER, FREE, MEMORY_T, NAV_DIR, memoryAt, pathAt } from './path';
 
 export interface Frame {
   fall: number;
@@ -155,13 +161,15 @@ void main() {
     vec3 L = uLP[i] - vWorld;
     float d2 = dot(L, L);
     float facing = max(0.0, dot(normalize(L), vWN)) * 0.75 + 0.25;
-    col += uLC[i] * facing * (0.03 + line * on * 0.7) * 16.0 / (1.0 + d2 * 0.16);
+    col += uLC[i] * facing * (0.02 + line * on * 0.7) * 14.0 / (1.0 + d2 * 0.3);
   }
 
   // Far beams sink into the dark.
   col *= exp(-vDepth * 0.02);
   col = 1.0 - exp(-col * 1.6);
-  gl_FragColor = vec4(pow(col, vec3(0.4545)), 1.0);
+  // Linear out: three encodes it for the screen, or leaves it linear for the lens pass.
+  gl_FragColor = vec4(col, 1.0);
+  #include <colorspace_fragment>
 }`;
 
 const GLINT = /* glsl */ `
@@ -180,6 +188,7 @@ void main() {
   float core = sin(u * 3.14159);
   float a = core * core * (0.5 + uSpeed * 1.2) * exp(-vDepth * 0.012);
   gl_FragColor = vec4(tint * a, 1.0);
+  #include <colorspace_fragment>
 }`;
 
 type Draw = (g: CanvasRenderingContext2D, w: number, h: number) => void;
@@ -273,6 +282,29 @@ const WINDOWS: Draw[] = [
   },
 ];
 
+/** Barrel distortion with a little color fringing, scaled so the corners stay filled. */
+const LENS = /* glsl */ `
+uniform sampler2D tMap;
+uniform float uK;
+uniform float uAspect;
+varying vec2 vUv;
+vec2 bend(vec2 uv, float k) {
+  vec2 c = (uv - 0.5) * vec2(uAspect, 1.0);
+  float edge = (uAspect * uAspect + 1.0) * 0.25;
+  c *= (1.0 + k * dot(c, c)) / (1.0 + k * edge);
+  return c / vec2(uAspect, 1.0) + 0.5;
+}
+void main() {
+  float r = texture2D(tMap, bend(vUv, uK * 1.02)).r;
+  vec2 gb = bend(vUv, uK);
+  float g = texture2D(tMap, gb).g;
+  float b = texture2D(tMap, bend(vUv, uK * 0.98)).b;
+  vec2 c = vUv - 0.5;
+  float vignette = 1.0 - dot(c, c) * 0.55;
+  gl_FragColor = vec4(vec3(r, g, b) * vignette, 1.0);
+  #include <colorspace_fragment>
+}`;
+
 /** The first computer's screen, booting. */
 const BOOT: Draw = (g, w, h) => {
   g.fillStyle = '#0b0f0a';
@@ -298,7 +330,6 @@ export function createWorld({ canvas, coarse, still }: Options): World | null {
   renderer.outputColorSpace = SRGBColorSpace;
 
   const lattice = createLattice(coarse);
-  const { depth, windowDistance } = lattice;
   const scene = new Scene();
   scene.background = new Color(0x030304);
   const cam = new PerspectiveCamera(62, 1, 0.1, 400);
@@ -334,23 +365,16 @@ export function createWorld({ canvas, coarse, still }: Options): World | null {
     m.frustumCulled = false;
     scene.add(m);
   };
-  instance(
-    [...lattice.posts, ...lattice.beamsX, ...lattice.beamsZ, ...lattice.slats, ...lattice.floor],
-    beamMat,
-  );
+  instance([...lattice.posts, ...lattice.beamsX, ...lattice.beamsZ, ...lattice.slats], beamMat);
   instance(lattice.glints, glintMat);
 
-  // The memories: small 3D scenes in the gaps, each with a light that leaks onto the beams.
+  // The memories: small 3D scenes beside the path, each with a light that leaks onto the beams.
   scene.add(new AmbientLight(0x2a2420, 0.6));
-  const places = GAPS.map((gap, i) => ({
-    x: gap.side[0] * windowDistance,
-    y: lattice.gapY[i] ?? 0,
-    z: gap.side[1] * windowDistance,
-  }));
+  const places = MEMORY_T.map((t, i) => ({ ...memoryAt(i), face: pathAt(t) }));
   const memories = createMemories(
     scene,
     places,
-    { x: 0, y: -depth - 1, z: 0 },
+    { ...COMPUTER, face: pathAt(1) },
     {
       code: () => pixelWindow(WINDOWS[0] ?? (() => undefined)),
       boot: () => pixelWindow(BOOT, 64, 44),
@@ -361,16 +385,38 @@ export function createWorld({ canvas, coarse, still }: Options): World | null {
     uniforms.uLP.value[i]?.copy(sp.position);
     uniforms.uLC.value[i]?.set(sp.color.r, sp.color.g, sp.color.b);
   });
-  const windows = places;
+  const sights = [...places.map((m, i) => ({ ...m, t: MEMORY_T[i] ?? 0 })), { ...COMPUTER, t: 1 }];
+
+  // The lens: the frame is drawn into a texture, then bent a little outward (barrel), with a
+  // trace of color fringing at the edges, like an ultra-wide lens. Only while navigating.
+  const target = new WebGLRenderTarget(1, 1, { samples: coarse ? 0 : 4, type: HalfFloatType });
+  const lensUniforms = {
+    tMap: { value: target.texture },
+    uK: { value: 0 },
+    uAspect: { value: 1 },
+  };
+  const lensMat = new ShaderMaterial({
+    uniforms: lensUniforms,
+    vertexShader:
+      'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+    fragmentShader: LENS,
+  });
+  const lensGeo = new PlaneGeometry(2, 2);
+  const lensScene = new Scene();
+  lensScene.add(new Mesh(lensGeo, lensMat));
+  const lensCam = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  disposables.push(target, lensMat, lensGeo);
 
   // Specks of light drifting in the shaft.
   const n = coarse ? 500 : 1100;
   const rnd = seeded(4242);
   const pos = new Float32Array(n * 3);
   for (let i = 0; i < n; i++) {
-    pos[i * 3] = (rnd() - 0.5) * 18;
-    pos[i * 3 + 1] = -rnd() * depth;
-    pos[i * 3 + 2] = (rnd() - 0.5) * 18;
+    // Half in the shaft, half along the glide.
+    const p = pathAt(rnd());
+    pos[i * 3] = p.x + (rnd() - 0.5) * 18;
+    pos[i * 3 + 1] = p.y + (rnd() - 0.5) * 12;
+    pos[i * 3 + 2] = p.z + (rnd() - 0.5) * 18;
   }
   const dustGeo = new BufferGeometry();
   dustGeo.setAttribute('position', new BufferAttribute(pos, 3));
@@ -403,37 +449,72 @@ export function createWorld({ canvas, coarse, still }: Options): World | null {
       lastNow = now;
       uniforms.uSpeed.value = still ? 0 : speed;
 
-      const y = -fall * (depth - 6) - through * 8;
-      const tumble = still ? 0 : (1 - smooth(0, 0.1, fall)) * 0.8;
-      const spin = fall * Math.PI * 0.9 + (still ? 0 : Math.sin(now / 2600) * 0.03);
-      cam.position.set(lookX * 1.6, y, lookY * 1.6);
-      const roll = spin + tumble * Math.sin(now / 500);
-      // Passing a gap, the gaze swings to its window and the view rights itself, so the
-      // moment reads upright; then it turns back down the shaft.
-      let gx = lookX * 0.4;
-      let gz = lookY * 0.4;
-      let gy = y - 20;
-      let upright = 0;
-      for (const win of windows) {
-        const k = Math.max(0, 1 - Math.abs(win.y - y) / 22);
-        const pull = k * k * (3 - 2 * k);
-        if (pull > 0) {
-          const g = pull * (still ? 0.7 : 0.95);
-          gx += (win.x - gx) * g;
-          gz += (win.z - gz) * g;
-          gy += (win.y - gy) * g;
-          upright = Math.max(upright, pull);
-        }
+      const p = pathAt(fall);
+      // 0 in free fall, 1 once righted and navigating.
+      const nav = smooth(FREE - 0.05, FREE + 0.06, fall);
+      const ahead = { x: NAV_DIR.x, z: NAV_DIR.z };
+      const side = { x: Math.SQRT1_2, z: -Math.SQRT1_2 };
+      // Through the end: on into the first computer's screen.
+      const px = p.x + ahead.x * through * 9;
+      const pz = p.z + ahead.z * through * 9;
+      const py = p.y;
+
+      // Free fall: down the shaft, tumbling and spinning, out of control.
+      const tumble = still ? 0 : (1 - smooth(0, 0.1, fall)) * 0.8 + (1 - nav) * 0.18;
+      const spin = fall * Math.PI * 2.4 + (still ? 0 : Math.sin(now / 2600) * 0.05);
+      const roll = spin + tumble * Math.sin(now / 430);
+      const fallLook = { x: px + lookX * 0.4, y: py - 20, z: pz + lookY * 0.4 };
+      const fallUp = { x: Math.sin(roll), y: 0, z: Math.cos(roll) };
+
+      // Navigation: level, looking along the diagonal, a little down. The grid runs to two
+      // vanishing points, one each side.
+      const navLook = {
+        x: px + ahead.x * 20 + side.x * lookX * 3,
+        y: py - 2.2 - lookY * 2,
+        z: pz + ahead.z * 20 + side.z * lookX * 3,
+      };
+      let gx = fallLook.x + (navLook.x - fallLook.x) * nav;
+      let gy = fallLook.y + (navLook.y - fallLook.y) * nav;
+      let gz = fallLook.z + (navLook.z - fallLook.z) * nav;
+      // Passing a memory, the gaze swings to it, then back to the way ahead.
+      for (const m of sights) {
+        const k = Math.max(0, 1 - Math.abs(m.t - fall) / 0.07);
+        const pull = k * k * (3 - 2 * k) * nav * (still ? 0.45 : 0.6) * (m.t === 1 ? 0 : 1);
+        gx += (m.x - gx) * pull;
+        gy += (m.y + 1 - gy) * pull;
+        gz += (m.z - gz) * pull;
       }
-      cam.up
-        .set(Math.sin(roll) * (1 - upright), upright, Math.cos(roll) * (1 - upright))
-        .normalize();
+      cam.position.set(
+        px + side.x * lookX * 1.2 * nav + lookX * 1.4 * (1 - nav),
+        py,
+        pz + side.z * lookX * 1.2 * nav + lookY * 1.4 * (1 - nav),
+      );
+      cam.up.set(fallUp.x * (1 - nav), nav, fallUp.z * (1 - nav)).normalize();
       cam.lookAt(gx, gy, gz);
-      // Speed widens the view a little, like a jump.
-      cam.fov = (w / h < 0.8 ? 82 : 62) + through * 20 + (still ? 0 : speed * 10);
+      // The shaft through a normal lens; the glide through an ultra-wide one. Speed opens it
+      // a little more, like a jump.
+      const portrait = w / h < 0.8;
+      const shaftFov = portrait ? 82 : 62;
+      const wideFov = portrait ? 104 : 84;
+      cam.fov = shaftFov + (wideFov - shaftFov) * nav + through * 16 + (still ? 0 : speed * 8);
       cam.updateProjectionMatrix();
       if (!still) dust.rotation.y += dt * 0.03;
+      const k = nav * (portrait ? 0.24 : 0.17);
+      if (k < 0.01) {
+        renderer.setRenderTarget(null);
+        renderer.render(scene, cam);
+        return;
+      }
+      const dpr = renderer.getPixelRatio();
+      const tw = Math.round(w * dpr);
+      const th = Math.round(h * dpr);
+      if (target.width !== tw || target.height !== th) target.setSize(tw, th);
+      renderer.setRenderTarget(target);
       renderer.render(scene, cam);
+      renderer.setRenderTarget(null);
+      lensUniforms.uK.value = k;
+      lensUniforms.uAspect.value = w / h;
+      renderer.render(lensScene, lensCam);
     },
     dispose() {
       disposables.forEach((d) => d.dispose());

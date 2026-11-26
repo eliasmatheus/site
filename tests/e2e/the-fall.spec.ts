@@ -3,6 +3,7 @@ import { MODE_CONFIG } from '../../src/engine/engine';
 import type { StageMode } from '../../src/engine/layers';
 import { createTimeline } from '../../src/engine/timeline';
 import { SCENES } from '../../src/scenes/registry';
+import { BOTTOM_AT, GAPS } from '../../src/scenes/the-fall/beats';
 
 const index = SCENES.findIndex((s) => s.id === 'the-fall');
 const dwell = SCENES[index]?.dwell ?? 0;
@@ -44,7 +45,7 @@ test.describe('the fall', () => {
     ).toBeVisible();
   });
 
-  test('names each moment seen through a gap, newest first', async ({ page }) => {
+  test('names each memory as it is passed, newest first', async ({ page }) => {
     await page.goto('/journey');
     const labels = [
       '2020 · print(‘Olá, Mundo!’)',
@@ -53,7 +54,7 @@ test.describe('the fall', () => {
       '2011 · The choice',
       'Late 90s · The first computer',
     ];
-    for (const [i, p] of [0.24, 0.39, 0.54, 0.69, 0.79].entries()) {
+    for (const [i, p] of [...GAPS.map((g) => g.at), BOTTOM_AT].entries()) {
       await at(page, p);
       await expect(scene(page).locator('[data-glimpse]')).toHaveAttribute('data-on', '');
       await expect(scene(page).locator('[data-glimpse-text]')).toHaveText(labels[i] ?? '');

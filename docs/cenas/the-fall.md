@@ -61,3 +61,15 @@ Pedido do Elias: estava parecida demais com o protótipo, o fluxo avançava "lou
 Em aberto:
 - Os cenários das memórias ainda são geometria simples (caixas, cilindros, uma duna deformada). Dá para refinar cada um.
 - Desempenho num celular médio real ainda não medido.
+
+## Duas fases de movimento (26/11/2026, noite)
+
+Pedido do Elias: no filme, a queda dentro do tesseract é livre e sem controle até o "centro"; depois a navegação muda. Anda-se na diagonal, a vista parece passar por uma lente ultra grande-angular, em perspectiva cônica de dois pontos, levemente distorcida.
+
+- **Caminho em duas partes** (`src/scenes/the-fall/path.ts`, puro): queda livre reta pelo poço até o centro (38% do caminho), girando e tombando; depois a câmera se endireita e desliza na diagonal pela grade, quase nivelada. Olhando ao longo da diagonal e com o horizonte reto, as vigas fogem para dois pontos de fuga.
+- **Lente:** na navegação o campo de visão abre (84° na vertical no desktop, 104° em retrato) e uma passada de pós-processamento curva a imagem em barril, com um pouco de franja de cor nas bordas e vinheta. Na queda livre, lente normal e sem passada extra.
+- **Memórias ao longo da diagonal**, alternando os lados, um pouco à frente de onde são nomeadas, para serem vistas em ângulo. O primeiro computador espera no fim do caminho, de frente.
+- **Estrutura** com 15 linhas de grade, para cobrir a diagonal. As regras de área livre agora são gerais: tubos em volta do caminho (3,6 de raio), da linha de visão de cada memória e uma esfera em volta de cada memória. Vigas e pilares que cruzam uma área livre são cortados em pedaços de uma célula, então a grade continua em volta. Tudo testado.
+- **Cor:** os shaders das vigas passaram a escrever cor linear e deixam a conversão para o three.js, para a passada da lente não aplicar gama duas vezes (isso deixava tudo esbranquiçado).
+
+Em aberto: a memória das estruturas ainda passa perto da borda do quadro; no celular as memórias ficam pequenas.

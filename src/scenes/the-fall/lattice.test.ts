@@ -1,42 +1,44 @@
 import { describe, expect, it } from 'vitest';
 import { GAPS, fallState } from './beats';
-import { CAMERA_COLUMN, createLattice, type Box } from './lattice';
-
-const crossesColumn = (b: Box, half: number) =>
-  Math.abs(b[0]) - b[3] / 2 < half && Math.abs(b[2]) - b[5] / 2 < half;
+import { clearings, createLattice, cuts } from './lattice';
+import { FREE, MEMORY_T, NAV_DIR, pathAt } from './path';
 
 describe('lattice', () => {
   for (const coarse of [false, true]) {
     const l = createLattice(coarse);
+    const all = [...l.posts, ...l.beamsX, ...l.beamsZ, ...l.slats, ...l.glints];
+    const name = coarse ? 'phone' : 'desktop';
 
-    it(`never puts a beam or a post in the camera's path (${coarse ? 'phone' : 'desktop'})`, () => {
-      const all = [...l.posts, ...l.beamsX, ...l.beamsZ, ...l.slats, ...l.glints];
-      expect(all.length).toBeGreaterThan(100);
-      expect(all.filter((b) => crossesColumn(b, CAMERA_COLUMN))).toEqual([]);
+    it(`is dense (${name})`, () => {
+      expect(all.length).toBeGreaterThan(800);
     });
 
-    it(`keeps each gap's line of sight open (${coarse ? 'phone' : 'desktop'})`, () => {
-      GAPS.forEach((g, i) => {
-        const y = l.gapY[i] ?? 0;
-        // Sample the line from the axis to the window at the gap's height.
-        for (let d = CAMERA_COLUMN; d < l.windowDistance - 1; d += 0.5) {
-          const x = g.side[0] * d;
-          const z = g.side[1] * d;
-          const hit = [...l.posts, ...l.beamsX, ...l.beamsZ, ...l.slats].some(
-            (b) =>
-              Math.abs(x - b[0]) < b[3] / 2 &&
-              Math.abs(y - b[1]) < b[4] / 2 &&
-              Math.abs(z - b[2]) < b[5] / 2,
-          );
-          expect(hit).toBe(false);
-        }
-      });
+    it(`keeps the camera's path, each line of sight and each memory clear (${name})`, () => {
+      const hits = clearings().flatMap((c) => all.filter((b) => cuts(b, c)));
+      expect(hits).toEqual([]);
     });
 
-    it(`is the same on every visit (${coarse ? 'phone' : 'desktop'})`, () => {
+    it(`is the same on every visit (${name})`, () => {
       expect(createLattice(coarse)).toEqual(l);
     });
   }
+});
+
+describe('path', () => {
+  it('falls straight down first, then glides on a diagonal, almost level', () => {
+    const top = pathAt(0);
+    const center = pathAt(FREE);
+    expect(center.x).toBe(top.x);
+    expect(center.z).toBe(top.z);
+    expect(center.y).toBeLessThan(top.y - 100);
+    // Diagonal across the grid: as much x as z, little descent.
+    expect(NAV_DIR.x).toBeCloseTo(NAV_DIR.z, 5);
+    expect(Math.abs(NAV_DIR.y)).toBeLessThan(0.25);
+  });
+
+  it('passes every memory during the glide', () => {
+    expect(MEMORY_T.every((t) => t > FREE && t < 1)).toBe(true);
+  });
 });
 
 describe('fall beats', () => {
@@ -47,10 +49,14 @@ describe('fall beats', () => {
     expect(fallState(1).retro).toBe(2);
   });
 
-  it('names the moment at each gap stop, then the first computer', () => {
+  it('names each memory as it is passed, then the first computer', () => {
     GAPS.forEach((g, i) => expect(fallState(g.at).glimpse).toBe(i));
     expect(fallState(0.79).glimpse).toBe(GAPS.length);
     expect(fallState(0.03).glimpse).toBe(-1);
+  });
+
+  it('names nothing during the free fall', () => {
+    for (let p = 0.05; p < 0.3; p += 0.01) expect(fallState(p).glimpse).toBe(-1);
   });
 
   it('opens the iris in hard steps', () => {

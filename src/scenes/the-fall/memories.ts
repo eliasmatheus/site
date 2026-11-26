@@ -1,7 +1,7 @@
 /**
  * The moments in the tesseract's gaps, as small 3D scenes with their own light: a desk with a
  * laptop (2020), a dune under a hard sun (the desert), a footing and its column in the soil
- * (structures), three cards on a stage (the choice) and, at the bottom, the first computer.
+ * (structures), three cards on a stage (the choice) and, at the end, the first computer.
  *
  * Each light is a color the tesseract does not have (cold blue, white sun, green, violet,
  * phosphor), so the memory reads against the amber beams; `spill` hands the same lights to
@@ -36,10 +36,15 @@ export interface Memories {
   dispose(): void;
 }
 
-interface Place {
+interface Point {
   x: number;
   y: number;
   z: number;
+}
+
+/** Where a memory stands, and the point on the path it turns to. */
+export interface Place extends Point {
+  face: Point;
 }
 
 type Screen = (w: number, h: number) => CanvasTexture;
@@ -67,7 +72,7 @@ export function createMemories(
     o.position.set(x, y, z);
     return o;
   };
-  /** A memory sits at a gap and faces the shaft's axis. */
+  /** A memory stands beside the path and turns to the point where it is passed. */
   const place = (
     at: Place,
     build: (g: Group) => void,
@@ -79,10 +84,10 @@ export function createMemories(
   ) => {
     const g = new Group();
     g.position.set(at.x, at.y, at.z);
-    g.lookAt(0, at.y, 0);
-    // A little bigger than life and tipped towards the camera, so it reads from the shaft.
+    g.lookAt(at.face.x, at.y, at.face.z);
+    // A little bigger than life and tipped towards the eye, a little above it.
     g.scale.setScalar(1.45);
-    g.rotateX(0.32);
+    g.rotateX(0.18);
     build(g);
     const l = new PointLight(light, power, 22, 1.6);
     l.position.set(lx, ly, lz);
@@ -223,12 +228,12 @@ export function createMemories(
     );
   }
 
-  // Late 90s · the first computer, waiting at the bottom: a beige monitor on its case.
+  // Late 90s · the first computer, waiting at the end of the path: a beige monitor on its case.
   {
     const g = new Group();
     g.position.set(bottom.x, bottom.y, bottom.z);
-    // Tilted back, so the screen looks up the shaft at the falling visitor.
-    g.rotation.x = -Math.PI / 2 + 0.25;
+    g.lookAt(bottom.face.x, bottom.y, bottom.face.z);
+    g.scale.setScalar(1.3);
     const beige = std(0xd6cdb6, { roughness: 0.8 });
     g.add(mesh(new BoxGeometry(5.6, 1.4, 4.6), beige, 0, -2.8, -0.6));
     g.add(mesh(new BoxGeometry(4.6, 3.8, 3.6), beige, 0, 0, -0.8));
