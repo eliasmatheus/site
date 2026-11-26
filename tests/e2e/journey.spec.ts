@@ -83,6 +83,8 @@ test.describe('journey', () => {
   });
 
   test('every point of the flight shows a scene (no empty frame)', async ({ page }) => {
+    // The flight lands in The fall, whose WebGL is slow on the test machines' software GPU.
+    test.slow();
     await page.goto('/journey');
     const mode = await page.locator('[data-stage]').getAttribute('data-mode');
     const travel = mode === 'fly' ? 1000 : 600;

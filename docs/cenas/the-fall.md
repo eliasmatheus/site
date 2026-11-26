@@ -28,11 +28,23 @@ A ideia do stabondar.com (blocos 3D com faces), mas invertida: em vez de ver a e
 ## Em aberto
 
 - Interação com as janelas (clicar para olhar de perto, side quests) ainda não existe na v2.
-- Texto das janelas aparece girado conforme o poço gira; avaliar manter legível.
+- Texto das janelas girado: resolvido (a câmera se endireita em cada brecha).
 - Desempenho num celular médio: menos níveis e pixel ratio 1,25 no protótipo, ainda sem medição real.
 
 ## Aceite
 
-- [ ] Toda posição de scroll mostra a estrutura, o título ou a tela retrô.
-- [ ] Reduced motion: sem tombo, poço sem girar e poeira parada.
-- [ ] Sem WebGL: a transição para a tela retrô continua funcionando.
+- [x] Toda posição de scroll mostra a estrutura, o título ou a tela retrô.
+- [x] Reduced motion: sem tombo, poço sem girar e poeira parada.
+- [x] Sem WebGL: a transição para a tela retrô continua funcionando.
+- [x] A câmera não atravessa vigas (testado em `lattice.test.ts`).
+- [ ] Desempenho num celular médio de verdade (ainda não medido).
+
+## Como ficou no site (26/11/2026)
+
+- `src/scenes/the-fall/`: `beats.ts` (progresso → queda, brechas, íris e tela retrô; puro), `lattice.ts` (estrutura de vigas com semente fixa; pura e testada), `world.ts` (three.js, carregado por import dinâmico) e `controller.ts`. Copy em `src/content/the-fall.ts`.
+- Vem logo depois do Horizon (o clarão branco da queda continua aqui) e antes da The Call. Dwell de 4200 px.
+- **Sem vigas no caminho:** nenhuma viga na linha do poço e nenhuma caixa dentro da coluna da câmera (2,6 unidades do eixo, cobrindo a paralaxe do mouse). A linha de visão de cada brecha também fica livre. Os dois casos têm teste.
+- **Paradas:** um gesto por visão (título, cada brecha, o primeiro computador, o save), com o motor de `src/engine/pacing.ts`.
+- **Janelas legíveis:** ao passar por uma brecha o olhar centraliza a janela e a câmera se endireita (resolve o "texto girado" que estava em aberto); depois volta a girar descendo.
+- **Fim diferente do protótipo:** a tela retrô não repete o boot e a fala da The Call (que vem logo em seguida). Ela mostra "LOADING...", depois "SAVE FILE · LATE 90S" e um menu de RPG com "CONTINUE" e "NEW GAME", na mesma caixa de borda dupla com que a The Call abre. O ano ficou "Late 90s" porque a data exata do primeiro computador não está confirmada (1997 a 1999).
+- three.js só carrega no primeiro sinal de visitante (scroll, ponteiro, toque ou tecla). Antes disso, e sem WebGL, um gradiente parado faz o poço. Lighthouse mobile de `/journey`: 100.
