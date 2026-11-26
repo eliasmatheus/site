@@ -1,0 +1,30 @@
+---
+import Header from '../components/Header.astro';
+import Stage from '../components/Stage.astro';
+import Base from '../layouts/Base.astro';
+import Call from '../scenes/call/Call.astro';
+import Desert from '../scenes/desert/Desert.astro';
+import Prologue from '../scenes/prologue/Prologue.astro';
+import { DUNES_PLACEHOLDER } from '../scenes/prologue/placeholder';
+import ToBeContinued from '../scenes/to-be-continued/ToBeContinued.astro';
+import { site } from '../content/site';
+---
+
+<Base title={site.title} description="Meet Elias. From civil engineering to AI engineering.">
+  <link
+    slot="head"
+    rel="preload"
+    as="image"
+    href="/assets/prologue/dunes-360.webp"
+    fetchpriority="high"
+  />
+  <Header />
+  <main>
+    <Stage>
+      <Prologue placeholder={DUNES_PLACEHOLDER} />
+      <Call />
+      <Desert />
+      <ToBeContinued />
+    </Stage>
+  </main>
+</Base>

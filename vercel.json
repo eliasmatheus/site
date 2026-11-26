@@ -1,0 +1,3 @@
+{
+  "redirects": [{ "source": "/work", "destination": "/", "permanent": true }]
+}

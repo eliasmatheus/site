@@ -1,4 +1,4 @@
-// The /work page: fast and scannable, no journey. Positioning, three projects, experience,
+// The work record shown on the landing (/): fast and scannable, no journey. Positioning, three projects, experience,
 // contact. Experience and projects come from the v1 prototype (Journey.dc.html).
 
 export interface Project {

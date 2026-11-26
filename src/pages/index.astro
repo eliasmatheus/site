@@ -1,30 +1,547 @@
 ---
-import Header from '../components/Header.astro';
-import Stage from '../components/Stage.astro';
 import Base from '../layouts/Base.astro';
-import Call from '../scenes/call/Call.astro';
-import Desert from '../scenes/desert/Desert.astro';
-import Prologue from '../scenes/prologue/Prologue.astro';
-import { DUNES_PLACEHOLDER } from '../scenes/prologue/placeholder';
-import ToBeContinued from '../scenes/to-be-continued/ToBeContinued.astro';
+import { landing } from '../content/landing';
 import { site } from '../content/site';
+import { work } from '../content/work';
+
+const email = work.contact.links.email.href.replace('mailto:', '');
+const [first, ...rest] = site.header.name.split(' ');
+const profiles = [work.contact.links.github, work.contact.links.linkedin];
 ---
 
-<Base title={site.title} description="Meet Elias. From civil engineering to AI engineering.">
-  <link
-    slot="head"
-    rel="preload"
-    as="image"
-    href="/assets/prologue/dunes-360.webp"
-    fetchpriority="high"
-  />
-  <Header />
-  <main>
-    <Stage>
-      <Prologue placeholder={DUNES_PLACEHOLDER} />
-      <Call />
-      <Desert />
-      <ToBeContinued />
-    </Stage>
-  </main>
+<Base title={landing.title} description={landing.description}>
+  <canvas class="sky nebula" data-nebula aria-hidden="true"></canvas>
+  <canvas class="sky" data-stars aria-hidden="true"></canvas>
+
+  <div class="wrap">
+    <header class="id">
+      <div>
+        <p class="eyebrow">{landing.eyebrow}</p>
+        <h1 class="name">
+          {`${first} `}
+          <span class="last">
+            {rest.join(' ')}
+            <svg class="orbit" viewBox="0 0 44 44" aria-hidden="true">
+              <circle
+                cx="22"
+                cy="22"
+                r="20"
+                fill="none"
+                stroke="currentColor"
+                stroke-opacity=".25"
+              ></circle>
+              <circle
+                cx="22"
+                cy="22"
+                r="5"
+                fill="#000"
+                stroke="var(--accent)"
+                stroke-width="1.5"
+              ></circle>
+              <g class="sat">
+                <circle cx="42" cy="22" r="2.5" fill="currentColor"></circle>
+              </g>
+            </svg>
+          </span>
+        </h1>
+        <p class="pos">{work.positioning.headline}</p>
+        <p class="intro">{work.positioning.text}</p>
+        <nav aria-label="On this page" data-section-nav>
+          <ul>
+            {landing.nav.map((n) => (
+              <li>
+                <a href={`#${n.id}`}>{n.label}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+      <div class="social">
+        {profiles.map((p) => (
+          <a href={p.href} rel="me">
+            {p.label}
+          </a>
+        ))}
+        <a class="email" href={work.contact.links.email.href}>
+          {email}
+        </a>
+      </div>
+    </header>
+
+    <main class="record">
+      <section id="about" aria-labelledby="h-about">
+        <h2 id="h-about">{landing.about.title}</h2>
+        <div class="about">
+          {landing.about.paragraphs.map((p) => (
+            <p>{p}</p>
+          ))}
+        </div>
+      </section>
+
+      <section id="experience" aria-labelledby="h-experience">
+        <h2 id="h-experience">{work.experience.title}</h2>
+        <ol class="items">
+          {work.experience.items.map((j) => (
+            <li class="item">
+              <span class="when">{j.year}</span>
+              <div>
+                <h3>{j.org}</h3>
+                <p>{j.note}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section id="projects" aria-labelledby="h-projects">
+        <h2 id="h-projects">{landing.nav[2].label}</h2>
+        <ul class="items">
+          {work.projects.items.map((p) => (
+            <li class="item">
+              <span class="when">{p.tag.split(' · ').at(-1)}</span>
+              <div>
+                <h3>{p.title}</h3>
+                <p>{p.description}</p>
+                <span class="tag">{p.metrics ?? p.status}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <section class="door" aria-labelledby="h-door">
+    <div class="door-inner">
+      <canvas class="ring" data-ring aria-hidden="true"></canvas>
+      <h2 id="h-door">{landing.door.title}</h2>
+      <p>{landing.door.text}</p>
+      <a href={landing.door.href}>{landing.door.cta}</a>
+    </div>
+  </section>
 </Base>
+
+<script>
+  import { startSky, trackSections } from '../landing/sky';
+
+  trackSections();
+  // The sky is decoration: it waits for the first sign of a visitor, or a few seconds after load.
+  let started = false;
+  const start = (): void => {
+    if (started) return;
+    started = true;
+    startSky();
+  };
+  for (const type of ['pointermove', 'pointerdown', 'scroll', 'keydown'] as const) {
+    window.addEventListener(type, start, { once: true, passive: true });
+  }
+  const later = (): number => window.setTimeout(start, 3000);
+  if (document.readyState === 'complete') later();
+  else window.addEventListener('load', later, { once: true });
+</script>
+
+<style>
+  :global(:root) {
+    --line: rgb(233 230 223 / 0.12);
+    --chip: rgb(255 138 61 / 0.1);
+  }
+
+  :global(body) {
+    background: #05060a;
+  }
+
+  .sky {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* The nebula fades in once the shader is ready, so no black flash on slow devices. */
+  .nebula {
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+
+  .nebula[data-ready] {
+    opacity: 1;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: 64px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-right: max(24px, env(safe-area-inset-right, 0px));
+    padding-left: max(24px, env(safe-area-inset-left, 0px));
+  }
+
+  .id {
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+    height: 100dvh;
+    padding-block: 96px 56px;
+    text-shadow: 0 1px 18px rgb(5 6 10 / 0.85);
+  }
+
+  .record {
+    min-width: 0;
+    padding-block: 96px 0;
+  }
+
+  /* Text stays readable when the nebula opens up right behind it. */
+  .record,
+  .door-inner {
+    text-shadow:
+      0 1px 2px rgb(5 6 10 / 0.9),
+      0 1px 16px rgb(5 6 10 / 0.9);
+  }
+
+  .eyebrow {
+    margin: 0 0 18px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .name {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: clamp(48px, 6vw, 84px);
+    font-style: italic;
+    font-weight: 300;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+  }
+
+  /* The satellite always rides on the last word of the name. */
+  .last {
+    white-space: nowrap;
+  }
+
+  .orbit {
+    width: 44px;
+    height: 44px;
+    margin-left: 12px;
+    vertical-align: middle;
+  }
+
+  .orbit .sat {
+    transform-origin: 22px 22px;
+    animation: spin 6s linear infinite;
+  }
+
+  .pos {
+    max-width: 26ch;
+    margin: 22px 0 0;
+    font-size: clamp(20px, 2vw, 24px);
+    font-weight: 500;
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  .intro {
+    max-width: 42ch;
+    margin: 14px 0 0;
+    color: var(--muted);
+  }
+
+  nav ul {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 40px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 36px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 1.8px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  nav a::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: currentColor;
+    transition: width 0.25s ease;
+  }
+
+  nav a:hover,
+  nav a[aria-current='true'] {
+    color: var(--fg);
+  }
+
+  nav a:hover::before,
+  nav a[aria-current='true']::before {
+    width: 64px;
+  }
+
+  .social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  .social a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .social a:hover {
+    color: var(--fg);
+  }
+
+  .social .email {
+    color: var(--fg);
+    user-select: all;
+  }
+
+  section {
+    padding-bottom: 96px;
+    scroll-margin-top: 80px;
+  }
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 28px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h2::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  .about p {
+    max-width: 60ch;
+    margin: 0 0 16px;
+    color: #b9b5ad;
+  }
+
+  .items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 20px;
+    margin: 0 -18px;
+    padding: 18px;
+    border-radius: 10px;
+    transition:
+      opacity 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  /* Hovering one entry dims the others. */
+  .items:hover .item {
+    opacity: 0.55;
+  }
+
+  .items .item:hover {
+    opacity: 1;
+    background: var(--chip);
+  }
+
+  .when {
+    padding-top: 3px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+
+  .item h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .item p {
+    margin: 6px 0 0;
+    font-size: 15px;
+    color: #b9b5ad;
+  }
+
+  .tag {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--chip);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.8px;
+    color: var(--accent);
+  }
+
+  .door {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 0 max(24px, env(safe-area-inset-right, 0px)) 0
+      max(24px, env(safe-area-inset-left, 0px));
+    text-align: center;
+  }
+
+  .door-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .ring {
+    width: min(420px, 80vw);
+    height: min(420px, 80vw);
+  }
+
+  .door h2 {
+    justify-content: center;
+    margin: 0;
+    color: var(--accent);
+  }
+
+  .door h2::after {
+    display: none;
+  }
+
+  .door p {
+    max-width: 30ch;
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: clamp(26px, 3.4vw, 40px);
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.15;
+    text-wrap: balance;
+    color: #ece7dc;
+  }
+
+  .door a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 24px;
+    border: 1px solid rgb(236 231 220 / 0.3);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: #ece7dc;
+  }
+
+  .door a:hover {
+    border-color: var(--accent);
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (max-width: 860px) {
+    .wrap {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+      padding-right: max(16px, env(safe-area-inset-right, 0px));
+      padding-left: max(16px, env(safe-area-inset-left, 0px));
+    }
+
+    .id {
+      position: relative;
+      height: auto;
+      padding-block: 72px 32px;
+    }
+
+    nav {
+      display: none;
+    }
+
+    .social {
+      margin-top: 28px;
+    }
+
+    .record {
+      padding-top: 24px;
+    }
+
+    .item {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 4px;
+      margin: 0;
+      padding: 14px 0;
+    }
+
+    .items:hover .item {
+      opacity: 1;
+    }
+
+    .items .item:hover {
+      background: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .orbit .sat {
+      animation: none;
+    }
+
+    .item,
+    nav a::before,
+    .nebula {
+      transition: none;
+    }
+  }
+</style>

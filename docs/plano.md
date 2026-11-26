@@ -33,7 +33,7 @@ Cada fase termina com deploy funcionando. Uma cena só conta como pronta quando 
 
 Protótipos em `reference/prototype/` (`landing-orbit.html`, `black-hole.html`).
 
-- [ ] Landing TL;DR "Orbit" em `/`, com a nebulosa revelada pelo cursor, o conteúdo da `/work` e a porta para a jornada no fim. `/work` passa a redirecionar para ela.
+- [x] Landing TL;DR "Orbit" em `/`, com a nebulosa revelada pelo cursor, o conteúdo da `/work` e a porta para a jornada no fim. `/work` passa a redirecionar para ela. A jornada atual foi para `/journey` até o Horizon existir.
 - [ ] Horizon: wormhole na chegada, buraco negro em WebGL (shader próprio, sem three.js) no enquadramento Off-axis, lens flare no cursor e queda em primeira pessoa. Fallback sem WebGL. (Planeta no cursor em espera.)
 - [x] Protótipo do The fall (`reference/prototype/the-fall.html`).
 - [ ] Cena The fall no site. A câmera não pode atravessar vigas (no protótipo atravessa).

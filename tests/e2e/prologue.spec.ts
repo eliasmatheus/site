@@ -24,22 +24,22 @@ const at = async (page: Page, p: number) => {
 
 /** Look up from the viewfinder until the sun goes down. Each test has fresh storage. */
 const toCamera = async (page: Page) => {
-  await page.goto('/');
+  await page.goto('/journey');
   await at(page, 0.75);
   await expect(scene(page)).toHaveAttribute('data-phase', '2');
 };
 
 test.describe('prologue', () => {
   test('arrives through the viewfinder, perfectly exposed', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/journey');
     await expect(page.getByRole('heading', { level: 1, name: 'Meet Elias.' })).toBeVisible();
     await expect(scene(page).locator('[data-ev]')).toHaveText('±0.0 EV');
     await scene(page).getByRole('link', { name: 'In a hurry? See the work' }).click();
-    await expect(page).toHaveURL(/\/work$/);
+    await expect(page).toHaveURL(/\/$/);
   });
 
   test('the camera is not reachable while looking through the viewfinder', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/journey');
     await expect(scene(page).locator('[data-cam-ui]')).toHaveJSProperty('inert', true);
   });
 
@@ -106,7 +106,7 @@ test.describe('prologue', () => {
   test('reduced motion keeps the quest usable', async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await ctx.newPage();
-    await page.goto('/');
+    await page.goto('/journey');
     await at(page, 0.75);
     await expect(scene(page)).toHaveAttribute('data-phase', '2');
     await expect(scene(page)).toHaveCSS('transform', 'none');

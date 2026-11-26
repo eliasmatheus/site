@@ -27,7 +27,18 @@ Quem está com pressa resolve tudo aqui em 10 segundos: quem é, o que faz, onde
 
 ## Aceite
 
-- [ ] Lighthouse mobile ≥ 95 em performance, SEO 100, acessibilidade 100.
-- [ ] Sem JS, a página inteira continua lá.
-- [ ] Reduced motion: estrelas e satélite parados.
-- [ ] A porta leva ao Horizon sem frame vazio.
+- [x] Lighthouse mobile ≥ 95 em performance, SEO 100, acessibilidade 100. (100 / 100 / 100, LCP 0,9 s, TBT 0 ms, CLS 0,002. Best practices 96 só pelo script do Vercel Analytics, que dá 404 fora da Vercel.)
+- [x] Sem JS, a página inteira continua lá.
+- [x] Reduced motion: estrelas e satélite parados.
+- [ ] A porta leva ao Horizon sem frame vazio. Por enquanto leva à jornada atual em `/journey`; o texto da porta muda quando o Horizon existir.
+
+## Implementação
+
+- Página: `src/pages/index.astro`. Conteúdo: `src/content/landing.ts` + `src/content/work.ts`. Céu: `src/landing/` (`sky.ts`, `nebula.ts`, `trail.ts` com testes).
+- A jornada mudou para `/journey`. `/work` redireciona para `/` (308 na Vercel via `vercel.json`, meta refresh no build estático).
+- O céu só liga na primeira interação (mouse, toque, scroll, tecla) ou 3 s depois do load, para não pesar no LCP nem no TBT.
+- Se os 12 primeiros quadros saírem mais lentos que 24 fps, a nebulosa desliga e ficam só as estrelas.
+- Rastro do cursor só com mouse. No toque, a janela que vagueia é fraca (força 0,07 por ponto) para o texto continuar legível; o texto do registro tem sombra escura.
+- O "About" está em rascunho com fatos que já estão no site (estruturas, igrejas, sondagens, 2020, pagamentos, internet banking, agritech). Revisar com o Elias.
+
+Prints: `docs/screens/fase-4/landing-*.jpg`.

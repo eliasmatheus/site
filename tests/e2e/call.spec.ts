@@ -32,7 +32,7 @@ const at = async (page: Page, p: number) => {
 
 test.describe('the call', () => {
   test('boots, then plays the montage one skill at a time', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/journey');
     await at(page, 0.08);
     await expect(scene(page)).toHaveAttribute('data-beat', 'boot');
     await expect(scene(page).getByText('Dad brought home our first computer.')).toBeVisible();
@@ -44,7 +44,7 @@ test.describe('the call', () => {
   });
 
   test('every point of the scene shows a picture and a line', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/journey');
     for (let p = 0; p <= 1; p += 1 / 30) {
       await at(page, p);
       await expect(scene(page).locator('.line[data-on]')).toHaveCount(1);
@@ -58,7 +58,7 @@ test.describe('the call', () => {
   });
 
   test('everything points to computers, and he picks civil engineering', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/journey');
     await at(page, 0.76);
     await expect(scene(page).locator('[data-card="cs"]')).toHaveAttribute('data-over', 'cs');
     await expect(scene(page)).not.toHaveAttribute('data-chosen', '');
@@ -71,7 +71,7 @@ test.describe('the call', () => {
   });
 
   test('no brand names, anywhere in the scene', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/journey');
     const text = await scene(page).evaluate((el) =>
       [
         el.textContent,
@@ -93,7 +93,7 @@ test.describe('the call', () => {
 
   test('on a phone the line and the picture never overlap', async ({ page, isMobile }) => {
     test.skip(!isMobile, 'mobile layout');
-    await page.goto('/');
+    await page.goto('/journey');
     for (const p of [0.05, 0.3, 0.6, 0.8, 0.95]) {
       await at(page, p);
       const [stage, dialog, skills] = await Promise.all(
@@ -113,7 +113,7 @@ test.describe('the call', () => {
   test('reduced motion shows the choice already made', async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await ctx.newPage();
-    await page.goto('/');
+    await page.goto('/journey');
     await at(page, 0.71);
     await expect(scene(page)).toHaveAttribute('data-beat', 'choice');
     await expect(scene(page)).toHaveAttribute('data-chosen', '');
