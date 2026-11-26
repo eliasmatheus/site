@@ -1,0 +1,513 @@
+<title>Glass Era to Tiles</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* Layout: the viewport is the screen. A sticky full-screen OS; scroll moves the story, the mouse explores. Single era world. */
+  :root {
+    --t: 0;
+    --classic: #c0c0c0;
+    --navy: #0a246a;
+    --sky: #a6caf0;
+    --desk2000: #3a6ea5;
+    --ui: Tahoma, Verdana, 'Segoe UI', sans-serif;
+    --mono: 'Lucida Console', 'Courier New', monospace;
+    color-scheme: light;
+  }
+  html, body { background: #000; }
+  body { font-family: var(--ui); font-size: 12px; color: #000; }
+  .journey { position: relative; }
+  .screen { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; background: var(--desk2000); user-select: none; -webkit-user-select: none; }
+
+  /* ---------- desktop ---------- */
+  .desktop { position: absolute; inset: 0 0 30px 0; }
+  .era-xp .desktop { background: linear-gradient(180deg, #2f6fd0 0%, #6fa9ee 52%, #86c25c 53%, #4a8a2f 100%); }
+  .era-2000 .desktop { background: var(--desk2000); }
+  .icons { position: absolute; left: 10px; top: 10px; display: flex; flex-direction: column; gap: 18px; z-index: 1; }
+  .icon { width: 74px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 2px; border: 1px dotted transparent; background: none; color: #fff; font: 11px var(--ui); text-align: center; cursor: default; }
+  .icon:focus { outline: none; border-color: #fff; }
+  .icon:focus span { background: #0a246a; }
+  .icon i { width: 32px; height: 30px; display: block; }
+  .ic-pc { background: linear-gradient(#e8e8e8 0 62%, #7f7f7f 62% 70%, #c8c8c8 70%); border: 1px solid #444; box-shadow: inset 4px 4px 0 #2f62a8, inset -4px -10px 0 #e8e8e8; }
+  .ic-net { border-radius: 50%; background: radial-gradient(circle at 35% 35%, #8fd18f 0 20%, #2f7fd0 21% 60%, #1b4f8a 61%); }
+  .ic-txt { background: #fff; border: 1px solid #555; box-shadow: inset 0 6px 0 #fff, inset 0 7px 0 #9ab, inset 0 12px 0 #fff, inset 0 13px 0 #9ab, inset 0 18px 0 #fff, inset 0 19px 0 #9ab; }
+  .ic-bin { width: 24px !important; background: linear-gradient(#f2f2f2, #bdbdbd); border: 1px solid #555; border-radius: 0 0 5px 5px; }
+  .icon span { padding: 0 2px; text-shadow: 1px 1px 0 #000; }
+
+  /* ---------- taskbar ---------- */
+  .taskbar { position: absolute; left: 0; right: 0; bottom: 0; height: 30px; display: flex; align-items: center; gap: 4px; padding: 2px 3px; background: var(--classic); border-top: 1px solid #fff; box-shadow: inset 0 1px 0 #dfdfdf; z-index: 50; }
+  .startbtn { display: flex; align-items: center; gap: 4px; height: 24px; padding: 0 6px; border: 0; background: var(--classic); box-shadow: inset -1px -1px #000, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf; font: bold 11px var(--ui); cursor: default; }
+  /* Generic start glyph: no logo. */
+  .startbtn::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff 0 18%, #4a8ad8 19% 60%, #1b4f8a 61%); }
+  .tasks { display: flex; gap: 3px; flex: 1; min-width: 0; overflow: hidden; }
+  .task { height: 22px; max-width: 160px; padding: 0 8px; display: flex; align-items: center; border: 0; background: var(--classic); box-shadow: inset -1px -1px #000, inset 1px 1px #fff, inset -2px -2px #808080; font: 11px var(--ui); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .task.on { box-shadow: inset 1px 1px #000, inset -1px -1px #fff, inset 2px 2px #808080; background: repeating-conic-gradient(#c0c0c0 0 25%, #fff 0 50%) 0 0 / 2px 2px; }
+  .tray { display: flex; align-items: center; gap: 8px; height: 22px; padding: 0 8px; box-shadow: inset 1px 1px #808080, inset -1px -1px #fff; font: 11px var(--ui); }
+  /* Clear of the bezel's rounded corner. */
+  .taskbar { padding-right: 34px !important; } .taskbar .startbtn { margin-left: 18px !important; }
+  .tray .modem { display: none; width: 14px; height: 10px; background: linear-gradient(90deg, #3c3 0 45%, transparent 45% 55%, #3c3 55%); animation: blink 0.4s steps(2) infinite; }
+  .online .tray .modem { display: block; }
+  .era-xp .taskbar { background: linear-gradient(#3168d5, #1c4fc0 50%, #1941a5); border-top: 1px solid #6a9cf0; box-shadow: none; }
+  .era-xp .startbtn { height: 30px; margin: -2px 0 -2px -3px; padding: 0 22px 0 10px; border-radius: 0 12px 12px 0; background: linear-gradient(#53b14a, #2f8a2b 60%, #3a9c35); box-shadow: inset -2px 0 4px rgb(0 0 0 / 0.3); color: #fff; font: italic bold 15px var(--ui); text-shadow: 1px 1px 1px #1a4d18; }
+  .era-xp .task { background: linear-gradient(#3d82f0, #2a6ae0); color: #fff; border-radius: 3px; box-shadow: inset 0 0 0 1px #1c4fc0; }
+  .era-xp .task.on { background: linear-gradient(#1e56c4, #1747a8); }
+  .era-xp .tray { background: linear-gradient(#0f8ae0, #0c74d0); color: #fff; box-shadow: inset 1px 0 0 #3aa8f0; }
+
+  /* ---------- start menu ---------- */
+  .startmenu { position: absolute; left: 2px; bottom: 30px; width: 220px; display: none; background: var(--classic); box-shadow: inset -1px -1px #000, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf; z-index: 60; }
+  .startmenu.open { display: flex; }
+  .startmenu .side { width: 22px; background: linear-gradient(0deg, #000080, #1084d0); color: #c0c0c0; writing-mode: vertical-rl; transform: rotate(180deg); padding: 6px 2px; font: bold 16px var(--ui); }
+  .startmenu ul { list-style: none; margin: 0; padding: 3px; flex: 1; }
+  .startmenu li { padding: 6px 8px; }
+  .startmenu li:hover { background: #0a246a; color: #fff; }
+
+  /* ---------- windows ---------- */
+  .win { position: absolute; display: flex; flex-direction: column; min-width: 220px; background: var(--classic); box-shadow: inset -1px -1px #000, inset 1px 1px #dfdfdf, inset -2px -2px #808080, inset 2px 2px #fff; padding: 3px; z-index: 10; }
+  .win[hidden] { display: none; }
+  .title { display: flex; align-items: center; justify-content: space-between; gap: 6px; height: 20px; padding: 0 3px 0 5px; background: linear-gradient(90deg, #808080, #b5b5b5); color: #d4d0c8; font: bold 11px var(--ui); cursor: move; touch-action: none; }
+  .win.active .title { background: linear-gradient(90deg, var(--navy), var(--sky)); color: #fff; }
+  .title .x { width: 16px; height: 14px; display: grid; place-items: center; border: 0; padding: 0; background: var(--classic); box-shadow: inset -1px -1px #000, inset 1px 1px #fff, inset -2px -2px #808080; font: bold 10px var(--ui); color: #000; cursor: default; }
+  .menu { display: block; padding: 2px 6px; font-size: 11px; word-spacing: 10px; }
+  .body { flex: 1; overflow: auto; background: #fff; box-shadow: inset 1px 1px #808080, inset -1px -1px #fff, inset 2px 2px #000; padding: 8px; }
+  .body.grey { background: var(--classic); box-shadow: none; padding: 10px; }
+  .era-xp .win { padding: 0 3px 3px; border-radius: 8px 8px 0 0; background: #ece9d8; box-shadow: 0 0 0 1px #0831d9, 3px 6px 16px rgb(0 0 0 / 0.35); }
+  .era-xp .title { height: 28px; margin: 0 -3px 3px; padding: 0 5px 0 8px; border-radius: 7px 7px 0 0; background: linear-gradient(#7a96df, #577ed6); font-size: 13px; }
+  .era-xp .win.active .title { background: linear-gradient(#0a5ce8 0%, #3c8af5 8%, #0b5cd8 40%, #0444c9 100%); }
+  .era-xp .title .x { width: 21px; height: 21px; border-radius: 3px; background: linear-gradient(#e78a6a, #c13b1b); box-shadow: inset 0 0 0 1px #fff; color: #fff; font-size: 12px; }
+  .era-xp .body { box-shadow: inset 0 0 0 1px #7f9db9; }
+  .era-xp .body.grey { background: #ece9d8; }
+
+  .btn { min-width: 72px; height: 23px; padding: 0 10px; border: 0; background: var(--classic); box-shadow: inset -1px -1px #000, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf; font: 11px var(--ui); cursor: default; }
+  .btn:active { box-shadow: inset 1px 1px #000, inset -1px -1px #fff, inset 2px 2px #808080; }
+  .btn.primary { outline: 1px solid #000; outline-offset: -1px; }
+  .btn.pulse { animation: pulse 1s ease-in-out infinite; }
+  .era-xp .btn { border-radius: 3px; background: linear-gradient(#fff, #ece9d8); box-shadow: inset 0 0 0 1px #003c74; }
+  .field { display: grid; grid-template-columns: 90px 1fr; gap: 6px 8px; align-items: center; margin: 8px 0; }
+  .input { height: 20px; padding: 2px 4px; background: #fff; box-shadow: inset 1px 1px #808080, inset -1px -1px #fff, inset 2px 2px #000; font: 11px var(--ui); }
+  .progress { height: 18px; padding: 2px; background: #fff; box-shadow: inset 1px 1px #808080, inset -1px -1px #fff; }
+  .progress span { display: block; height: 100%; width: var(--p, 0%); background: repeating-linear-gradient(90deg, #0a246a 0 9px, transparent 9px 11px); }
+  .era-xp .progress span { background: repeating-linear-gradient(90deg, #3cba3c 0 7px, transparent 7px 9px); }
+  .art { height: 92px; margin: -2px -2px 8px; background: linear-gradient(120deg, #0d2f6b, #2f6fb0); position: relative; overflow: hidden; }
+  .art .pc2 { position: absolute; right: 22%; top: 18px; width: 54px; height: 44px; background: #dcdcdc; box-shadow: inset 6px 6px 0 #3aa0e0, inset -6px -14px 0 #dcdcdc; border: 2px solid #555; }
+  .art .globe { position: absolute; left: 18%; top: 14px; width: 60px; height: 60px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #9be29b 0 18%, #2f7fd0 19% 62%, #12406f 63%); animation: spin 3s linear infinite; }
+  .art .wire { position: absolute; left: 32%; right: 36%; top: 44px; height: 3px; background: repeating-linear-gradient(90deg, #ffd34a 0 8px, transparent 8px 14px); background-size: 14px 3px; animation: dash .5s linear infinite; }
+  .dialing .art .wire { animation-duration: .25s; }
+  .status { margin: 6px 0 10px; font-size: 11px; }
+  .row { display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* ---------- the 2001 web page ---------- */
+  .browser .address { display: flex; gap: 6px; align-items: center; padding: 3px 6px; font-size: 11px; }
+  .browser .address .input { flex: 1; }
+  .portal { font-family: Verdana, Arial, sans-serif; font-size: 12px; color: #000; background: #fff; }
+  .portal .head { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: linear-gradient(#ffd400, #ffb000); border-bottom: 3px solid #e02020; }
+  .portal .logo { font: bold italic 26px Georgia, serif; color: #c00000; letter-spacing: -1px; }
+  .portal .logo small { font-size: 12px; color: #333; letter-spacing: 0; }
+  .portal marquee, .portal .marquee { display: block; overflow: hidden; white-space: nowrap; background: #000080; color: #ff0; padding: 3px 0; font: bold 11px Verdana; }
+  .portal .marquee span { display: inline-block; padding-left: 100%; animation: marquee 14s linear infinite; }
+  .portal .cols { display: grid; grid-template-columns: 130px 1fr; gap: 10px; padding: 10px; }
+  .portal nav a { display: block; padding: 3px 0; color: #00c; text-decoration: underline; font-size: 11px; }
+  .portal h2 { margin: 0 0 6px; font: bold 16px Georgia, serif; color: #c00000; }
+  .portal p { margin: 0 0 8px; line-height: 1.45; }
+  .portal .game { display: flex; gap: 8px; align-items: center; margin: 6px 0; padding: 6px; border: 1px dashed #c00000; background: #fffbe6; }
+  .portal .game i { width: 48px; height: 36px; background: linear-gradient(#5ad 0 55%, #3a3 55%); border: 1px solid #333; }
+  .portal .counter { display: inline-block; margin-top: 8px; padding: 2px 6px; background: #000; color: #3f3; font: 12px var(--mono); letter-spacing: 2px; }
+  .portal .construction { display: inline-block; margin-left: 8px; padding: 2px 6px; background: repeating-linear-gradient(45deg, #000 0 6px, #ffd400 6px 12px); color: #000; font-weight: bold; font-size: 10px; }
+  .loadimg { height: calc(var(--load, 1) * 100%); overflow: hidden; }
+
+  /* ---------- messenger toast ---------- */
+  .toast { position: absolute; right: 12px; bottom: 40px; width: 230px; z-index: 70; padding: 10px; border: 1px solid #3a6ea5; border-radius: 6px 6px 0 0; background: linear-gradient(#eaf3ff, #c9ddf7); box-shadow: 0 4px 14px rgb(0 0 0 / 0.35); font-size: 11px; transform: translateY(140%); transition: transform .5s ease; }
+  .toast.on { transform: none; }
+  .toast:not(.on) { opacity: 0; transition: transform .5s ease, opacity .3s ease; }
+  .toast .who { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-weight: bold; color: #0a246a; }
+  .toast .who i { width: 20px; height: 20px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #8f8, #1a8a1a); box-shadow: 9px 3px 0 -3px #3a8ae8; }
+  .nudge { animation: nudge .5s ease-in-out 2; }
+
+  /* ---------- full-screen moments ---------- */
+  .full { position: absolute; inset: 0; z-index: 80; display: none; }
+  .full.on { display: block; }
+  .full:not(.on) { display: none !important; }
+  .gsetup.on { display: grid; }
+  .textsetup { background: #0000a8; color: #c0c0c0; font: 16px var(--mono); }
+  .textsetup .top { padding: 6px 12px 6px 40px; color: #fff; border-bottom: 2px double #c0c0c0; }
+  .textsetup .main { padding: 20px 6vw; line-height: 1.6; }
+  .textsetup .main b { color: #fff; font-weight: normal; }
+  .textsetup .table { margin: 16px 0; padding: 10px 16px; border: 2px double #c0c0c0; max-width: 640px; }
+  .textsetup .sel { background: #c0c0c0; color: #0000a8; }
+  .textsetup .bar { margin-top: 18px; max-width: 640px; border: 2px double #c0c0c0; padding: 6px; }
+  .textsetup .bar span { display: block; height: 16px; width: var(--p, 0%); background: #ffff55; }
+  .textsetup .foot { position: absolute; left: 0; right: 0; bottom: 0; padding: 6px 12px; background: #c0c0c0; color: #000; }
+  .bsod { background: #0000aa; color: #fff; font: 15px var(--mono); padding: 5vh 6vw; line-height: 1.5; }
+  .bsod p { margin: 0 0 1.2em; max-width: 980px; }
+  .gsetup { display: grid; grid-template-columns: minmax(180px, 26%) 1fr; background: linear-gradient(135deg, #0b3fa5, #2f6fd0 60%, #6fa9ee); color: #fff; font-family: var(--ui); }
+  .gsetup .steps { padding: 40px 24px; background: rgb(0 0 40 / 0.35); font-size: 14px; line-height: 2.2; }
+  .gsetup .steps li { list-style: none; opacity: .55; }
+  .gsetup .steps li.on { opacity: 1; font-weight: bold; }
+  .gsetup .steps li.on::before { content: "▶ "; color: #ffd34a; }
+  .gsetup .pane { display: grid; align-content: center; gap: 14px; padding: 6vw; font-size: 16px; }
+  .gsetup .pane h2 { margin: 0; font-weight: 400; font-size: clamp(22px, 3vw, 34px); }
+  .gsetup .left { font-size: 13px; opacity: .85; }
+  .gsetup .progress { max-width: 420px; }
+  .black { background: #000; color: #aaa; font: 15px var(--mono); padding: 5vh 6vw; }
+
+  /* ---------- P2P ---------- */
+  .p2p table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .p2p th { text-align: left; padding: 3px 6px; background: var(--classic); box-shadow: inset -1px -1px #808080, inset 1px 1px #fff; font-weight: normal; }
+  .era-xp .p2p th { background: #ebeadb; box-shadow: inset 0 -2px #d6d2c2; }
+  .p2p td { padding: 3px 6px; border-bottom: 1px solid #eee; white-space: nowrap; }
+  .p2p td .progress { height: 12px; padding: 1px; }
+  .speed { display: flex; justify-content: space-between; gap: 10px; padding: 6px 2px 0; font-size: 11px; }
+  .speed b { color: #0a246a; }
+  .note { position: absolute; z-index: 9; width: 230px; padding: 12px; background: #fff8a8; box-shadow: 2px 4px 10px rgb(0 0 0 / 0.3); font: 13px 'Comic Sans MS', 'Segoe Print', cursive; line-height: 1.4; transform: rotate(-2deg); }
+
+  /* ---------- the monitor, only at the edges: plastic bezel, curved glass corners, edge falloff ---------- */
+  .bezel { position: absolute; inset: 0; z-index: 95; pointer-events: none; }
+  .bezel::before { /* plastic around the glass */
+    content: ""; position: absolute; inset: -40px; border: 64px solid #d9d2bd; border-radius: 96px / 112px;
+    box-shadow: inset 0 0 0 2px #b8af97, inset 0 0 24px 6px rgb(0 0 0 / 0.55);
+  }
+  .bezel::after { /* curved glass: dark corners, soft highlight, faint scanlines */
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 120% 110% at 50% 50%, transparent 62%, rgb(0 0 0 / 0.35) 88%, rgb(0 0 0 / 0.7) 100%),
+      radial-gradient(ellipse 60% 40% at 30% 20%, rgb(255 255 255 / 0.07), transparent 70%),
+      repeating-linear-gradient(180deg, transparent 0 2px, rgb(0 0 0 / 0.07) 2px 3px);
+  }
+  .era-xp .bezel::before { border-color: #e9e8e3; box-shadow: inset 0 0 0 2px #c9c7c0, inset 0 0 22px 6px rgb(0 0 0 / 0.5); border-radius: 84px / 100px; }
+  /* Keep the desktop clear of the bezel. */
+  .screen .desktop, .screen .taskbar, .screen .full { margin: 0; }
+  .screen { padding: 0; }
+  .screen > .desktop { inset: 22px 22px 52px 22px; }
+  .screen > .taskbar { left: 22px; right: 22px; bottom: 22px; }
+  .screen > .full { inset: 22px; }
+  .startmenu { left: 24px !important; bottom: 52px !important; }
+  .toast { right: 34px !important; bottom: 62px !important; }
+  .screen.nudge .bezel { animation: none; }
+
+  /* ---------- outside chrome ---------- */
+  .chrome { position: fixed; z-index: 100; top: calc(env(safe-area-inset-top, 0px) + 32px); right: max(36px, env(safe-area-inset-right, 0px)); display: flex; gap: 6px; font: 11px var(--ui); }
+  .chrome button, .chrome span { padding: 4px 8px; border: 1px solid rgb(255 255 255 / 0.5); border-radius: 12px; background: rgb(0 0 0 / 0.55); color: #fff; font: inherit; }
+  .hint { position: fixed; z-index: 100; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 56px); transform: translateX(-50%); padding: 6px 12px; border-radius: 14px; background: rgb(0 0 0 / 0.6); color: #fff; font: 11px var(--ui); pointer-events: none; transition: opacity .4s; }
+
+  @keyframes blink { 50% { opacity: .2; } }
+  @keyframes spin { to { filter: hue-rotate(40deg); transform: rotate(360deg); } }
+  @keyframes dash { to { background-position: 14px 0; } }
+  @keyframes pulse { 50% { box-shadow: inset -1px -1px #000, inset 1px 1px #fff, 0 0 0 3px #ffd34a; } }
+  @keyframes marquee { to { transform: translateX(-100%); } }
+  @keyframes nudge { 25% { transform: translate(-6px, 2px); } 50% { transform: translate(6px, -2px); } 75% { transform: translate(-4px, 0); } }
+  @media (max-width: 700px) {
+    .win { left: 8px !important; right: 8px; width: auto !important; }
+    .icons { gap: 10px; }
+    .portal .cols { grid-template-columns: 1fr; }
+    .portal nav { display: none; }
+    .gsetup { grid-template-columns: 1fr; }
+    .gsetup .steps { display: none; }
+    .textsetup, .bsod, .black { font-size: 12px; }
+    .note { left: 8px !important; right: 8px; width: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  /* ---------- LCD era: thin black bezel, flat glass ---------- */
+  .lcd .bezel::before { inset: -40px; border: 54px solid #141416; border-radius: 48px; box-shadow: inset 0 0 0 1px #2a2a2e; }
+  .lcd .bezel::after { background: linear-gradient(135deg, rgb(255 255 255 / 0.05), transparent 35%); }
+  .lcd > .desktop { inset: 14px 14px 54px 14px; }
+  .lcd > .taskbar { left: 14px; right: 14px; bottom: 14px; height: 40px; }
+  .lcd > .full { inset: 14px; }
+  .lcd .taskbar { padding-right: 20px !important; } .lcd .taskbar .startbtn { margin-left: 8px !important; }
+
+  /* Vista / 7: glass. */
+  .era-vista .desktop { background: radial-gradient(ellipse 60% 50% at 25% 75%, #1f8f6a 0%, transparent 60%), radial-gradient(ellipse 60% 60% at 80% 25%, #2a4fb0 0%, transparent 60%), radial-gradient(ellipse 40% 30% at 60% 60%, #3fbfa0 0%, transparent 70%), #04121a; }
+  .era-7 .desktop { background: radial-gradient(ellipse 50% 30% at 50% 45%, rgb(160 220 255 / 0.45), transparent 70%), linear-gradient(160deg, #0f4c9c 0%, #1b74c7 45%, #0a3570 100%); }
+  .era-vista .taskbar, .era-7 .taskbar { background: linear-gradient(rgb(40 60 80 / 0.75), rgb(5 15 25 / 0.85)); border-top: 1px solid rgb(255 255 255 / 0.25); box-shadow: none; backdrop-filter: blur(8px); color: #fff; }
+  .era-vista .startbtn, .era-7 .startbtn { width: 36px; height: 36px; margin-top: -6px; padding: 0; border-radius: 50%; background: radial-gradient(circle at 40% 30%, #bfe6ff, #2b77d0 55%, #0b2f66); box-shadow: 0 0 10px rgb(90 170 255 / 0.6); font-size: 0; }
+  .era-vista .startbtn::before, .era-7 .startbtn::before { display: none; }
+  .era-vista .task, .era-7 .task { background: rgb(255 255 255 / 0.12); color: #fff; border-radius: 3px; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.25); }
+  .era-7 .task { width: 44px; padding: 0; justify-content: center; font-size: 0; }
+  .era-7 .task::before { content: ""; width: 22px; height: 18px; border-radius: 3px; background: linear-gradient(#cde, #79a); }
+  .era-vista .tray, .era-7 .tray { box-shadow: none; color: #fff; }
+  .era-vista .win, .era-7 .win { padding: 0 6px 6px; border-radius: 8px; background: rgb(150 190 220 / 0.38); backdrop-filter: blur(12px) saturate(1.3); box-shadow: 0 0 0 1px rgb(0 0 0 / 0.5), inset 0 0 0 1px rgb(255 255 255 / 0.4), 0 12px 32px rgb(0 0 0 / 0.5); }
+  .era-7 .win { background: rgb(120 170 220 / 0.42); }
+  .era-vista .title, .era-7 .title, .era-vista .win.active .title, .era-7 .win.active .title { height: 30px; background: transparent; color: #000; font-weight: 400; font-size: 12px; text-shadow: 0 0 8px #fff; }
+  .era-vista .title .x, .era-7 .title .x { width: 42px; height: 18px; border-radius: 0 0 4px 4px; background: linear-gradient(#e9a189, #c7452a 50%, #d2542f); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.5); color: #fff; align-self: flex-start; }
+  .era-vista .body, .era-7 .body { box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35); }
+  .era-vista .body.grey, .era-7 .body.grey { background: #f0f0f0; }
+  .era-vista .btn, .era-7 .btn { border-radius: 3px; background: linear-gradient(#f2f2f2 50%, #dcdcdc 50%); box-shadow: inset 0 0 0 1px #707070; }
+  .era-vista .startmenu .side, .era-7 .startmenu .side { display: none; }
+  .gadget { position: absolute; right: 26px; top: 26px; width: 130px; height: 130px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #fff, #cfd8e0 60%, #8a9aa8); box-shadow: 0 6px 18px rgb(0 0 0 / 0.4); display: none; }
+  .era-vista .gadget { display: block; }
+  .gadget i { position: absolute; left: 50%; top: 50%; width: 3px; height: 44px; background: #222; transform-origin: 50% 100%; translate: -50% -100%; border-radius: 2px; }
+  .gadget i.m { height: 54px; width: 2px; }
+  .uac { background: rgb(0 0 0 / 0.55); display: grid; place-items: center; }
+  .uac .dlg { width: min(480px, 92%); border-radius: 8px; overflow: hidden; background: #fff; box-shadow: 0 20px 60px rgb(0 0 0 / 0.6); font-family: var(--ui); }
+  .uac .head { padding: 12px 14px; background: linear-gradient(#ffeaa0, #f5d36a); font-size: 14px; }
+  .uac .head b { display: block; font-size: 15px; }
+  .uac .content { padding: 14px; font-size: 12px; line-height: 1.6; }
+  .uac .row { padding: 0 14px 14px; }
+  .tut { font-family: Verdana, sans-serif; font-size: 12px; }
+  .tut h3 { margin: 0 0 6px; color: #1a4d8f; font-size: 15px; }
+  .tut .step { display: flex; gap: 10px; align-items: center; margin: 6px 0; }
+  .tut .step i { width: 70px; height: 40px; border: 1px solid #999; background: radial-gradient(circle, #7a5ad8 0 25%, #11131c 26%); }
+  .editor { display: grid; grid-template-columns: 1fr 150px; gap: 8px; background: #2b2b30; padding: 6px; }
+  .editor .cv { height: 220px; background: radial-gradient(circle at 50% 45%, #7a5ad8 0 14%, #3a2a7a 15% 28%, #11131c 29%); position: relative; }
+  .editor .cv::after { content: "ELIAS"; position: absolute; left: 50%; top: 68%; transform: translateX(-50%); font: bold italic 34px Georgia, serif; color: transparent; background: linear-gradient(#fff, #aab 45%, #556 50%, #dde); -webkit-background-clip: text; background-clip: text; opacity: calc(min(1, max(0, var(--t) * 6 - 4))); }
+  .editor .lp { color: #ddd; font-size: 11px; display: flex; flex-direction: column; gap: 3px; }
+  .editor .lp div { background: #44444c; padding: 4px 6px; opacity: calc(min(1, max(0, var(--t) * 6 - var(--l)))); }
+  .scan .table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .scan .table td { padding: 3px 6px; border-bottom: 1px solid #ddd; }
+  .scan .table tr.hit td { background: #ffd873; }
+  .lobby { background: linear-gradient(#1a120a, #0c0805); color: #e8d6a8; font-family: Georgia, serif; padding: 10px; }
+  .lobby h3 { margin: 0 0 8px; color: #ffd34a; font-size: 16px; letter-spacing: 1px; }
+  .lobby table { width: 100%; border-collapse: collapse; font: 12px var(--ui); }
+  .lobby td { padding: 5px 8px; border-bottom: 1px solid #3a2a14; }
+  .lobby tr.on td { background: #3a2a10; color: #ffd873; }
+  .lobby .chat { margin-top: 8px; padding: 6px 8px; background: #000; color: #9fd09f; font: 12px var(--mono); line-height: 1.6; }
+  .mail { font-size: 12px; }
+  .mail .list div { display: flex; justify-content: space-between; padding: 6px 8px; border-bottom: 1px solid #e3e3e3; }
+  .mail .list div.new { font-weight: bold; background: #eaf3ff; }
+  .mail .open { margin-top: 10px; padding: 10px; border: 1px solid #ccc; line-height: 1.6; }
+  .mail .key { margin: 8px 0; padding: 10px; background: #111; color: #9fe39f; font: 20px var(--mono); letter-spacing: 3px; text-align: center; }
+  .match { display: grid; place-items: center; background: radial-gradient(circle at 50% 40%, #5a1a12, #120605 70%); color: #e8c890; font-family: Georgia, serif; }
+  .match .box { text-align: center; }
+  .match h2 { margin: 0 0 6px; font-weight: 400; font-size: clamp(26px, 4vw, 48px); letter-spacing: 4px; }
+  .match .bar { width: min(420px, 70vw); height: 8px; margin: 18px auto 10px; background: #2a0f0a; border: 1px solid #8a5a3a; }
+  .match .bar span { display: block; height: 100%; width: var(--p, 0%); background: linear-gradient(90deg, #a83a1a, #e8a65a); }
+  .vsetup { display: grid; place-items: center; background: linear-gradient(135deg, #0b2f66, #1b5fb0); color: #fff; font-family: var(--ui); }
+  .vsetup .box { width: min(560px, 86%); padding: 24px 28px; border-radius: 8px; background: rgb(255 255 255 / 0.95); color: #000; box-shadow: 0 20px 60px rgb(0 0 0 / 0.5); }
+  .vsetup h2 { margin: 0 0 12px; font-weight: 400; font-size: 20px; color: #1a3f7a; }
+  .vsetup ul { list-style: none; margin: 0; padding: 0; line-height: 2; font-size: 13px; }
+  .vsetup li.done::before { content: "✔ "; color: #2a8a2a; }
+  .vsetup li.on { font-weight: bold; }
+  .w8setup { display: grid; place-items: center; background: #3a1a6e; color: #fff; font: 300 clamp(18px, 2.4vw, 28px) 'Segoe UI', var(--ui); text-align: center; }
+  .dots { display: flex; gap: 10px; justify-content: center; margin-bottom: 24px; }
+  .dots i { width: 7px; height: 7px; border-radius: 50%; background: #fff; animation: dot 1.4s ease-in-out infinite; }
+  .dots i:nth-child(2) { animation-delay: .15s; } .dots i:nth-child(3) { animation-delay: .3s; } .dots i:nth-child(4) { animation-delay: .45s; } .dots i:nth-child(5) { animation-delay: .6s; }
+  .era-8 .desktop { background: #4a1d6e; }
+  .era-8 .taskbar, .era-8 .icons { display: none; }
+  .era-8 > .desktop { inset: 10px; }
+  .start8 { position: absolute; inset: 0; padding: 6vh 6vw; color: #fff; font-family: 'Segoe UI', var(--ui); display: none; }
+  .era-8 .start8 { display: block; }
+  .start8 h1 { margin: 0 0 4vh; font-weight: 300; font-size: clamp(28px, 4vw, 52px); }
+  .start8 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; max-width: 980px; }
+  .tile8 { aspect-ratio: 1; display: flex; align-items: flex-end; padding: 10px; color: #fff; font-size: 13px; opacity: 0; transform: translateX(40px); transition: opacity .4s ease, transform .4s ease; }
+  .tile8.wide { grid-column: span 2; aspect-ratio: 2.05; }
+  .tile8.in { opacity: 1; transform: none; }
+  .tile8.course { font-size: 15px; font-weight: 600; letter-spacing: .5px; }
+  .tile8.hover { outline: 3px solid rgb(255 255 255 / 0.85); outline-offset: -3px; }
+  .tile8.pick { outline: 5px solid #fff; outline-offset: -5px; transform: scale(1.04); }
+  .tile8.dim { opacity: .35; }
+  .start8 .q { margin: 3vh 0 0; max-width: 700px; font-size: clamp(16px, 1.8vw, 22px); font-weight: 300; line-height: 1.4; }
+  @keyframes dot { 0%, 100% { transform: translateY(0); opacity: .3; } 50% { transform: translateY(-8px); opacity: 1; } }
+</style>
+
+<div class="journey" id="journey">
+  <div class="screen era-xp" id="screen">
+    <div class="desktop" id="desktop">
+      <div class="icons">
+        <button class="icon" data-open="w-pc"><i class="ic-pc"></i><span>Computer</span></button>
+        <button class="icon" data-open="w-editor"><i class="ic-txt" style="background:linear-gradient(135deg,#2b5797,#7a5ad8);border-color:#123"></i><span>Image editor</span></button>
+        <button class="icon" data-open="w-mail"><i class="ic-txt" style="background:#fff;box-shadow:inset 0 0 0 8px #3a8ae8"></i><span>Mail</span></button>
+        <button class="icon" data-open="w-bin"><i class="ic-bin"></i><span>Recycle Bin</span></button>
+      </div>
+      <div class="gadget" aria-hidden="true"><i id="gh"></i><i class="m" id="gm"></i></div>
+
+      <section class="win" id="w-pc" hidden style="left:30%;top:20%;width:min(400px,80vw)">
+        <div class="title"><span>Computer</span><button class="x" aria-label="Close">×</button></div>
+        <div class="body" style="min-height:110px;line-height:1.8" id="pc-body"></div>
+      </section>
+      <section class="win" id="w-bin" hidden style="left:40%;top:30%;width:min(300px,80vw)">
+        <div class="title"><span>Recycle Bin</span><button class="x" aria-label="Close">×</button></div>
+        <div class="body" style="min-height:80px">old_drivers.zip<br>chrome_text_v7.psd</div>
+      </section>
+      <section class="win" id="w-tut" hidden style="left:4%;top:5%;width:min(470px,46vw)">
+        <div class="title"><span>Glossy chrome text, part 3 - Web Browser</span><button class="x" aria-label="Close">×</button></div>
+        <div class="body tut"><h3>Glossy chrome text in 12 steps</h3><div class="step"><i></i>1. New canvas, 600 × 400, black background.</div><div class="step"><i></i>2. Radial gradient, purple to dark blue.</div><div class="step"><i></i>3. Outer glow, 30 px.</div><p style="margin:8px 0 0;color:#666">Comments (214): "best tutorial ever!!"</p></div>
+      </section>
+      <section class="win" id="w-editor" hidden style="left:40%;top:10%;width:min(560px,54vw)">
+        <div class="title"><span>Image editor - chrome_text.psd</span><button class="x" aria-label="Close">×</button></div>
+        <div class="body" style="padding:0"><div class="editor"><div class="cv"></div><div class="lp"><div style="--l:5">Chrome text</div><div style="--l:4">Lens flare</div><div style="--l:3">Shadow</div><div style="--l:2">Glow</div><div style="--l:1">Background</div></div></div></div>
+      </section>
+      <section class="win scan" id="w-scan" hidden style="left:calc(50% - 220px);top:16%;width:min(440px,92vw)">
+        <div class="title"><span>Memory Scanner</span><button class="x" aria-label="Close">×</button></div>
+        <div class="body"><p style="margin:0 0 8px">Process: career_mode.exe</p><table class="table"><tr><td>Address</td><td>Value</td></tr><tr><td>0x0A41F0</td><td>23</td></tr><tr class="hit"><td>0x0A41F8 · club budget</td><td id="budget">1,000,000</td></tr><tr><td>0x0A41FC</td><td>3</td></tr></table></div>
+      </section>
+      <section class="win" id="w-lobby" hidden style="left:6%;top:6%;width:min(600px,88vw)">
+        <div class="title"><span>Strategy game - Custom Games</span><button class="x" aria-label="Close">×</button></div>
+        <div class="body lobby"><h3>CUSTOM GAMES</h3><table><tr><td>Game name</td><td>Map</td><td>Players</td></tr><tr class="on"><td>dota -ap no noobs</td><td>DotA Allstars</td><td>10/10</td></tr><tr><td>tower defense pro</td><td>Tower Defense</td><td>6/8</td></tr><tr><td>hero arena 1v1</td><td>Hero Arena</td><td>2/2</td></tr></table><div class="chat" id="lobby-chat">[a friend]: one more?<br>me: last one. for real this time</div></div>
+      </section>
+      <section class="win" id="w-mail" hidden style="left:calc(50% - 250px);top:8%;width:min(500px,92vw)">
+        <div class="title"><span>Inbox - Mail</span><button class="x" aria-label="Close">×</button></div>
+        <div class="body mail"><div class="list"><div class="new"><span>Your beta invitation</span><span>Nov 2011</span></div><div><span>[a friend]: did you get it??</span><span>Nov 2011</span></div><div><span>Patch notes</span><span>Oct 2011</span></div></div><div class="open" id="mail-open">Welcome to the beta. Here is your key:<div class="key">XXXXX-XXXXX-XXXXX</div>Install, log in, and play.</div></div>
+      </section>
+      <div class="note" id="note" hidden style="right:6%;top:58%"></div>
+      <div class="start8" id="start8">
+        <h1>Start</h1>
+        <div class="grid" id="grid8">
+          <span class="tile8 wide" style="background:#2672ec">Mail</span>
+          <span class="tile8" style="background:#00a300">Store</span>
+          <span class="tile8" style="background:#d24726">Music</span>
+          <span class="tile8 course" data-c="civil" style="background:#e8a65a;color:#1a1006">CIVIL ENGINEERING</span>
+          <span class="tile8 course" data-c="cs" style="background:#2b5797">COMPUTER SCIENCE</span>
+          <span class="tile8 course" data-c="arch" style="background:#9f00a7">ARCHITECTURE</span>
+          <span class="tile8 wide" style="background:#008299">Desktop</span>
+        </div>
+        <p class="q" id="q8"></p>
+      </div>
+    </div>
+
+    <nav class="startmenu" id="startmenu" aria-label="Start menu"><span class="side" id="start-side">Windows XP</span><ul><li>All Programs</li><li>Documents</li><li>Pictures</li><li>Control Panel</li><li>Search</li><li>Shut Down</li></ul></nav>
+    <div class="taskbar">
+      <button class="startbtn" id="startbtn">start</button>
+      <div class="tasks" id="tasks"></div>
+      <div class="tray"><span id="clock">23:12</span></div>
+    </div>
+
+    <aside class="toast" id="toast" role="status"><div class="who"><i></i><span>[a friend] says:</span></div><div id="toast-msg"></div></aside>
+
+    <div class="full vsetup" id="f-vsetup"><div class="box"><h2 id="vs-title">Installing Windows...</h2><ul id="vs-list"></ul><div class="progress" style="margin-top:12px"><span id="vs-bar"></span></div></div></div>
+    <div class="full uac" id="f-uac"><div class="dlg"><div class="head"><b>A program needs your permission to continue</b>If you started this program, continue.</div><div class="content">Image editor setup<br>Unknown publisher</div><div class="row"><button class="btn primary" id="uac-ok">Continue</button><button class="btn">Cancel</button></div></div></div>
+    <div class="full match" id="f-match"><div class="box"><h2>LOADING</h2><p style="margin:0;opacity:.8">First match · that night</p><div class="bar"><span id="match-bar"></span></div><p style="margin:0;font-size:13px;opacity:.7" id="match-tip">Tip: last-hit creeps for gold.</p></div></div>
+    <div class="full w8setup" id="f-w8"><div><div class="dots"><i></i><i></i><i></i><i></i><i></i></div><div id="w8-msg">Getting devices ready</div><div style="font-size:.6em;opacity:.8;margin-top:10px" id="w8-pct">0%</div></div></div>
+    <div class="bezel" aria-hidden="true"></div>
+  </div>
+</div>
+<div class="chrome"><button type="button" id="sound">Sound: on</button><span>Prototype · XP to 8</span></div>
+<p class="hint" id="hint">Scroll to move the story · Click around to explore</p>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const screen = $('screen'), journey = $('journey');
+
+  // ---------- window manager: open, focus, drag, close; taskbar buttons ----------
+  let z = 20;
+  const tasks = $('tasks');
+  function focusWin(w) {
+    document.querySelectorAll('.win').forEach((x) => x.classList.toggle('active', x === w));
+    w.style.zIndex = String(++z);
+    renderTasks();
+  }
+  function openWin(id) { const w = $(id); if (!w) return; w.hidden = false; focusWin(w); }
+  function closeWin(id) { const w = $(id); if (!w) return; w.hidden = true; renderTasks(); }
+  function renderTasks() {
+    tasks.innerHTML = '';
+    document.querySelectorAll('.win:not([hidden])').forEach((w) => {
+      const b = document.createElement('button');
+      b.className = 'task' + (w.classList.contains('active') ? ' on' : '');
+      b.textContent = w.querySelector('.title span').textContent;
+      b.onclick = () => focusWin(w);
+      tasks.appendChild(b);
+    });
+  }
+  document.querySelectorAll('.win').forEach((w) => {
+    w.addEventListener('pointerdown', () => focusWin(w));
+    w.querySelector('.x')?.addEventListener('click', (e) => { e.stopPropagation(); closeWin(w.id); });
+    w.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => closeWin(w.id)));
+    const t = w.querySelector('.title');
+    let sx, sy, ox, oy, drag = false;
+    t.addEventListener('pointerdown', (e) => { if (e.target.closest('.x')) return; drag = true; sx = e.clientX; sy = e.clientY; ox = w.offsetLeft; oy = w.offsetTop; t.setPointerCapture(e.pointerId); });
+    t.addEventListener('pointermove', (e) => { if (!drag) return; w.style.left = ox + e.clientX - sx + 'px'; w.style.top = Math.max(0, oy + e.clientY - sy) + 'px'; });
+    t.addEventListener('pointerup', () => (drag = false));
+  });
+  document.querySelectorAll('.icon').forEach((i) => {
+    i.addEventListener('dblclick', () => openWin(i.dataset.open));
+    i.addEventListener('keydown', (e) => { if (e.key === 'Enter') openWin(i.dataset.open); });
+    if (matchMedia('(pointer: coarse)').matches) i.addEventListener('click', () => openWin(i.dataset.open));
+  });
+  $('startbtn').addEventListener('click', (e) => { e.stopPropagation(); $('startmenu').classList.toggle('open'); });
+  addEventListener('click', () => $('startmenu').classList.remove('open'));
+
+  // ---------- sound: the modem, synthesized ----------
+  let soundOn = true, ac = null;
+  $('sound').addEventListener('click', () => { soundOn = !soundOn; $('sound').textContent = 'Sound: ' + (soundOn ? 'on' : 'off'); if (!soundOn && ac) ac.suspend(); else if (ac) ac.resume(); });
+  function tone(freqs, t0, dur, gain = 0.08, type = 'sine') {
+    freqs.forEach((f) => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = type; o.frequency.value = f; g.gain.value = 0;
+      g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(gain, t0 + 0.01); g.gain.setValueAtTime(gain, t0 + dur - 0.02); g.gain.linearRampToValueAtTime(0, t0 + dur);
+      o.connect(g).connect(ac.destination); o.start(t0); o.stop(t0 + dur + 0.05);
+    });
+  }
+  function noise(t0, dur, gain, freq, q) {
+    const len = Math.ceil(ac.sampleRate * dur), buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    const src = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
+    src.buffer = buf; f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q; g.gain.value = gain;
+    src.connect(f).connect(g).connect(ac.destination); src.start(t0);
+  }
+  const DTMF = { 0: [941, 1336], 1: [697, 1209], 2: [697, 1336], 3: [697, 1477], 4: [770, 1209], 5: [770, 1336], 6: [770, 1477], 7: [852, 1209], 8: [852, 1336], 9: [852, 1477] };
+  function modemSound() {
+    if (!soundOn || reduce) return 0;
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    ac.resume();
+    let t = ac.currentTime + 0.05;
+    tone([350, 440], t, 1.2); t += 1.3;                                  // dial tone
+    for (const d of '012345678') { tone(DTMF[d], t, 0.09, 0.07); t += 0.13; } // dialing
+    t += 0.5; tone([440, 480], t, 1.0, 0.05); t += 1.6;                   // ringing
+    tone([2100], t, 1.6, 0.06); t += 1.7;                                 // answer tone
+    for (let i = 0; i < 8; i++) { tone([980 + i * 60, 1650 - i * 40], t, 0.12, 0.04, 'square'); t += 0.14; } // negotiation
+    noise(t, 1.4, 0.18, 1800, 1.2); tone([1200], t, 1.4, 0.03, 'sawtooth'); t += 1.5; // training
+    noise(t, 1.8, 0.22, 1000, 0.7); t += 1.9;                            // the scramble
+    return t - ac.currentTime;
+  }
+
+
+  document.addEventListener('pointerdown', () => { if (!ac && soundOn) ac = new (window.AudioContext || window.webkitAudioContext)(); }, { once: true });
+  const ping = () => { if (soundOn && ac && !reduce) { tone([880, 1320], ac.currentTime, 0.12, 0.05); tone([1320], ac.currentTime + 0.14, 0.12, 0.05); } };
+  function toast(msg) { $('toast-msg').textContent = msg; $('toast').classList.add('on'); ping(); }
+  const hideToast = () => $('toast').classList.remove('on');
+  function setEra(e, side, clock, pc) {
+    screen.classList.remove('era-xp', 'era-vista', 'era-7', 'era-8');
+    screen.classList.add('era-' + e);
+    screen.classList.toggle('lcd', e !== 'xp');
+    $('start-side').textContent = side; $('clock').textContent = clock;
+    $('pc-body').innerHTML = pc;
+  }
+  function vsetup(title, items, t) {
+    $('vs-title').textContent = title;
+    const k = Math.min(items.length - 1, Math.floor(t * items.length));
+    $('vs-list').innerHTML = items.map((it, i) => `<li class="${i < k ? 'done' : i === k ? 'on' : ''}">${it}${i === k ? ` (${Math.round(((t * items.length) % 1) * 100)}%)` : ''}</li>`).join('');
+    $('vs-bar').style.setProperty('--p', Math.round(t * 100) + '%');
+  }
+  const closeAll = () => ['w-pc', 'w-bin', 'w-tut', 'w-editor', 'w-scan', 'w-lobby', 'w-mail'].forEach(closeWin);
+  setEra('xp', 'Windows XP', '23:12', 'Pentium 4<br>512 MB RAM<br>Local Disk (C:) 80 GB');
+
+  const STEPS = [
+    { enter: () => { toast('have you seen the new Windows? the one with see-through windows'); } },
+    { full: 'f-vsetup', enter: hideToast, tick: (t) => vsetup('Installing Windows Vista...', ['Copying Windows files', 'Expanding Windows files', 'Installing features', 'Installing updates', 'Completing installation'], t) },
+    { enter: () => { setEra('vista', 'Windows Vista', '20:41', 'Core 2 Duo<br>2 GB RAM<br>Local Disk (C:) 250 GB<br><small>New 19" flat screen</small>'); closeAll(); const n = $('note'); n.hidden = false; n.textContent = 'A flat screen. No more scanlines. Glass everywhere.'; } },
+    { full: 'f-uac', enter: () => { $('note').hidden = true; }, tick: (t) => $('uac-ok').classList.toggle('pulse', t < 0.8) },
+    { enter: () => { openWin('w-tut'); openWin('w-editor'); const n = $('note'); n.hidden = false; n.textContent = 'An image editor and every tutorial I could find.'; } },
+    { enter: () => { closeAll(); openWin('w-scan'); $('note').textContent = 'Career mode in FIFA, with a budget no club ever had. I edited the memory.'; }, tick: (t) => { $('budget').textContent = t > 0.5 ? '999,999,999' : '1,000,000'; } },
+    { full: 'f-vsetup', enter: () => { $('note').hidden = true; }, tick: (t) => vsetup('Installing Windows 7...', ['Copying Windows files', 'Expanding Windows files', 'Installing features', 'Installing updates', 'Completing installation'], t) },
+    { enter: () => { setEra('7', 'Windows 7', '22:30', 'Core 2 Duo<br>4 GB RAM<br>Local Disk (C:) 500 GB'); closeAll(); openWin('w-lobby'); const n = $('note'); n.hidden = false; n.textContent = 'Custom maps in Warcraft III: The Frozen Throne. Mostly DotA.'; } },
+    { enter: () => { toast('did you get the key?? check your mail'); }, tick: (t) => { if (t > 0.35 && $('w-mail').hidden) { hideToast(); openWin('w-mail'); $('note').textContent = 'The day the Dota 2 beta key arrived.'; } } },
+    { full: 'f-match', tick: (t) => { $('match-bar').style.setProperty('--p', Math.round(t * 100) + '%'); } },
+    { full: 'f-w8', enter: () => { $('note').hidden = true; closeAll(); }, tick: (t) => { $('w8-pct').textContent = Math.round(t * 100) + '%'; $('w8-msg').textContent = t < 0.5 ? 'Getting devices ready' : 'Getting ready'; } },
+    { enter: () => { setEra('8', 'Windows 8', '10:00', ''); [...document.querySelectorAll('.tile8')].forEach((el, i) => setTimeout(() => el.classList.add('in'), reduce ? 0 : 80 * i)); $('q8').textContent = 'School was over. Everything pointed to computers.'; },
+      tick: (t) => { const cs = document.querySelector('[data-c="cs"]'); cs.classList.toggle('hover', t > 0.3); } },
+    { tick: (t) => {
+        const tiles = document.querySelectorAll('.tile8.course');
+        tiles.forEach((el) => { el.classList.remove('hover'); el.classList.toggle('pick', t > 0.4 && el.dataset.c === 'civil'); el.classList.toggle('dim', t > 0.4 && el.dataset.c !== 'civil'); });
+        $('q8').textContent = t > 0.4 ? 'I wanted math. I wanted engineering. Code and design never crossed my mind.' : 'School was over. Everything pointed to computers.';
+      } },
+  ];
+  // Vista's clock gadget keeps real time.
+  setInterval(() => { const d = new Date(); $('gh').style.rotate = (d.getHours() % 12) * 30 + d.getMinutes() / 2 + 'deg'; $('gm').style.rotate = d.getMinutes() * 6 + 'deg'; }, 1000);
+
+  journey.style.height = `calc(${STEPS.length * 100}vh + 100vh)`;
+  let cur = -1;
+  function frame() {
+    requestAnimationFrame(frame);
+    const max = journey.offsetHeight - innerHeight;
+    const f = clamp(scrollY / Math.max(1, max), 0, 0.9999) * STEPS.length;
+    const s = Math.floor(f), t = f - s;
+    if (s !== cur) {
+      // Moving forward runs each step's entrance once, in order.
+      for (let k = cur + 1; k <= s; k++) STEPS[k]?.enter?.();
+      cur = Math.max(cur, s);
+      document.querySelectorAll('.full').forEach((el) => el.classList.toggle('on', STEPS[s].full === el.id));
+    }
+    STEPS[s].tick?.(t);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>

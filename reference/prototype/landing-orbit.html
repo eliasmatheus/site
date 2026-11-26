@@ -1,0 +1,413 @@
+<title>Elias Landing Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,300;1,9..144,400&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+  /* Layout: sticky identity column on the left, the scannable record on the right; the page's end opens into space. */
+  :root {
+    /* Orbit: a dark, quiet sky. */
+    --bg: #05060a;
+    --fg: #e9e6df;
+    --muted: #8f8c86;
+    --accent: #ff8a3d;
+    --line: rgb(233 230 223 / 0.12);
+    --chip: rgb(255 138 61 / 0.1);
+    --f-display: 'Fraunces', Georgia, serif;
+    --f-body: 'Space Grotesk', system-ui, sans-serif;
+    --f-mono: 'JetBrains Mono', ui-monospace, monospace;
+    --dark: 1;
+    color-scheme: dark;
+  }
+  /* Brief: a technical sheet that darkens into space as you read down. */
+  :root[data-v="brief"] {
+    --bg: #f2f3f5;
+    --fg: #14161b;
+    --muted: #5c616c;
+    --accent: #2445d6;
+    --line: rgb(20 22 27 / 0.14);
+    --chip: rgb(36 69 214 / 0.08);
+    color-scheme: light;
+  }
+
+  html, body { background: var(--bg); color: var(--fg); }
+  body { font-family: var(--f-body); font-size: 16px; line-height: 1.6; transition: background-color .2s linear, color .2s linear; }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+  #nebula { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: var(--dark); }
+  #stars { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: var(--dark); }
+  .glow {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(600px circle at var(--mx, 30%) var(--my, 20%), rgb(255 138 61 / 0.07), transparent 70%);
+    opacity: var(--dark);
+  }
+
+  .switch {
+    position: fixed; z-index: 5; top: calc(env(safe-area-inset-top, 0px) + 12px); right: max(16px, env(safe-area-inset-right, 0px));
+    display: flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 999px;
+    background: color-mix(in srgb, var(--bg) 80%, transparent); backdrop-filter: blur(8px);
+    font-family: var(--f-mono); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase;
+  }
+  .switch button { min-height: 34px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer; }
+  .switch button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+
+  .wrap {
+    position: relative; z-index: 1; max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 64px;
+    padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px));
+  }
+  .id { position: sticky; top: 0; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; padding-block: 96px 56px; }
+  .record { padding-block: 96px 0; min-width: 0; }
+
+  .eyebrow { margin: 0 0 18px; font-family: var(--f-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
+  .name { margin: 0; font-family: var(--f-display); font-style: italic; font-weight: 300; font-size: clamp(48px, 6vw, 84px); line-height: .95; letter-spacing: -0.02em; display: flex; align-items: center; gap: 18px; }
+  .orbit { width: 44px; height: 44px; flex: none; }
+  .orbit .sat { transform-origin: 22px 22px; animation: spin 6s linear infinite; }
+  :root:not([data-v="brief"]) .id { text-shadow: 0 1px 18px rgb(5 6 10 / 0.85); }
+  .pos { margin: 22px 0 0; max-width: 26ch; font-size: clamp(20px, 2vw, 24px); line-height: 1.3; font-weight: 500; text-wrap: balance; }
+  .intro { margin: 14px 0 0; max-width: 42ch; color: var(--muted); }
+
+  nav ul { list-style: none; margin: 40px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  nav a { display: inline-flex; align-items: center; gap: 14px; min-height: 36px; text-decoration: none; font-family: var(--f-mono); font-size: 12px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--muted); }
+  nav a::before { content: ""; width: 28px; height: 1px; background: currentColor; transition: width .25s ease; }
+  nav a:hover, nav a[aria-current="true"] { color: var(--fg); }
+  nav a:hover::before, nav a[aria-current="true"]::before { width: 64px; }
+
+  .social { display: flex; flex-wrap: wrap; gap: 18px; font-family: var(--f-mono); font-size: 12px; letter-spacing: 1px; }
+  .social a { min-height: 36px; display: inline-flex; align-items: center; color: var(--muted); text-decoration: none; }
+  .social a:hover { color: var(--fg); }
+  .email { user-select: all; display: inline-flex; align-items: center; min-height: 36px; color: var(--fg); }
+
+  section { scroll-margin-top: 80px; padding-bottom: 96px; }
+  h2 { margin: 0 0 28px; font-family: var(--f-mono); font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 12px; }
+  h2::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .about p { margin: 0 0 16px; max-width: 60ch; color: var(--muted); }
+  .about strong { color: var(--fg); font-weight: 500; }
+
+  .items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .item {
+    position: relative; display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 20px; padding: 18px; margin: 0 -18px; border-radius: 10px;
+    transition: background-color .2s ease;
+  }
+  .items:hover .item { opacity: .55; }
+  .items .item:hover { opacity: 1; background: var(--chip); }
+  .item { transition: opacity .2s ease, background-color .2s ease; }
+  .when { font-family: var(--f-mono); font-size: 12px; letter-spacing: 1px; color: var(--muted); padding-top: 3px; font-variant-numeric: tabular-nums; }
+  .item h3 { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.35; }
+  .item p { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+  .tag { display: inline-block; margin-top: 10px; padding: 3px 10px; border-radius: 999px; background: var(--chip); color: var(--accent); font-family: var(--f-mono); font-size: 11px; letter-spacing: .8px; }
+
+  .door { position: relative; z-index: 1; min-height: 100vh; display: grid; place-items: center; text-align: center; padding-inline: max(24px, env(safe-area-inset-left, 0px)) max(24px, env(safe-area-inset-right, 0px)); }
+  .door-inner { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  #ring { width: min(420px, 80vw); height: min(420px, 80vw); }
+  .door h2 { justify-content: center; margin: 0; color: var(--accent); }
+  .door h2::after { display: none; }
+  .door p { margin: 0; max-width: 40ch; font-family: var(--f-display); font-style: italic; font-weight: 300; font-size: clamp(28px, 3.6vw, 44px); line-height: 1.1; text-wrap: balance; color: #ece7dc; }
+  .door a {
+    display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 24px; border: 1px solid rgb(236 231 220 / 0.3); border-radius: 999px;
+    color: #ece7dc; text-decoration: none; font-family: var(--f-mono); font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+  }
+  .door a:hover { border-color: #ff8a3d; }
+
+  /* ---------- Brief: a technical sheet ---------- */
+  :root[data-v="brief"] .name { font-family: var(--f-body); font-style: normal; font-weight: 700; letter-spacing: -0.04em; text-transform: uppercase; font-size: clamp(44px, 5.4vw, 76px); }
+  :root[data-v="brief"] .orbit { display: none; }
+  :root[data-v="brief"] .glow { display: none; }
+  :root[data-v="brief"] .sheet { display: block; }
+  .sheet { display: none; margin-top: 18px; font-family: var(--f-mono); font-size: 11px; letter-spacing: 1px; color: var(--muted); }
+  .sheet span { display: inline-block; margin-right: 18px; }
+  :root[data-v="brief"] h2::before { content: attr(data-sheet); color: var(--accent); }
+  :root[data-v="brief"] .item { border-radius: 0; border-top: 1px solid var(--line); margin: 0; padding: 18px 0; }
+  :root[data-v="brief"] .items .item:hover { background: transparent; }
+  /* Dimension line: hovering a role measures it against the timeline. */
+  .dim { position: absolute; left: 0; top: 12px; bottom: 12px; width: 8px; border-left: 1px solid var(--accent); opacity: 0; transition: opacity .2s ease; }
+  .dim::before, .dim::after { content: ""; position: absolute; left: -4px; width: 7px; height: 1px; background: var(--accent); }
+  .dim::before { top: 0; } .dim::after { bottom: 0; }
+  :root[data-v="brief"] .item { padding-left: 20px; }
+  :root[data-v="brief"] .item:hover .dim { opacity: 1; }
+  /* As the sheet ends, the paper turns into night (JS sets --dark from 0 to 1). */
+  :root[data-v="brief"] body { background: color-mix(in srgb, #f2f3f5, #05060a calc(var(--dark) * 100%)); }
+  :root[data-v="brief"][data-night] { --bg: #05060a; --fg: #e9e6df; --muted: #8f8c86; --line: rgb(233 230 223 / 0.12); --accent: #8fb0ff; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 860px) {
+    .wrap { grid-template-columns: minmax(0, 1fr); gap: 0; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+    .id { position: relative; height: auto; padding-block: 88px 32px; }
+    nav { display: none; }
+    .social { margin-top: 28px; }
+    .record { padding-top: 24px; }
+    .item { grid-template-columns: minmax(0, 1fr); gap: 4px; margin: 0; padding: 14px 0; }
+    .items:hover .item { opacity: 1; }
+    .switch button { padding: 0 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .orbit .sat { animation: none; }
+    body, .item, nav a::before { transition: none; }
+  }
+</style>
+
+<canvas id="nebula" aria-hidden="true"></canvas>
+<canvas id="stars" aria-hidden="true"></canvas>
+
+
+
+<div class="wrap">
+  <header class="id">
+    <div>
+      <p class="eyebrow">Software engineer · Brazil</p>
+      <h1 class="name">
+        Elias Matheus
+        <svg class="orbit" viewBox="0 0 44 44" aria-hidden="true">
+          <ellipse cx="22" cy="22" rx="20" ry="20" fill="none" stroke="currentColor" stroke-opacity=".25"/>
+          <circle cx="22" cy="22" r="5" fill="#000" stroke="#ff8a3d" stroke-width="1.5"/>
+          <g class="sat"><circle cx="42" cy="22" r="2.5" fill="currentColor"/></g>
+        </svg>
+      </h1>
+      <p class="pos">From load-bearing structures to load-bearing software.</p>
+      <p class="intro">Civil engineer turned software engineer. I am looking for ambitious teams, new problems and work that reaches a lot of people.</p>
+      <p class="sheet"><span>SHEET 00</span><span>SCALE 1:1</span><span>REV 2026</span></p>
+      <nav aria-label="On this page">
+        <ul>
+          <li><a href="#about">About</a></li>
+          <li><a href="#experience">Experience</a></li>
+          <li><a href="#projects">Projects</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="social">
+      <a href="https://github.com/eliasmatheus">GitHub</a>
+      <a href="https://www.linkedin.com/in/eliasmatheus/">LinkedIn</a>
+      <span class="email" aria-label="Email address">eliasmatheus@hotmail.com</span>
+    </div>
+  </header>
+
+  <main class="record">
+    <section id="about" aria-labelledby="h-about">
+      <h2 id="h-about" data-sheet="01 · ">About</h2>
+      <div class="about">
+        <p>Before software, I designed structures: footings, beams, whole churches. I sized them against <strong>real soil data</strong> and argued with clients to pay for the borehole.</p>
+        <p>In 2020 I wrote my first lines of code and could not stop. Since then I have built <strong>payment platforms, internet banking and agritech</strong> products, mostly on the frontend, now across the stack.</p>
+        <p>The method did not change: detail, safety, and explaining the plan so the next person understands it.</p>
+      </div>
+    </section>
+
+    <section id="experience" aria-labelledby="h-exp">
+      <h2 id="h-exp" data-sheet="02 · ">Experience</h2>
+      <ol class="items">
+        <li class="item"><span class="dim" aria-hidden="true"></span><span class="when">2026</span><div><h3>Dental Intelligence</h3><p>Software Engineer II on the payments team. Angular, NgRx Signal Store, Laravel.</p></div></li>
+        <li class="item"><span class="dim" aria-hidden="true"></span><span class="when">2024</span><div><h3>FullStack Labs</h3><p>Allocated at Dental Intelligence. Shipped a contract-driven payment platform integration on schedule.</p></div></li>
+        <li class="item"><span class="dim" aria-hidden="true"></span><span class="when">2024</span><div><h3>Ewally</h3><p>Internet banking from inception with Next.js 14 and TanStack Query.</p></div></li>
+        <li class="item"><span class="dim" aria-hidden="true"></span><span class="when">2022</span><div><h3>Rainforest</h3><p>Revived a legacy Angular codebase, led the UI overhaul and i18n in three languages.</p></div></li>
+        <li class="item"><span class="dim" aria-hidden="true"></span><span class="when">2021</span><div><h3>Agility Networks</h3><p>Led the UI and performance overhaul of the flagship platform. Promoted in under a year.</p></div></li>
+        <li class="item"><span class="dim" aria-hidden="true"></span><span class="when">2020</span><div><h3>Cocreare</h3><p>Sole frontend developer on a new agritech platform built from scratch.</p></div></li>
+      </ol>
+    </section>
+
+    <section id="projects" aria-labelledby="h-proj">
+      <h2 id="h-proj" data-sheet="03 · ">Projects</h2>
+      <ul class="items">
+        <li class="item"><span class="dim" aria-hidden="true"></span><span class="when">RAG</span><div><h3>Ask Elias</h3><p>A RAG assistant over my writing and résumé, with cited sources and public evals. It is also this site.</p><span class="tag">In progress</span></div></li>
+        <li class="item"><span class="dim" aria-hidden="true"></span><span class="when">Agents</span><div><h3>Reconciliation agent</h3><p>Matches payments against statements, flags mismatches and asks a human before acting.</p><span class="tag">In progress</span></div></li>
+        <li class="item"><span class="dim" aria-hidden="true"></span><span class="when">MCP</span><div><h3>Open Finance MCP</h3><p>An open-source MCP server for Brazilian public financial data, published on npm.</p><span class="tag">In progress</span></div></li>
+      </ul>
+    </section>
+  </main>
+</div>
+
+<section class="door" aria-labelledby="h-door">
+  <div class="door-inner">
+    <canvas id="ring" aria-hidden="true"></canvas>
+    <h2 id="h-door">That was the short version</h2>
+    <p>The long one starts at the edge of a black hole.</p>
+    <a href="https://claude.ai/artifact/4aFGXG6sZ5XPprmWWgzfQP">Begin the journey ↓</a>
+  </div>
+</section>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const buttons = [...document.querySelectorAll('.switch button')];
+  let variant = 'orbit';
+
+  function setVariant(v) {
+    variant = v;
+    root.dataset.v = v;
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+    if (location.hash.slice(1) !== v && !['about', 'experience', 'projects'].includes(location.hash.slice(1))) history.replaceState(null, '', '#' + v);
+    onScroll();
+  }
+  buttons.forEach((b) => b.addEventListener('click', () => setVariant(b.dataset.v)));
+
+  // ---------- Nebula: domain-warped gas in teal and amber, revealed where the pointer goes ----------
+  const neb = document.getElementById('nebula');
+  const ngl = neb.getContext('webgl', { antialias: false, premultipliedAlpha: false });
+  const TRAIL = 14;
+  const trail = []; // {x, y, s}: css px, strength 0..1
+  let lastPush = 0, hasPointer = false;
+  const NFRAG = `
+precision mediump float;
+uniform vec2 uRes; uniform float uTime; uniform vec3 uTrail[${TRAIL}]; uniform float uBase;
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
+  return mix(mix(hash(i), hash(i+vec2(1,0)), f.x), mix(hash(i+vec2(0,1)), hash(i+vec2(1,1)), f.x), f.y); }
+float fbm(vec2 p){ float s = 0.0, a = 0.5; for (int i = 0; i < 5; i++){ s += a*noise(p); p = p*2.02 + 7.3; a *= 0.5; } return s; }
+void main(){
+  vec2 uv = gl_FragCoord.xy / uRes.y;
+  vec2 p = uv * 2.2 + vec2(0.0, uTime * 0.01);
+  vec2 q = vec2(fbm(p + uTime * 0.02), fbm(p + 5.2));
+  vec2 r = vec2(fbm(p + 3.0 * q + vec2(1.7, 9.2) + uTime * 0.015), fbm(p + 3.0 * q + vec2(8.3, 2.8)));
+  float n = fbm(p + 3.5 * r);
+  vec3 teal = vec3(0.08, 0.32, 0.36), deep = vec3(0.02, 0.06, 0.09);
+  vec3 amber = vec3(0.86, 0.52, 0.2), hot = vec3(1.0, 0.84, 0.58);
+  vec3 col = mix(deep, teal, smoothstep(0.25, 0.75, n));
+  col = mix(col, amber, smoothstep(0.35, 0.8, r.x * n * 1.7));
+  col += hot * pow(smoothstep(0.62, 0.95, n * r.y * 1.7), 2.0) * 0.9;
+  col *= (0.45 + 1.3 * pow(n, 1.4)) * 1.35;
+  // Reveal: the pointer and its fading trail open windows into the nebula.
+  vec2 px = gl_FragCoord.xy;
+  float m = uBase;
+  for (int i = 0; i < ${TRAIL}; i++){
+    vec3 t = uTrail[i];
+    float d = length(px - t.xy) / uRes.y;
+    m += t.z * exp(-d * d / 0.04);
+  }
+  m = clamp(m, 0.0, 0.9);
+  gl_FragColor = vec4(col * m, 1.0);
+}`;
+  let nOk = false, nuni = {};
+  if (ngl) {
+    try {
+      const sh = (t, src) => { const x = ngl.createShader(t); ngl.shaderSource(x, src); ngl.compileShader(x); if (!ngl.getShaderParameter(x, ngl.COMPILE_STATUS)) throw new Error(ngl.getShaderInfoLog(x)); return x; };
+      const pr = ngl.createProgram();
+      ngl.attachShader(pr, sh(ngl.VERTEX_SHADER, 'attribute vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); }'));
+      ngl.attachShader(pr, sh(ngl.FRAGMENT_SHADER, NFRAG));
+      ngl.linkProgram(pr); ngl.useProgram(pr);
+      ngl.bindBuffer(ngl.ARRAY_BUFFER, ngl.createBuffer());
+      ngl.bufferData(ngl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), ngl.STATIC_DRAW);
+      const loc = ngl.getAttribLocation(pr, 'a'); ngl.enableVertexAttribArray(loc); ngl.vertexAttribPointer(loc, 2, ngl.FLOAT, false, 0, 0);
+      ['uRes', 'uTime', 'uTrail', 'uBase'].forEach((n) => (nuni[n] = ngl.getUniformLocation(pr, n)));
+      nOk = true;
+    } catch (e) { console.warn(e); }
+  }
+  const pushTrail = (x, y, s) => { trail.unshift({ x, y, s }); if (trail.length > TRAIL) trail.pop(); };
+  addEventListener('pointermove', (e) => {
+    hasPointer = true;
+    const now = performance.now();
+    if (now - lastPush > 40) { pushTrail(e.clientX, e.clientY, 1); lastPush = now; }
+    else if (trail[0]) { trail[0].x = e.clientX; trail[0].y = e.clientY; trail[0].s = 1; }
+  }, { passive: true });
+  let nebT = 0, nebLast = performance.now();
+  function drawNebula(now) {
+    if (!nOk) return;
+    const dt = Math.min(0.05, (now - nebLast) / 1000); nebLast = now;
+    if (!reduce) nebT += dt;
+    // Trail fades out over ~2.5 s.
+    for (const t of trail) t.s = Math.max(0, t.s - dt * 0.4);
+    // Nobody pointing (phones, or the mouse is away): a slow wanderer keeps one window open.
+    if (!hasPointer || trail.every((t) => t.s < 0.05)) {
+      const w = innerWidth, h = innerHeight, tt = nebT * 0.12;
+      const wx = w * (0.55 + 0.3 * Math.sin(tt * 1.3)), wy = h * (0.45 + 0.3 * Math.sin(tt * 0.9 + 1));
+      if (now - lastPush > 120) { pushTrail(wx, wy, 0.55); lastPush = now; }
+    }
+    const scale = 0.5, dpr = Math.min(devicePixelRatio || 1, 2);
+    const W = Math.round(innerWidth * dpr * scale), H = Math.round(innerHeight * dpr * scale);
+    if (neb.width !== W || neb.height !== H) { neb.width = W; neb.height = H; }
+    ngl.viewport(0, 0, W, H);
+    ngl.uniform2f(nuni.uRes, W, H);
+    ngl.uniform1f(nuni.uTime, nebT);
+    ngl.uniform1f(nuni.uBase, 0.045);
+    const k = W / innerWidth;
+    const arr = new Float32Array(TRAIL * 3);
+    trail.forEach((t, i) => { arr[i * 3] = t.x * k; arr[i * 3 + 1] = H - t.y * k; arr[i * 3 + 2] = t.s; });
+    ngl.uniform3fv(nuni.uTrail, arr);
+    ngl.drawArrays(ngl.TRIANGLES, 0, 3);
+  }
+
+  // Cursor glow (Orbit) follows the mouse.
+  addEventListener('pointermove', (e) => {
+    root.style.setProperty('--mx', e.clientX + 'px');
+    root.style.setProperty('--my', e.clientY + 'px');
+  }, { passive: true });
+
+  // Stars: two layers with a little parallax on scroll.
+  const cv = document.getElementById('stars');
+  const ctx = cv.getContext('2d');
+  const stars = Array.from({ length: 260 }, () => ({ x: Math.random(), y: Math.random(), z: Math.random() < 0.3 ? 1 : 0.4, a: 0.3 + Math.random() * 0.7 }));
+  function drawStars() {
+    const dpr = Math.min(devicePixelRatio || 1, 2), w = innerWidth, h = innerHeight;
+    if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const sy = scrollY;
+    for (const s of stars) {
+      const y = ((s.y * h - sy * 0.05 * s.z) % h + h) % h;
+      ctx.globalAlpha = s.a * (0.6 + 0.4 * Math.sin(performance.now() / 900 + s.x * 40));
+      ctx.fillStyle = '#e9e6df';
+      ctx.fillRect(s.x * w, y, s.z > 0.5 ? 1.6 : 1, s.z > 0.5 ? 1.6 : 1);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // The ring at the end: a small lensed black hole, drawn in 2D.
+  const ring = document.getElementById('ring');
+  const rc = ring.getContext('2d');
+  function drawRing(t) {
+    const dpr = Math.min(devicePixelRatio || 1, 2), s = ring.clientWidth;
+    if (ring.width !== Math.round(s * dpr)) { ring.width = ring.height = Math.round(s * dpr); }
+    rc.setTransform(dpr, 0, 0, dpr, 0, 0);
+    rc.clearRect(0, 0, s, s);
+    const c = s / 2, R = s * 0.2;
+    // Disk behind, bent over the top.
+    for (let i = 0; i < 60; i++) {
+      const r = R * (1.25 + i * 0.012);
+      rc.beginPath(); rc.ellipse(c, c, r, r, 0, Math.PI, 2 * Math.PI);
+      rc.strokeStyle = `rgba(255,${180 + i},${120 + i},${0.05 + 0.25 * (1 - i / 60)})`; rc.lineWidth = 1; rc.stroke();
+    }
+    // Flat disk: back half before the hole, front half over it.
+    const flat = (half) => { for (let i = 0; i < 70; i++) {
+      const r = R * (1.3 + i * 0.03);
+      const flick = 0.5 + 0.5 * Math.sin(t / 700 + i);
+      rc.beginPath(); rc.ellipse(c, c + R * 0.05, r, r * 0.13, 0, half ? 0 : Math.PI, half ? Math.PI : 2 * Math.PI);
+      rc.strokeStyle = `rgba(255,${150 + i},${90 + i},${(0.03 + 0.12 * (1 - i / 70)) * (0.7 + 0.3 * flick)})`; rc.lineWidth = 1.2; rc.stroke();
+    } };
+    flat(false);
+    rc.beginPath(); rc.arc(c, c, R, 0, Math.PI * 2); rc.fillStyle = '#000'; rc.fill();
+    rc.beginPath(); rc.arc(c, c, R * 1.02, 0, Math.PI * 2); rc.strokeStyle = 'rgba(255,225,190,.7)'; rc.lineWidth = 1.5; rc.stroke();
+    flat(true);
+  }
+
+  // Brief: the paper darkens into night over the last stretch of the page.
+  const door = document.querySelector('.door');
+  function onScroll() {
+    if (variant === 'orbit') { root.style.setProperty('--dark', '1'); root.removeAttribute('data-night'); return; }
+    const start = door.offsetTop - innerHeight * 1.6, end = door.offsetTop - innerHeight * 0.2;
+    const d = Math.min(1, Math.max(0, (scrollY - start) / (end - start)));
+    root.style.setProperty('--dark', d.toFixed(3));
+    root.toggleAttribute('data-night', d > 0.5);
+  }
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', onScroll);
+
+  // Current section in the nav.
+  const links = [...document.querySelectorAll('nav a')];
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    if (e.isIntersecting) links.forEach((a) => a.setAttribute('aria-current', String(a.getAttribute('href') === '#' + e.target.id)));
+  }), { rootMargin: '-40% 0px -55% 0px' });
+  document.querySelectorAll('main section').forEach((s) => io.observe(s));
+
+  function loop(t) {
+    drawNebula(t);
+    drawStars();
+    drawRing(t);
+    if (!reduce) requestAnimationFrame(loop);
+  }
+
+  const h = location.hash.slice(1);
+  setVariant(h === 'brief' ? 'brief' : 'orbit');
+  addEventListener('hashchange', () => { const v = location.hash.slice(1); if ((v === 'brief' || v === 'orbit') && v !== variant) setVariant(v); });
+  requestAnimationFrame(loop);
+})();
+</script>

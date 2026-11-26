@@ -1,0 +1,487 @@
+<title>First PC to 98</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* Layout: the viewport is the screen. A sticky full-screen OS; scroll moves the story, the mouse explores. Single era world. */
+  :root {
+    --t: 0;
+    --classic: #c0c0c0;
+    --navy: #0a246a;
+    --sky: #a6caf0;
+    --desk2000: #3a6ea5;
+    --ui: Tahoma, Verdana, 'Segoe UI', sans-serif;
+    --mono: 'Lucida Console', 'Courier New', monospace;
+    color-scheme: light;
+  }
+  html, body { background: #000; }
+  body { font-family: var(--ui); font-size: 12px; color: #000; }
+  .journey { position: relative; }
+  .screen { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; background: var(--desk2000); user-select: none; -webkit-user-select: none; }
+
+  /* ---------- desktop ---------- */
+  .desktop { position: absolute; inset: 0 0 30px 0; }
+  .era-xp .desktop { background: linear-gradient(180deg, #2f6fd0 0%, #6fa9ee 52%, #86c25c 53%, #4a8a2f 100%); }
+  .era-2000 .desktop { background: var(--desk2000); }
+  .icons { position: absolute; left: 10px; top: 10px; display: flex; flex-direction: column; gap: 18px; z-index: 1; }
+  .icon { width: 74px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 2px; border: 1px dotted transparent; background: none; color: #fff; font: 11px var(--ui); text-align: center; cursor: default; }
+  .icon:focus { outline: none; border-color: #fff; }
+  .icon:focus span { background: #0a246a; }
+  .icon i { width: 32px; height: 30px; display: block; }
+  .ic-pc { background: linear-gradient(#e8e8e8 0 62%, #7f7f7f 62% 70%, #c8c8c8 70%); border: 1px solid #444; box-shadow: inset 4px 4px 0 #2f62a8, inset -4px -10px 0 #e8e8e8; }
+  .ic-net { border-radius: 50%; background: radial-gradient(circle at 35% 35%, #8fd18f 0 20%, #2f7fd0 21% 60%, #1b4f8a 61%); }
+  .ic-txt { background: #fff; border: 1px solid #555; box-shadow: inset 0 6px 0 #fff, inset 0 7px 0 #9ab, inset 0 12px 0 #fff, inset 0 13px 0 #9ab, inset 0 18px 0 #fff, inset 0 19px 0 #9ab; }
+  .ic-bin { width: 24px !important; background: linear-gradient(#f2f2f2, #bdbdbd); border: 1px solid #555; border-radius: 0 0 5px 5px; }
+  .icon span { padding: 0 2px; text-shadow: 1px 1px 0 #000; }
+
+  /* ---------- taskbar ---------- */
+  .taskbar { position: absolute; left: 0; right: 0; bottom: 0; height: 30px; display: flex; align-items: center; gap: 4px; padding: 2px 3px; background: var(--classic); border-top: 1px solid #fff; box-shadow: inset 0 1px 0 #dfdfdf; z-index: 50; }
+  .startbtn { display: flex; align-items: center; gap: 4px; height: 24px; padding: 0 6px; border: 0; background: var(--classic); box-shadow: inset -1px -1px #000, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf; font: bold 11px var(--ui); cursor: default; }
+  /* Generic start glyph: no logo. */
+  .startbtn::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff 0 18%, #4a8ad8 19% 60%, #1b4f8a 61%); }
+  .tasks { display: flex; gap: 3px; flex: 1; min-width: 0; overflow: hidden; }
+  .task { height: 22px; max-width: 160px; padding: 0 8px; display: flex; align-items: center; border: 0; background: var(--classic); box-shadow: inset -1px -1px #000, inset 1px 1px #fff, inset -2px -2px #808080; font: 11px var(--ui); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .task.on { box-shadow: inset 1px 1px #000, inset -1px -1px #fff, inset 2px 2px #808080; background: repeating-conic-gradient(#c0c0c0 0 25%, #fff 0 50%) 0 0 / 2px 2px; }
+  .tray { display: flex; align-items: center; gap: 8px; height: 22px; padding: 0 8px; box-shadow: inset 1px 1px #808080, inset -1px -1px #fff; font: 11px var(--ui); }
+  /* Clear of the bezel's rounded corner. */
+  .taskbar { padding-right: 34px !important; } .taskbar .startbtn { margin-left: 18px !important; }
+  .tray .modem { display: none; width: 14px; height: 10px; background: linear-gradient(90deg, #3c3 0 45%, transparent 45% 55%, #3c3 55%); animation: blink 0.4s steps(2) infinite; }
+  .online .tray .modem { display: block; }
+  .era-xp .taskbar { background: linear-gradient(#3168d5, #1c4fc0 50%, #1941a5); border-top: 1px solid #6a9cf0; box-shadow: none; }
+  .era-xp .startbtn { height: 30px; margin: -2px 0 -2px -3px; padding: 0 22px 0 10px; border-radius: 0 12px 12px 0; background: linear-gradient(#53b14a, #2f8a2b 60%, #3a9c35); box-shadow: inset -2px 0 4px rgb(0 0 0 / 0.3); color: #fff; font: italic bold 15px var(--ui); text-shadow: 1px 1px 1px #1a4d18; }
+  .era-xp .task { background: linear-gradient(#3d82f0, #2a6ae0); color: #fff; border-radius: 3px; box-shadow: inset 0 0 0 1px #1c4fc0; }
+  .era-xp .task.on { background: linear-gradient(#1e56c4, #1747a8); }
+  .era-xp .tray { background: linear-gradient(#0f8ae0, #0c74d0); color: #fff; box-shadow: inset 1px 0 0 #3aa8f0; }
+
+  /* ---------- start menu ---------- */
+  .startmenu { position: absolute; left: 2px; bottom: 30px; width: 220px; display: none; background: var(--classic); box-shadow: inset -1px -1px #000, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf; z-index: 60; }
+  .startmenu.open { display: flex; }
+  .startmenu .side { width: 22px; background: linear-gradient(0deg, #000080, #1084d0); color: #c0c0c0; writing-mode: vertical-rl; transform: rotate(180deg); padding: 6px 2px; font: bold 16px var(--ui); }
+  .startmenu ul { list-style: none; margin: 0; padding: 3px; flex: 1; }
+  .startmenu li { padding: 6px 8px; }
+  .startmenu li:hover { background: #0a246a; color: #fff; }
+
+  /* ---------- windows ---------- */
+  .win { position: absolute; display: flex; flex-direction: column; min-width: 220px; background: var(--classic); box-shadow: inset -1px -1px #000, inset 1px 1px #dfdfdf, inset -2px -2px #808080, inset 2px 2px #fff; padding: 3px; z-index: 10; }
+  .win[hidden] { display: none; }
+  .title { display: flex; align-items: center; justify-content: space-between; gap: 6px; height: 20px; padding: 0 3px 0 5px; background: linear-gradient(90deg, #808080, #b5b5b5); color: #d4d0c8; font: bold 11px var(--ui); cursor: move; touch-action: none; }
+  .win.active .title { background: linear-gradient(90deg, var(--navy), var(--sky)); color: #fff; }
+  .title .x { width: 16px; height: 14px; display: grid; place-items: center; border: 0; padding: 0; background: var(--classic); box-shadow: inset -1px -1px #000, inset 1px 1px #fff, inset -2px -2px #808080; font: bold 10px var(--ui); color: #000; cursor: default; }
+  .menu { display: block; padding: 2px 6px; font-size: 11px; word-spacing: 10px; }
+  .body { flex: 1; overflow: auto; background: #fff; box-shadow: inset 1px 1px #808080, inset -1px -1px #fff, inset 2px 2px #000; padding: 8px; }
+  .body.grey { background: var(--classic); box-shadow: none; padding: 10px; }
+  .era-xp .win { padding: 0 3px 3px; border-radius: 8px 8px 0 0; background: #ece9d8; box-shadow: 0 0 0 1px #0831d9, 3px 6px 16px rgb(0 0 0 / 0.35); }
+  .era-xp .title { height: 28px; margin: 0 -3px 3px; padding: 0 5px 0 8px; border-radius: 7px 7px 0 0; background: linear-gradient(#7a96df, #577ed6); font-size: 13px; }
+  .era-xp .win.active .title { background: linear-gradient(#0a5ce8 0%, #3c8af5 8%, #0b5cd8 40%, #0444c9 100%); }
+  .era-xp .title .x { width: 21px; height: 21px; border-radius: 3px; background: linear-gradient(#e78a6a, #c13b1b); box-shadow: inset 0 0 0 1px #fff; color: #fff; font-size: 12px; }
+  .era-xp .body { box-shadow: inset 0 0 0 1px #7f9db9; }
+  .era-xp .body.grey { background: #ece9d8; }
+
+  .btn { min-width: 72px; height: 23px; padding: 0 10px; border: 0; background: var(--classic); box-shadow: inset -1px -1px #000, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf; font: 11px var(--ui); cursor: default; }
+  .btn:active { box-shadow: inset 1px 1px #000, inset -1px -1px #fff, inset 2px 2px #808080; }
+  .btn.primary { outline: 1px solid #000; outline-offset: -1px; }
+  .btn.pulse { animation: pulse 1s ease-in-out infinite; }
+  .era-xp .btn { border-radius: 3px; background: linear-gradient(#fff, #ece9d8); box-shadow: inset 0 0 0 1px #003c74; }
+  .field { display: grid; grid-template-columns: 90px 1fr; gap: 6px 8px; align-items: center; margin: 8px 0; }
+  .input { height: 20px; padding: 2px 4px; background: #fff; box-shadow: inset 1px 1px #808080, inset -1px -1px #fff, inset 2px 2px #000; font: 11px var(--ui); }
+  .progress { height: 18px; padding: 2px; background: #fff; box-shadow: inset 1px 1px #808080, inset -1px -1px #fff; }
+  .progress span { display: block; height: 100%; width: var(--p, 0%); background: repeating-linear-gradient(90deg, #0a246a 0 9px, transparent 9px 11px); }
+  .era-xp .progress span { background: repeating-linear-gradient(90deg, #3cba3c 0 7px, transparent 7px 9px); }
+  .art { height: 92px; margin: -2px -2px 8px; background: linear-gradient(120deg, #0d2f6b, #2f6fb0); position: relative; overflow: hidden; }
+  .art .pc2 { position: absolute; right: 22%; top: 18px; width: 54px; height: 44px; background: #dcdcdc; box-shadow: inset 6px 6px 0 #3aa0e0, inset -6px -14px 0 #dcdcdc; border: 2px solid #555; }
+  .art .globe { position: absolute; left: 18%; top: 14px; width: 60px; height: 60px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #9be29b 0 18%, #2f7fd0 19% 62%, #12406f 63%); animation: spin 3s linear infinite; }
+  .art .wire { position: absolute; left: 32%; right: 36%; top: 44px; height: 3px; background: repeating-linear-gradient(90deg, #ffd34a 0 8px, transparent 8px 14px); background-size: 14px 3px; animation: dash .5s linear infinite; }
+  .dialing .art .wire { animation-duration: .25s; }
+  .status { margin: 6px 0 10px; font-size: 11px; }
+  .row { display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* ---------- the 2001 web page ---------- */
+  .browser .address { display: flex; gap: 6px; align-items: center; padding: 3px 6px; font-size: 11px; }
+  .browser .address .input { flex: 1; }
+  .portal { font-family: Verdana, Arial, sans-serif; font-size: 12px; color: #000; background: #fff; }
+  .portal .head { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: linear-gradient(#ffd400, #ffb000); border-bottom: 3px solid #e02020; }
+  .portal .logo { font: bold italic 26px Georgia, serif; color: #c00000; letter-spacing: -1px; }
+  .portal .logo small { font-size: 12px; color: #333; letter-spacing: 0; }
+  .portal marquee, .portal .marquee { display: block; overflow: hidden; white-space: nowrap; background: #000080; color: #ff0; padding: 3px 0; font: bold 11px Verdana; }
+  .portal .marquee span { display: inline-block; padding-left: 100%; animation: marquee 14s linear infinite; }
+  .portal .cols { display: grid; grid-template-columns: 130px 1fr; gap: 10px; padding: 10px; }
+  .portal nav a { display: block; padding: 3px 0; color: #00c; text-decoration: underline; font-size: 11px; }
+  .portal h2 { margin: 0 0 6px; font: bold 16px Georgia, serif; color: #c00000; }
+  .portal p { margin: 0 0 8px; line-height: 1.45; }
+  .portal .game { display: flex; gap: 8px; align-items: center; margin: 6px 0; padding: 6px; border: 1px dashed #c00000; background: #fffbe6; }
+  .portal .game i { width: 48px; height: 36px; background: linear-gradient(#5ad 0 55%, #3a3 55%); border: 1px solid #333; }
+  .portal .counter { display: inline-block; margin-top: 8px; padding: 2px 6px; background: #000; color: #3f3; font: 12px var(--mono); letter-spacing: 2px; }
+  .portal .construction { display: inline-block; margin-left: 8px; padding: 2px 6px; background: repeating-linear-gradient(45deg, #000 0 6px, #ffd400 6px 12px); color: #000; font-weight: bold; font-size: 10px; }
+  .loadimg { height: calc(var(--load, 1) * 100%); overflow: hidden; }
+
+  /* ---------- messenger toast ---------- */
+  .toast { position: absolute; right: 12px; bottom: 40px; width: 230px; z-index: 70; padding: 10px; border: 1px solid #3a6ea5; border-radius: 6px 6px 0 0; background: linear-gradient(#eaf3ff, #c9ddf7); box-shadow: 0 4px 14px rgb(0 0 0 / 0.35); font-size: 11px; transform: translateY(140%); transition: transform .5s ease; }
+  .toast.on { transform: none; }
+  .toast:not(.on) { opacity: 0; transition: transform .5s ease, opacity .3s ease; }
+  .toast .who { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-weight: bold; color: #0a246a; }
+  .toast .who i { width: 20px; height: 20px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #8f8, #1a8a1a); box-shadow: 9px 3px 0 -3px #3a8ae8; }
+  .nudge { animation: nudge .5s ease-in-out 2; }
+
+  /* ---------- full-screen moments ---------- */
+  .full { position: absolute; inset: 0; z-index: 80; display: none; }
+  .full.on { display: block; }
+  .full:not(.on) { display: none !important; }
+  .gsetup.on { display: grid; }
+  .textsetup { background: #0000a8; color: #c0c0c0; font: 16px var(--mono); }
+  .textsetup .top { padding: 6px 12px 6px 40px; color: #fff; border-bottom: 2px double #c0c0c0; }
+  .textsetup .main { padding: 20px 6vw; line-height: 1.6; }
+  .textsetup .main b { color: #fff; font-weight: normal; }
+  .textsetup .table { margin: 16px 0; padding: 10px 16px; border: 2px double #c0c0c0; max-width: 640px; }
+  .textsetup .sel { background: #c0c0c0; color: #0000a8; }
+  .textsetup .bar { margin-top: 18px; max-width: 640px; border: 2px double #c0c0c0; padding: 6px; }
+  .textsetup .bar span { display: block; height: 16px; width: var(--p, 0%); background: #ffff55; }
+  .textsetup .foot { position: absolute; left: 0; right: 0; bottom: 0; padding: 6px 12px; background: #c0c0c0; color: #000; }
+  .bsod { background: #0000aa; color: #fff; font: 15px var(--mono); padding: 5vh 6vw; line-height: 1.5; }
+  .bsod p { margin: 0 0 1.2em; max-width: 980px; }
+  .gsetup { display: grid; grid-template-columns: minmax(180px, 26%) 1fr; background: linear-gradient(135deg, #0b3fa5, #2f6fd0 60%, #6fa9ee); color: #fff; font-family: var(--ui); }
+  .gsetup .steps { padding: 40px 24px; background: rgb(0 0 40 / 0.35); font-size: 14px; line-height: 2.2; }
+  .gsetup .steps li { list-style: none; opacity: .55; }
+  .gsetup .steps li.on { opacity: 1; font-weight: bold; }
+  .gsetup .steps li.on::before { content: "▶ "; color: #ffd34a; }
+  .gsetup .pane { display: grid; align-content: center; gap: 14px; padding: 6vw; font-size: 16px; }
+  .gsetup .pane h2 { margin: 0; font-weight: 400; font-size: clamp(22px, 3vw, 34px); }
+  .gsetup .left { font-size: 13px; opacity: .85; }
+  .gsetup .progress { max-width: 420px; }
+  .black { background: #000; color: #aaa; font: 15px var(--mono); padding: 5vh 6vw; }
+
+  /* ---------- P2P ---------- */
+  .p2p table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .p2p th { text-align: left; padding: 3px 6px; background: var(--classic); box-shadow: inset -1px -1px #808080, inset 1px 1px #fff; font-weight: normal; }
+  .era-xp .p2p th { background: #ebeadb; box-shadow: inset 0 -2px #d6d2c2; }
+  .p2p td { padding: 3px 6px; border-bottom: 1px solid #eee; white-space: nowrap; }
+  .p2p td .progress { height: 12px; padding: 1px; }
+  .speed { display: flex; justify-content: space-between; gap: 10px; padding: 6px 2px 0; font-size: 11px; }
+  .speed b { color: #0a246a; }
+  .note { position: absolute; z-index: 9; width: 230px; padding: 12px; background: #fff8a8; box-shadow: 2px 4px 10px rgb(0 0 0 / 0.3); font: 13px 'Comic Sans MS', 'Segoe Print', cursive; line-height: 1.4; transform: rotate(-2deg); }
+
+  /* ---------- the monitor, only at the edges: plastic bezel, curved glass corners, edge falloff ---------- */
+  .bezel { position: absolute; inset: 0; z-index: 95; pointer-events: none; }
+  .bezel::before { /* plastic around the glass */
+    content: ""; position: absolute; inset: -40px; border: 64px solid #d9d2bd; border-radius: 96px / 112px;
+    box-shadow: inset 0 0 0 2px #b8af97, inset 0 0 24px 6px rgb(0 0 0 / 0.55);
+  }
+  .bezel::after { /* curved glass: dark corners, soft highlight, faint scanlines */
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 120% 110% at 50% 50%, transparent 62%, rgb(0 0 0 / 0.35) 88%, rgb(0 0 0 / 0.7) 100%),
+      radial-gradient(ellipse 60% 40% at 30% 20%, rgb(255 255 255 / 0.07), transparent 70%),
+      repeating-linear-gradient(180deg, transparent 0 2px, rgb(0 0 0 / 0.07) 2px 3px);
+  }
+  .era-xp .bezel::before { border-color: #e9e8e3; box-shadow: inset 0 0 0 2px #c9c7c0, inset 0 0 22px 6px rgb(0 0 0 / 0.5); border-radius: 84px / 100px; }
+  /* Keep the desktop clear of the bezel. */
+  .screen .desktop, .screen .taskbar, .screen .full { margin: 0; }
+  .screen { padding: 0; }
+  .screen > .desktop { inset: 22px 22px 52px 22px; }
+  .screen > .taskbar { left: 22px; right: 22px; bottom: 22px; }
+  .screen > .full { inset: 22px; }
+  .startmenu { left: 24px !important; bottom: 52px !important; }
+  .toast { right: 34px !important; bottom: 62px !important; }
+  .screen.nudge .bezel { animation: none; }
+
+  /* ---------- outside chrome ---------- */
+  .chrome { position: fixed; z-index: 100; top: calc(env(safe-area-inset-top, 0px) + 32px); right: max(36px, env(safe-area-inset-right, 0px)); display: flex; gap: 6px; font: 11px var(--ui); }
+  .chrome button, .chrome span { padding: 4px 8px; border: 1px solid rgb(255 255 255 / 0.5); border-radius: 12px; background: rgb(0 0 0 / 0.55); color: #fff; font: inherit; }
+  .hint { position: fixed; z-index: 100; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 56px); transform: translateX(-50%); padding: 6px 12px; border-radius: 14px; background: rgb(0 0 0 / 0.6); color: #fff; font: 11px var(--ui); pointer-events: none; transition: opacity .4s; }
+
+  @keyframes blink { 50% { opacity: .2; } }
+  @keyframes spin { to { filter: hue-rotate(40deg); transform: rotate(360deg); } }
+  @keyframes dash { to { background-position: 14px 0; } }
+  @keyframes pulse { 50% { box-shadow: inset -1px -1px #000, inset 1px 1px #fff, 0 0 0 3px #ffd34a; } }
+  @keyframes marquee { to { transform: translateX(-100%); } }
+  @keyframes nudge { 25% { transform: translate(-6px, 2px); } 50% { transform: translate(6px, -2px); } 75% { transform: translate(-4px, 0); } }
+  @media (max-width: 700px) {
+    .win { left: 8px !important; right: 8px; width: auto !important; }
+    .icons { gap: 10px; }
+    .portal .cols { grid-template-columns: 1fr; }
+    .portal nav { display: none; }
+    .gsetup { grid-template-columns: 1fr; }
+    .gsetup .steps { display: none; }
+    .textsetup, .bsod, .black { font-size: 12px; }
+    .note { left: 8px !important; right: 8px; width: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  /* ---------- 95 and 98 ---------- */
+  .era-95 .desktop, .era-98 .desktop { background: #008080; }
+  .era-95 .win .title, .era-98 .win.active .title { background: linear-gradient(90deg, #000080, #1084d0); }
+  .era-95 .win.active .title { background: #000080; }
+  .era-95 .startmenu .side { background: #808080; color: #c0c0c0; }
+  .power { background: #000; }
+  .power .line { position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: #fff; box-shadow: 0 0 20px 4px #cfe; transform: scaleX(var(--sx, 0)); transform-origin: center; }
+  .power .glow { position: absolute; inset: 0; background: radial-gradient(circle, rgb(220 255 240 / 0.9), transparent 60%); opacity: var(--g, 0); }
+  .post { background: #000; color: #c0c0c0; font: 16px var(--mono); padding: 4vh 5vw; white-space: pre-wrap; line-height: 1.45; }
+  .post .energy { float: right; color: #3c3; font-weight: bold; border: 2px solid #3c3; padding: 4px 8px; }
+  .splash { display: grid; place-items: center; background: linear-gradient(180deg, #2d6fd0 0%, #79aaf0 45%, #c9dcf7 70%, #e9f0fb 100%); }
+  .splash::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 30% 12% at 25% 30%, #fff 0, transparent 70%), radial-gradient(ellipse 40% 14% at 70% 22%, #fff 0, transparent 70%), radial-gradient(ellipse 35% 10% at 55% 62%, #fff 0, transparent 70%); opacity: .85; }
+  .splash .brand { position: relative; font: bold clamp(28px, 5vw, 64px) var(--ui); color: #fff; text-shadow: 2px 2px 0 #1a3f7a; }
+  .splash .bar95 { position: absolute; left: 0; right: 0; bottom: 6%; height: 10px; background: linear-gradient(90deg, #00f, #0ff, #f0f, #00f); background-size: 200% 100%; animation: slide 1.2s linear infinite; }
+  .setup98 { display: grid; grid-template-columns: minmax(200px, 28%) 1fr; background: linear-gradient(135deg, #0f2f7a, #2a5ab0); color: #fff; font-family: var(--ui); }
+  .setup98 ul { list-style: none; margin: 0; padding: 40px 24px; background: rgb(0 0 40 / 0.4); font-size: 14px; line-height: 2.3; }
+  .setup98 li { opacity: .55; }
+  .setup98 li.on { opacity: 1; font-weight: bold; }
+  .setup98 li.on::before { content: "▶ "; color: #ffd34a; }
+  .setup98 .pane { display: grid; align-content: center; gap: 16px; padding: 6vw; }
+  .setup98 .pane h2 { margin: 0; font-weight: 400; font-size: clamp(22px, 3vw, 34px); }
+  .setup98 .tip { max-width: 520px; padding: 14px 16px; background: rgb(255 255 255 / 0.1); border-left: 4px solid #ffd34a; font-size: 14px; line-height: 1.5; }
+  .welcome .body.grey { display: grid; grid-template-columns: 1fr 120px; gap: 12px; }
+  .welcome .tipbox { padding: 12px; background: #ffffe1; box-shadow: inset 1px 1px #808080, inset -1px -1px #fff; font-size: 12px; line-height: 1.5; }
+  .welcome .tipbox b { display: block; margin-bottom: 6px; font-size: 14px; }
+  .welcome .col { display: flex; flex-direction: column; gap: 6px; }
+  .explorer .files { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 10px; min-height: 140px; position: relative; }
+  .explorer .file { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; text-align: center; }
+  .explorer .file i { width: 28px; height: 32px; background: #fff; border: 1px solid #555; box-shadow: inset 0 -8px 0 #9ab; }
+  .explorer .file i.exe { background: linear-gradient(#c0c0c0 0 30%, #000080 30%); }
+  .explorer .file i.dll { background: linear-gradient(135deg, #fff 70%, #ffd34a 70%); }
+  .explorer .file.new { outline: 1px dotted #000; background: #0a246a; color: #fff; }
+  .flying { position: absolute; z-index: 40; width: 28px; height: 32px; background: linear-gradient(135deg, #fff 70%, #ffd34a 70%); border: 1px solid #555; pointer-events: none; }
+  .game { position: absolute; z-index: 30; left: calc(50% - 170px); top: 18%; width: 340px; height: 260px; background: #000; box-shadow: 0 0 0 3px #c0c0c0, 4px 4px 0 3px #000; display: none; }
+  .game.on { display: block; }
+  .game .sky { position: absolute; inset: 0 0 45%; background: linear-gradient(#2b1b4d, #a8406e 70%, #ff8f57); }
+  .game .road { position: absolute; left: 0; right: 0; bottom: 0; height: 45%; background: #1b2a1e; }
+  .game .road::before { content: ""; position: absolute; left: 50%; bottom: 0; width: 90%; height: 100%; transform: translateX(-50%); background: #3d3d46; clip-path: polygon(47% 0, 53% 0, 100% 100%, 0 100%); }
+  .game .road::after { content: ""; position: absolute; left: 50%; bottom: 0; width: 6px; height: 100%; transform: translateX(-50%); background: repeating-linear-gradient(#f4f1e6 0 12px, transparent 12px 26px); animation: roadline .4s steps(4) infinite; }
+  .game .press { position: absolute; left: 0; right: 0; top: 28%; text-align: center; color: #ffd34a; font: bold 18px var(--mono); text-shadow: 2px 2px 0 #000; animation: blink 1s steps(2) infinite; }
+  @keyframes slide { to { background-position: 200% 0; } }
+  @keyframes roadline { to { background-position: 0 26px; } }
+</style>
+
+<div class="journey" id="journey">
+  <div class="screen era-95" id="screen">
+    <div class="desktop" id="desktop">
+      <div class="icons">
+        <button class="icon" data-open="w-pc"><i class="ic-pc"></i><span>My Computer</span></button>
+        <button class="icon" data-open="w-games"><i class="ic-txt" style="background:#ffd873;border-color:#a67c00;box-shadow:none"></i><span>Games</span></button>
+        <button class="icon" data-open="w-notes"><i class="ic-txt"></i><span>notes.txt</span></button>
+        <button class="icon" data-open="w-bin"><i class="ic-bin"></i><span>Recycle Bin</span></button>
+      </div>
+
+      <section class="win welcome" id="w-welcome" hidden style="left:calc(50% - 230px);top:14%;width:min(460px,92vw)">
+        <div class="title"><span>Welcome</span><button class="x" aria-label="Close">×</button></div>
+        <div class="body grey">
+          <div class="tipbox"><b>Did you know...</b>Dad brought home our first computer. A Pentium with an 8 GB disk. I was hooked on the screen.<br><br>Double-click My Computer to look around.</div>
+          <div class="col"><button class="btn">What's New</button><button class="btn">Online Registration</button><button class="btn" data-close>Close</button></div>
+        </div>
+      </section>
+
+      <section class="win" id="w-pc" hidden style="left:30%;top:22%;width:min(380px,80vw)">
+        <div class="title"><span>My Computer</span><button class="x" aria-label="Close">×</button></div>
+        <div class="menu"><u>F</u>ile <u>E</u>dit <u>V</u>iew <u>H</u>elp</div>
+        <div class="body" style="display:flex;gap:18px;flex-wrap:wrap;min-height:110px">
+          <div style="text-align:center"><i class="ic-pc" style="display:block;width:32px;height:24px;margin:0 auto 4px"></i>3½ Floppy (A:)</div>
+          <div style="text-align:center"><i class="ic-pc" style="display:block;width:32px;height:24px;margin:0 auto 4px"></i>(C:)<br><small>8.0 GB</small></div>
+          <div style="text-align:center"><i class="ic-pc" style="display:block;width:32px;height:24px;margin:0 auto 4px"></i>CD-ROM (D:)</div>
+          <div style="text-align:center"><i class="ic-txt" style="display:block;width:32px;height:24px;margin:0 auto 4px;background:#ffd873;border-color:#a67c00;box-shadow:none"></i>Control Panel</div>
+        </div>
+      </section>
+
+      <section class="win" id="w-notes" hidden style="left:14%;top:10%;width:min(400px,80vw)">
+        <div class="title"><span>notes.txt - Notepad</span><button class="x" aria-label="Close">×</button></div>
+        <div class="menu"><u>F</u>ile <u>E</u>dit <u>S</u>earch <u>H</u>elp</div>
+        <div class="body" style="font:13px var(--mono);line-height:1.5;min-height:110px" id="notes-body">things to try:<br>- emulators<br>- fix the sound card<br>- ask dad for a CD burner</div>
+      </section>
+
+      <section class="win" id="w-bin" hidden style="left:40%;top:30%;width:min(300px,80vw)">
+        <div class="title"><span>Recycle Bin</span><button class="x" aria-label="Close">×</button></div>
+        <div class="body" style="min-height:80px">old_save.dat<br>wallpaper_backup.bmp</div>
+      </section>
+
+      <section class="win explorer" id="w-games" hidden style="left:16%;top:8%;width:min(560px,88vw)">
+        <div class="title"><span>C:\Games\Racer</span><button class="x" aria-label="Close">×</button></div>
+        <div class="menu"><u>F</u>ile <u>E</u>dit <u>V</u>iew <u>G</u>o F<u>a</u>vorites <u>H</u>elp</div>
+        <div class="body"><div class="files" id="files">
+          <div class="file"><i class="exe"></i>RACER.EXE</div>
+          <div class="file"><i></i>README.TXT</div>
+          <div class="file"><i></i>CONFIG.INI</div>
+          <div class="file" id="target"><i class="dll"></i>GAME.DLL</div>
+          <div class="file"><i></i>SAVE01.DAT</div>
+        </div></div>
+      </section>
+
+      <section class="win" id="w-replace" hidden style="left:calc(50% - 180px);top:36%;width:min(360px,92vw)">
+        <div class="title"><span>Confirm File Replace</span><button class="x" aria-label="Close">×</button></div>
+        <div class="body grey"><p style="margin:0 0 6px">This folder already contains a file named 'GAME.DLL'.</p><p style="margin:0 0 12px">Would you like to replace the existing file with this one?</p><div class="row"><button class="btn primary" id="yes">Yes</button><button class="btn">Yes to All</button><button class="btn" data-close>No</button></div></div>
+      </section>
+
+      <div class="game" id="game"><div class="sky"></div><div class="road"></div><div class="press">PRESS START</div></div>
+      <div class="flying" id="flying" hidden></div>
+      <div class="note" id="note" hidden style="right:6%;top:52%"></div>
+    </div>
+
+    <nav class="startmenu" id="startmenu" aria-label="Start menu"><span class="side" id="start-side">Windows 95</span><ul><li>Programs</li><li>Documents</li><li>Settings</li><li>Find</li><li>Help</li><li>Run...</li><li>Shut Down...</li></ul></nav>
+    <div class="taskbar">
+      <button class="startbtn" id="startbtn">Start</button>
+      <div class="tasks" id="tasks"></div>
+      <div class="tray"><span id="clock">16:05</span></div>
+    </div>
+
+    <div class="full power" id="f-power"><div class="glow"></div><div class="line"></div></div>
+    <div class="full post" id="f-post"></div>
+    <div class="full splash" id="f-splash"><div class="brand">Windows 95</div><div class="bar95"></div></div>
+    <div class="full setup98" id="f-setup98">
+      <ul><li>Preparing to run Setup</li><li>Collecting information</li><li class="on">Copying files</li><li>Restarting your computer</li><li>Setting up hardware</li></ul>
+      <div class="pane"><h2>Setting up Windows 98</h2><div class="progress" style="max-width:420px"><span id="s98-bar"></span></div><p id="s98-left" style="margin:0;font-size:13px;opacity:.85">Setup will complete in approximately: 30 minutes</p><div class="tip">Always the next version, as soon as it came out. Even if it meant reinstalling everything on a Saturday.</div></div>
+    </div>
+    <div class="full textsetup" id="f-setup2000">
+      <div class="top">Windows 2000 Setup</div>
+      <div class="main" id="s2k-main"></div>
+      <div class="foot">ENTER=Continue&nbsp;&nbsp;&nbsp;F3=Quit</div>
+    </div>
+    <div class="bezel" aria-hidden="true"></div>
+  </div>
+</div>
+<div class="chrome"><button type="button" id="sound">Sound: on</button><span>Prototype · 95 to 98</span></div>
+<p class="hint" id="hint">Scroll to move the story · Click around to explore</p>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const screen = $('screen'), journey = $('journey');
+
+  // ---------- window manager: open, focus, drag, close; taskbar buttons ----------
+  let z = 20;
+  const tasks = $('tasks');
+  function focusWin(w) {
+    document.querySelectorAll('.win').forEach((x) => x.classList.toggle('active', x === w));
+    w.style.zIndex = String(++z);
+    renderTasks();
+  }
+  function openWin(id) { const w = $(id); if (!w) return; w.hidden = false; focusWin(w); }
+  function closeWin(id) { const w = $(id); if (!w) return; w.hidden = true; renderTasks(); }
+  function renderTasks() {
+    tasks.innerHTML = '';
+    document.querySelectorAll('.win:not([hidden])').forEach((w) => {
+      const b = document.createElement('button');
+      b.className = 'task' + (w.classList.contains('active') ? ' on' : '');
+      b.textContent = w.querySelector('.title span').textContent;
+      b.onclick = () => focusWin(w);
+      tasks.appendChild(b);
+    });
+  }
+  document.querySelectorAll('.win').forEach((w) => {
+    w.addEventListener('pointerdown', () => focusWin(w));
+    w.querySelector('.x')?.addEventListener('click', (e) => { e.stopPropagation(); closeWin(w.id); });
+    w.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => closeWin(w.id)));
+    const t = w.querySelector('.title');
+    let sx, sy, ox, oy, drag = false;
+    t.addEventListener('pointerdown', (e) => { if (e.target.closest('.x')) return; drag = true; sx = e.clientX; sy = e.clientY; ox = w.offsetLeft; oy = w.offsetTop; t.setPointerCapture(e.pointerId); });
+    t.addEventListener('pointermove', (e) => { if (!drag) return; w.style.left = ox + e.clientX - sx + 'px'; w.style.top = Math.max(0, oy + e.clientY - sy) + 'px'; });
+    t.addEventListener('pointerup', () => (drag = false));
+  });
+  document.querySelectorAll('.icon').forEach((i) => {
+    i.addEventListener('dblclick', () => openWin(i.dataset.open));
+    i.addEventListener('keydown', (e) => { if (e.key === 'Enter') openWin(i.dataset.open); });
+    if (matchMedia('(pointer: coarse)').matches) i.addEventListener('click', () => openWin(i.dataset.open));
+  });
+  $('startbtn').addEventListener('click', (e) => { e.stopPropagation(); $('startmenu').classList.toggle('open'); });
+  addEventListener('click', () => $('startmenu').classList.remove('open'));
+
+  // ---------- sound: the modem, synthesized ----------
+  let soundOn = true, ac = null;
+  $('sound').addEventListener('click', () => { soundOn = !soundOn; $('sound').textContent = 'Sound: ' + (soundOn ? 'on' : 'off'); if (!soundOn && ac) ac.suspend(); else if (ac) ac.resume(); });
+  function tone(freqs, t0, dur, gain = 0.08, type = 'sine') {
+    freqs.forEach((f) => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = type; o.frequency.value = f; g.gain.value = 0;
+      g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(gain, t0 + 0.01); g.gain.setValueAtTime(gain, t0 + dur - 0.02); g.gain.linearRampToValueAtTime(0, t0 + dur);
+      o.connect(g).connect(ac.destination); o.start(t0); o.stop(t0 + dur + 0.05);
+    });
+  }
+  function noise(t0, dur, gain, freq, q) {
+    const len = Math.ceil(ac.sampleRate * dur), buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    const src = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
+    src.buffer = buf; f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q; g.gain.value = gain;
+    src.connect(f).connect(g).connect(ac.destination); src.start(t0);
+  }
+  const DTMF = { 0: [941, 1336], 1: [697, 1209], 2: [697, 1336], 3: [697, 1477], 4: [770, 1209], 5: [770, 1336], 6: [770, 1477], 7: [852, 1209], 8: [852, 1336], 9: [852, 1477] };
+  function modemSound() {
+    if (!soundOn || reduce) return 0;
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    ac.resume();
+    let t = ac.currentTime + 0.05;
+    tone([350, 440], t, 1.2); t += 1.3;                                  // dial tone
+    for (const d of '012345678') { tone(DTMF[d], t, 0.09, 0.07); t += 0.13; } // dialing
+    t += 0.5; tone([440, 480], t, 1.0, 0.05); t += 1.6;                   // ringing
+    tone([2100], t, 1.6, 0.06); t += 1.7;                                 // answer tone
+    for (let i = 0; i < 8; i++) { tone([980 + i * 60, 1650 - i * 40], t, 0.12, 0.04, 'square'); t += 0.14; } // negotiation
+    noise(t, 1.4, 0.18, 1800, 1.2); tone([1200], t, 1.4, 0.03, 'sawtooth'); t += 1.5; // training
+    noise(t, 1.8, 0.22, 1000, 0.7); t += 1.9;                            // the scramble
+    return t - ac.currentTime;
+  }
+
+
+  // A short, original start-up chord (not any system's sound). Needs a click first, like any audio.
+  function chime() {
+    if (!soundOn || reduce || !ac) return;
+    const t = ac.currentTime + 0.05;
+    [[262, 0], [330, 0.08], [392, 0.16], [523, 0.28]].forEach(([f, d]) => tone([f, f * 2], t + d, 1.6 - d, 0.025, 'triangle'));
+  }
+  document.addEventListener('pointerdown', () => { if (!ac && soundOn) { ac = new (window.AudioContext || window.webkitAudioContext)(); } }, { once: true });
+
+  const POST = 'Modular BIOS v4.51\n\nPENTIUM CPU\nMemory Test :  {mem}K OK\n\nDetecting Primary Master ... 8 GB\nDetecting Primary Slave  ... CD-ROM\n\nPress DEL to enter SETUP';
+  const STEPS = [
+    { full: 'f-power', tick: (t) => { const el = $('f-power'); el.style.setProperty('--sx', Math.min(1, t * 2.5).toFixed(3)); el.style.setProperty('--g', Math.max(0, t * 2 - 1).toFixed(3)); } },
+    { full: 'f-post', tick: (t) => { const kb = Math.round(Math.min(1, t * 1.6) * 64) * 1024; const n = Math.round(POST.length * Math.min(1, t * 1.3)); $('f-post').textContent = POST.replace('{mem}', String(kb)).slice(0, n); } },
+    { full: 'f-splash' },
+    { enter: () => { chime(); openWin('w-welcome'); $('hint').style.opacity = '1'; } },
+    { enter: () => { $('hint').style.opacity = '0'; openWin('w-pc'); $('clock').textContent = '19:30'; } },
+    { full: 'f-setup98', tick: (t) => { $('s98-bar').style.setProperty('--p', Math.round(t * 100) + '%'); $('s98-left').textContent = `Setup will complete in approximately: ${Math.max(1, Math.round(30 * (1 - t)))} minutes`; } },
+    { enter: () => {
+        ['w-welcome', 'w-pc', 'w-bin'].forEach(closeWin);
+        screen.classList.remove('era-95'); screen.classList.add('era-98');
+        $('start-side').textContent = 'Windows 98'; $('clock').textContent = '22:10';
+        $('notes-body').innerHTML = 'the racer game would not open.<br>someone said: put the right file in the game folder.';
+        openWin('w-notes'); openWin('w-games');
+      } },
+    { tick: (t) => {
+        // The file travels from the notes window into the game folder, then the replace prompt.
+        const fly = $('flying'), target = $('target').getBoundingClientRect();
+        const from = $('w-notes').getBoundingClientRect();
+        if (t < 0.4) {
+          const k = t / 0.4;
+          fly.hidden = false;
+          fly.style.left = from.left + 40 + (target.left - from.left - 40) * k + 'px';
+          fly.style.top = from.bottom - 30 + (target.top - from.bottom + 30) * k + 'px';
+          closeWin('w-replace');
+        } else {
+          fly.hidden = true;
+          if ($('w-replace').hidden) openWin('w-replace');
+          $('yes').classList.toggle('pulse', t < 0.75);
+        }
+      } },
+    { enter: () => {
+        closeWin('w-replace');
+        $('target').classList.add('new');
+        $('game').classList.add('on');
+        const n = $('note'); n.hidden = false; n.textContent = 'One file in the right folder, and the game opened.';
+      } },
+    { full: 'f-setup2000', tick: (t) => {
+        $('s2k-main').innerHTML = t < 0.5
+          ? 'Welcome to Setup.<br><br>This portion of the Setup program prepares Windows 2000 to run on your computer.<br><br>&nbsp;&nbsp;&nbsp;&bull; To set up Windows 2000 now, press ENTER.<br><br><b>Next: a 56k modem and a phone line. (Prototype: Dial-up to Broadband)</b>'
+          : `Setup is copying files...<div class="bar" style="--p:${Math.round((t - 0.5) * 200)}%"><span></span></div>`;
+      } },
+  ];
+
+  journey.style.height = `calc(${STEPS.length * 100}vh + 100vh)`;
+  let cur = -1;
+  function frame() {
+    requestAnimationFrame(frame);
+    const max = journey.offsetHeight - innerHeight;
+    const f = clamp(scrollY / Math.max(1, max), 0, 0.9999) * STEPS.length;
+    const s = Math.floor(f), t = f - s;
+    if (s !== cur) {
+      // Moving forward runs each step's entrance once, in order.
+      for (let k = cur + 1; k <= s; k++) STEPS[k]?.enter?.();
+      cur = Math.max(cur, s);
+      document.querySelectorAll('.full').forEach((el) => el.classList.toggle('on', STEPS[s].full === el.id));
+    }
+    STEPS[s].tick?.(t);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
