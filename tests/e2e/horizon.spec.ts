@@ -29,9 +29,10 @@ test.describe('horizon', () => {
     ).toBeVisible();
     await at(page, 0.35);
     await expect(scene(page).getByRole('heading', { level: 1, name: 'Meet Elias.' })).toBeVisible();
-    await expect(
-      scene(page).getByRole('heading', { name: 'The long version starts far from here.' }),
-    ).toBeHidden();
+    // One line at a time: the wormhole line is switched off (it fades out, then hides; the
+    // fade can stall in a background tab on CI, so check the switch, not the animation end).
+    await expect(scene(page).locator('[data-beat="0"]')).not.toHaveAttribute('data-on');
+    await expect(scene(page).locator('[data-beat="1"]')).toHaveAttribute('data-on', '');
   });
 
   test('the fall brings up the instruments and every alert', async ({ page }) => {
