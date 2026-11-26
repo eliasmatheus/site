@@ -1,0 +1,856 @@
+---
+/**
+ * Scene 02 · Structures. One of the churches: the central footing, its pit and the real
+ * borehole. Then the plans change (480 kN) and the visitor resizes the footing, guided step
+ * by step, until it is safe and as cheap as possible.
+ *
+ * The cross-section is SVG and works everywhere. src/scenes/structures/controller.ts drives
+ * the sliders, the handles, the panels and the quest.
+ */
+import { structures } from '../../content/structures';
+import { RANGE_B, RANGE_D } from '../../models/footing';
+import { footingView, ORIGINAL, soilRows, sweetSpot } from './footingView';
+import { AXIS, GROUND, LAYERS, PX, footingRect, sectionGeometry } from './section';
+
+const B = ORIGINAL.B;
+const D = ORIGINAL.D;
+const v = footingView(B, D, false);
+const g = sectionGeometry(B, D);
+const ghost = (() => {
+  const s = sweetSpot();
+  return footingRect(s.B, s.D);
+})();
+const rows = soilRows(D);
+const c = structures.controls;
+const sec = structures.section;
+const h = structures.hud;
+---
+
+<section
+  class="structures"
+  data-scene="structures"
+  data-tone={v.tone}
+  data-state={v.state}
+  aria-labelledby="structures-title"
+>
+  <div class="grid-bg" aria-hidden="true"></div>
+  <div class="layout">
+    <div class="copy">
+      <p class="kicker">{structures.kicker}</p>
+      <p class="sub" data-kicker>
+        {v.kicker}
+      </p>
+      <h2 id="structures-title" data-title>
+        {v.title}
+      </h2>
+      <p class="text" data-text>
+        {v.text}
+      </p>
+    </div>
+
+    <figure class="visual" data-visual>
+      <canvas class="model" data-canvas role="img" aria-label={structures.canvasLabel}></canvas>
+      <span class="tag3d" data-tag3d aria-hidden="true">
+        {v.tag}
+      </span>
+      <svg class="section" viewBox="0 0 400 310" role="img" aria-label={sec.label} data-section>
+        {LAYERS.map((l) => (
+          <rect
+            class={`layer ${l.kind}`}
+            x="0"
+            y={GROUND + l.from * PX}
+            width="400"
+            height={(l.to - l.from) * PX}
+          />
+        ))}
+        <line class="ground" x1="0" x2="400" y1={GROUND} y2={GROUND}></line>
+        <rect class="pit" data-pit x={g.pit.x} y={g.pit.y} width={g.pit.w} height={g.pit.h}></rect>
+        <rect
+          class="shoring"
+          data-shoring
+          x={g.shoring.x}
+          y={g.shoring.y}
+          width={g.shoring.w}
+          height={g.shoring.h}
+        ></rect>
+        <ellipse
+          class="bulb"
+          data-bulb
+          cx={g.bulb.cx}
+          cy={g.bulb.cy}
+          rx={g.bulb.rx}
+          ry={g.bulb.ry}
+        ></ellipse>
+        <rect
+          class="ghost"
+          data-ghost
+          x={ghost.x}
+          y={ghost.y}
+          width={ghost.w}
+          height={ghost.h}
+        ></rect>
+        <rect
+          class="column"
+          data-column
+          x={g.column.x}
+          y={g.column.y}
+          width={g.column.w}
+          height={g.column.h}
+        ></rect>
+        <rect
+          class="footing"
+          data-footing
+          x={g.footing.x}
+          y={g.footing.y}
+          width={g.footing.w}
+          height={g.footing.h}
+        ></rect>
+        <g class="load" aria-hidden="true">
+          <path d={`M${AXIS} 0v20M${AXIS - 6} 13l6 8l6 -8`} />
+          <text x={AXIS + 12} y="13" data-load>
+            {sec.load(v.load)}
+          </text>
+        </g>
+        <g
+          class="tag"
+          data-tag-g
+          transform={`translate(${g.footing.x + g.footing.w + 10} ${g.footing.y - 22})`}
+        >
+          <rect width="84" height="16" rx="3"></rect>
+          <text x="6" y="11.5" data-tag>
+            {v.tag}
+          </text>
+        </g>
+        <g class="handles" data-handles>
+          <circle
+            class="handle"
+            data-handle="width"
+            cx={g.corner.x}
+            cy={g.corner.y}
+            r="7"
+            aria-label={sec.widthHandle}
+          ></circle>
+          <path
+            class="handle arrow"
+            data-handle="depth"
+            transform={`translate(${g.arrow.x} ${g.arrow.y})`}
+            d="M-8 -16h16v8h7l-15 12l-15 -12h7z"
+            aria-label={sec.depthHandle}
+          ></path>
+        </g>
+        <g class="ruler" aria-hidden="true">
+          {rows.map((r) => (
+            <g data-ruler={r.depth}>
+              <line x1="384" x2="392" y1={GROUND + r.depth * PX} y2={GROUND + r.depth * PX} />
+              <text x="380" y={GROUND + r.depth * PX + 3}>
+                {structures.soil.blows(r.n)}
+              </text>
+            </g>
+          ))}
+        </g>
+      </svg>
+    </figure>
+
+    <div class="sheet">
+      <div class="hud" aria-live="polite">
+        <p class="row">
+          <span>{h.footing}</span>
+          <span class="val" data-dims>
+            {v.dims}
+          </span>
+        </p>
+        <p class="row">
+          <span>{h.soilPressure}</span>
+          <span class="val tone" data-pressure>
+            {v.pressure}
+          </span>
+        </p>
+        <span class="bar" aria-hidden="true">
+          <span data-bar style={`--pct: ${v.pressurePct}`}></span>
+        </span>
+        <p class="row">
+          <span>{h.cost}</span>
+          <span class="val" data-cost>
+            {v.cost}
+          </span>
+        </p>
+        <p class="row">
+          <span>{h.vsCheapest}</span>
+          <span class="val" data-rel data-rel-tone={v.relTone}>
+            {v.rel}
+          </span>
+        </p>
+        <p class="verdict tone" data-verdict>
+          {v.verdict}
+        </p>
+
+        <div class="quest" data-quest>
+          <p class="step" data-step-text></p>
+          <label class="slider">
+            <span class="slider-head">
+              <span>{c.width}</span>
+              <span data-width-value>{c.widthValue(B)}</span>
+            </span>
+            <input
+              type="range"
+              data-width
+              min={RANGE_B.min}
+              max={RANGE_B.max}
+              step="0.02"
+              value={B}
+            />
+          </label>
+          <label class="slider">
+            <span class="slider-head">
+              <span>{c.depth}</span>
+              <span data-depth-value>{c.depthValue(D)}</span>
+            </span>
+            <input
+              type="range"
+              data-depth
+              min={RANGE_D.min}
+              max={RANGE_D.max}
+              step="0.02"
+              value={D}
+            />
+          </label>
+          <button type="button" class="show-me" data-show-me>
+            {structures.showMe}
+          </button>
+        </div>
+      </div>
+
+      <div class="soil">
+        <button
+          type="button"
+          class="soil-toggle"
+          aria-expanded="false"
+          aria-controls="soil-table"
+          data-soil-toggle
+        >
+          {c.soilToggle}
+        </button>
+        <div class="soil-body" id="soil-table">
+          <p class="soil-title">{structures.soil.title}</p>
+          <ul>
+            {rows.map((r) => (
+              <li data-soil-row={r.depth} data-current={r.current ? '' : undefined}>
+                <span>{structures.soil.depth(r.depth)}</span>
+                <span class={`soil-bar ${r.layer}`} style={`--pct: ${r.pct}`} aria-hidden="true" />
+                <span>{structures.soil.blows(r.n)}</span>
+                <span>{structures.soil.strength(r.kpa)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .structures {
+    --bg: #0c0e12;
+    --ink: #e8eaee;
+    --muted: #a3a9b4;
+    --line: #2a2f38;
+    --yellow: #ffd84a;
+    --ok: #7ee2a8;
+    --over: #ffb35c;
+    --fail: #ff6b5b;
+    --tone: var(--ok);
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  [data-tone='over'] {
+    --tone: var(--over);
+  }
+
+  [data-tone='fail'] {
+    --tone: var(--fail);
+  }
+
+  .grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgb(210 220 235 / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(210 220 235 / 0.05) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .layout {
+    position: relative;
+    height: 100%;
+    display: grid;
+    grid-template-columns: minmax(260px, 360px) minmax(0, 1fr) minmax(260px, 300px);
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas:
+      'copy visual hud'
+      'soil visual hud';
+    gap: 20px 32px;
+    padding: 88px 40px 32px;
+  }
+
+  /* Desktop: the sheet's two panels are placed straight into the grid. */
+  .sheet {
+    display: contents;
+  }
+
+  .copy {
+    grid-area: copy;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .kicker,
+  .sub {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--yellow);
+  }
+
+  .sub {
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: clamp(30px, 2.8vw, 40px);
+    line-height: 1.05;
+    font-weight: 600;
+  }
+
+  .text {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  .visual {
+    grid-area: visual;
+    position: relative;
+    margin: 0;
+    min-height: 0;
+  }
+
+  /* The 3D model replaces the section once WebGL is up (data-3d); the SVG is the fallback. */
+  .model,
+  .tag3d {
+    display: none;
+  }
+
+  [data-3d] .model {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    touch-action: pan-y;
+  }
+
+  [data-3d] .section {
+    display: none;
+  }
+
+  [data-3d] .tag3d {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 6px 10px;
+    border-radius: 4px;
+    background: var(--tone);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    pointer-events: none;
+    transform: translate(-200px, -200px);
+  }
+
+  [data-3d][data-state='original'] .tag3d {
+    background: var(--ok);
+  }
+
+  /* Fills the cell and scales to fit it, so it never runs under the panels. */
+  .section {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    font-family: var(--font-mono);
+  }
+
+  .layer.soft {
+    fill: #b08a5a;
+    fill-opacity: 0.14;
+  }
+
+  .layer.firm {
+    fill: #9c7448;
+    fill-opacity: 0.22;
+  }
+
+  .layer.stiff {
+    fill: #d6a560;
+    fill-opacity: 0.26;
+  }
+
+  .ground {
+    stroke: #5a4630;
+    stroke-width: 2;
+  }
+
+  .pit {
+    fill: #0c0e12;
+    fill-opacity: 0.6;
+    stroke: #5ec8ff;
+    stroke-opacity: 0.5;
+    stroke-dasharray: 4 3;
+  }
+
+  .shoring {
+    fill: none;
+    stroke: var(--over);
+    stroke-width: 3;
+    stroke-dasharray: 2 4;
+    stroke-opacity: 0.8;
+  }
+
+  .bulb {
+    fill: var(--tone);
+    fill-opacity: 0.14;
+  }
+
+  .ghost {
+    fill: none;
+    stroke: var(--ok);
+    stroke-width: 1.5;
+    stroke-dasharray: 5 3;
+    opacity: 0;
+  }
+
+  [data-guide] .ghost {
+    opacity: 0.9;
+  }
+
+  [data-state='ok'] .ghost {
+    opacity: 0;
+  }
+
+  .column {
+    fill: #c9ccd2;
+    stroke: #5ec8ff;
+    stroke-width: 1;
+  }
+
+  .footing {
+    fill: #c9ccd2;
+    stroke: #5ec8ff;
+    stroke-width: 1;
+  }
+
+  [data-state]:not([data-state='original']) .footing {
+    fill: var(--tone);
+  }
+
+  [data-state='fail'] .footing {
+    animation: alarm 0.9s ease-in-out infinite;
+  }
+
+  .load path {
+    fill: none;
+    stroke: var(--yellow);
+    stroke-width: 2;
+  }
+
+  .load text,
+  .ruler text {
+    font-size: 9px;
+    fill: var(--muted);
+  }
+
+  .load text {
+    fill: var(--yellow);
+  }
+
+  .ruler text {
+    text-anchor: end;
+  }
+
+  .ruler line {
+    stroke: var(--muted);
+  }
+
+  .tag rect {
+    fill: var(--tone);
+  }
+
+  [data-state='original'] .tag rect {
+    fill: var(--ok);
+  }
+
+  .tag text {
+    font-size: 9px;
+    letter-spacing: 1px;
+    fill: var(--bg);
+  }
+
+  .handles {
+    display: none;
+  }
+
+  [data-state]:not([data-state='original']) .handles {
+    display: inline;
+  }
+
+  .handle {
+    fill: var(--yellow);
+    stroke: var(--bg);
+    stroke-width: 1.5;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .handle:active {
+    cursor: grabbing;
+  }
+
+  /* ---------- HUD ---------- */
+
+  .hud,
+  .soil {
+    padding: 16px 18px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgb(12 14 18 / 0.85);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .hud {
+    grid-area: hud;
+    align-self: end;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0;
+  }
+
+  .val {
+    color: var(--ink);
+    text-align: right;
+  }
+
+  .tone,
+  .verdict {
+    color: var(--tone);
+  }
+
+  [data-state='original'] .tone {
+    color: var(--ok);
+  }
+
+  [data-rel-tone='ok'] {
+    color: var(--ok);
+  }
+
+  [data-rel-tone='over'] {
+    color: var(--over);
+  }
+
+  [data-rel-tone='fail'] {
+    color: var(--fail);
+  }
+
+  .bar {
+    position: relative;
+    display: block;
+    height: 6px;
+    border-radius: 3px;
+    background: #22262e;
+  }
+
+  .bar span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: calc(var(--pct) * 1%);
+    border-radius: 3px;
+    background: var(--tone);
+  }
+
+  [data-state='original'] .bar span {
+    background: var(--ok);
+  }
+
+  .verdict {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.35;
+  }
+
+  .quest {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  [data-state]:not([data-state='original']) .quest {
+    display: flex;
+  }
+
+  .step {
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--yellow);
+    border-radius: 8px;
+    background: rgb(255 216 74 / 0.12);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.45;
+    color: #ffe9a3;
+  }
+
+  [data-state='ok'] .step {
+    border-color: var(--ok);
+    background: rgb(126 226 168 / 0.12);
+    color: var(--ok);
+  }
+
+  .slider {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .slider-head {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .slider-head span:last-child {
+    color: var(--ink);
+  }
+
+  input[type='range'] {
+    width: 100%;
+    height: 32px;
+    margin: 0;
+    accent-color: var(--yellow);
+    cursor: pointer;
+  }
+
+  .show-me {
+    min-height: 44px;
+    border: 1px solid #3a404b;
+    border-radius: 22px;
+    background: transparent;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 1px;
+    cursor: pointer;
+  }
+
+  [data-state='ok'] .show-me {
+    display: none;
+  }
+
+  /* ---------- Soil ---------- */
+
+  .soil {
+    grid-area: soil;
+    align-self: end;
+    width: min(100%, 300px);
+    font-size: 10px;
+  }
+
+  .soil-toggle {
+    display: none;
+  }
+
+  .soil-title {
+    margin: 0 0 6px;
+    color: var(--ink);
+  }
+
+  .soil ul {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .soil li {
+    display: grid;
+    grid-template-columns: 40px 1fr 36px 52px;
+    gap: 6px;
+    align-items: center;
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+
+  .soil li span:nth-child(3),
+  .soil li span:nth-child(4) {
+    text-align: right;
+  }
+
+  .soil li[data-current] {
+    background: rgb(255 216 74 / 0.16);
+    color: var(--ink);
+  }
+
+  .soil-bar {
+    display: block;
+    height: 7px;
+    width: calc(var(--pct) * 1%);
+    border-radius: 2px;
+  }
+
+  .soil-bar.soft {
+    background: #8a6a48;
+  }
+
+  .soil-bar.firm {
+    background: #b08a5a;
+  }
+
+  .soil-bar.stiff {
+    background: #e0b070;
+  }
+
+  @keyframes alarm {
+    50% {
+      fill-opacity: 0.55;
+    }
+  }
+
+  /* ---------- Mobile: short copy on top, the section, a bottom sheet with the controls ---------- */
+
+  @media (max-width: 767px) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto minmax(120px, 1fr) auto;
+      grid-template-areas: 'copy' 'visual' 'sheet';
+      gap: 8px;
+      padding: 60px 0 0;
+    }
+
+    .copy {
+      gap: 6px;
+      padding: 0 16px;
+    }
+
+    .kicker {
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    .sub,
+    .text {
+      display: none;
+    }
+
+    h2 {
+      font-size: 24px;
+    }
+
+    .sheet {
+      grid-area: sheet;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-height: 62dvh;
+      overflow-y: auto;
+      padding: 12px 16px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid var(--line);
+      border-radius: 18px 18px 0 0;
+      background: rgb(16 18 23 / 0.97);
+      box-shadow: 0 -12px 30px rgb(0 0 0 / 0.5);
+    }
+
+    .hud,
+    .soil {
+      align-self: stretch;
+      padding: 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .hud {
+      gap: 6px;
+    }
+
+    /* The full numbers live on desktop; the sheet keeps status, cost and the step. */
+    .hud > .row:first-child,
+    .hud > .row:nth-child(2) {
+      display: none;
+    }
+
+    .verdict {
+      font-size: 14px;
+    }
+
+    .step {
+      font-size: 15px;
+    }
+
+    input[type='range'] {
+      height: 44px;
+    }
+
+    .soil {
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .soil-toggle {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0 16px;
+      border: 1px solid #3a404b;
+      border-radius: 22px;
+      background: transparent;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    .soil-body:not([data-open]) {
+      display: none;
+    }
+
+    .soil-body {
+      margin-top: 8px;
+      font-size: 11px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-state='fail'] .footing {
+      animation: none;
+    }
+  }
+</style>

@@ -57,6 +57,24 @@ test.describe('journey', () => {
     expect(topmost).toBe(first.id);
   });
 
+  test('a hidden scene leaves nothing on screen', async ({ page }) => {
+    for (const s of SCENES) {
+      await page.goto(`/journey#${s.id}`);
+      await expect.poll(() => active(page)).toBe(s.id);
+      // A child with visibility: visible would show through a hidden layer.
+      const leaks = await page.evaluate(() =>
+        [...document.querySelectorAll<HTMLElement>('[data-scene]')]
+          .filter((l) => getComputedStyle(l).visibility === 'hidden')
+          .flatMap((l) =>
+            [...l.querySelectorAll('*')]
+              .filter((n) => getComputedStyle(n).visibility === 'visible')
+              .map((n) => `${l.dataset['scene']}: ${n.className || n.tagName}`),
+          ),
+      );
+      expect(leaks).toEqual([]);
+    }
+  });
+
   test('an anchor opens the journey on that scene', async ({ page }) => {
     await page.goto('/journey#to-be-continued');
     await expect.poll(() => active(page)).toBe('to-be-continued');

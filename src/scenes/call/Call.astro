@@ -476,7 +476,7 @@ const saveStep = MONTAGE_LENGTH + 2;
   }
 
   .chip[data-on] span {
-    visibility: visible;
+    visibility: inherit;
   }
 
   .chip[data-new] {
@@ -892,7 +892,7 @@ const saveStep = MONTAGE_LENGTH + 2;
 
   .line[data-on] {
     opacity: 1;
-    visibility: visible;
+    visibility: inherit;
     transition:
       opacity 0.3s steps(3) 0.1s,
       visibility 0s;
@@ -1080,6 +1080,6 @@ const saveStep = MONTAGE_LENGTH + 2;
 
   /* Without JS the scene is a still: boot screen, the choice made, the save line. */
   :global(html:not(.js)) .call .chip span {
-    visibility: visible;
+    visibility: inherit;
   }
 </style>

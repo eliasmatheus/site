@@ -30,7 +30,17 @@ Ver `reference/screens/2026-11-24-mobile-footing.png`: o perfil do solo cobre o 
 
 ## Aceite
 
-- [ ] three.js carregado só quando a cena anterior começa (import dinâmico) e com fallback estático se WebGL falhar.
-- [ ] Os três estados e o ótimo batem com os testes do modelo.
-- [ ] Quest resolvível só com teclado e só com toque.
-- [ ] Nenhum painel sobrepõe outro em 390 x 844.
+- [x] three.js carregado só quando a cena anterior começa (import dinâmico) e com fallback estático se WebGL falhar.
+- [x] Os três estados e o ótimo batem com os testes do modelo.
+- [x] Quest resolvível só com teclado e só com toque.
+- [x] Nenhum painel sobrepõe outro em 390 x 844.
+
+## Como ficou (Fase 3)
+
+Duas PRs em stack:
+
+1. Cena sem three.js: corte 2D em SVG (coluna, vala, escoramento abaixo de 2 m, bulbo de pressão, régua com o N da sondagem, contorno verde do alvo), HUD, passos da quest, sliders de LARGURA e PROFUNDIDADE (caminho principal, também pelo teclado), "Show me" e o perfil do solo. No mobile o HUD vira bottom sheet e o perfil fica atrás do botão "SOIL".
+2. Modelo 3D (`model3d.ts`, three.js 0.181): a igreja com seis pilares e seis sapatas sobre as camadas de solo, com os cantos e a seta arrastáveis. Substitui o corte quando o WebGL sobe; sem WebGL, o corte continua. No celular a câmera orbita perto da sapata central. three.js pesa cerca de 130 KB gzip e só é pedido quando a câmera chega à cena anterior.
+
+- `footingView.ts` (estados, passos, textos, perfil do solo) e `section.ts` (geometria do corte) são puros e testados.
+- Lighthouse mobile da home depois da cena: performance 98, acessibilidade 100, LCP 2,3 s.
