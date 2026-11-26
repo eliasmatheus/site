@@ -49,9 +49,13 @@ test.describe('horizon', () => {
     ).toBeVisible();
   });
 
-  test('the text paints before the shader, over a still black hole', async ({ page }) => {
+  test('the text paints before the shader, over a still wormhole, not the black hole', async ({
+    page,
+  }) => {
     await page.goto('/journey');
-    await expect(scene(page).locator('.still')).toBeVisible();
+    // The black hole is a surprise for later: the opening is the wormhole.
+    await expect(scene(page).locator('.still.worm')).toHaveCSS('opacity', '1');
+    await expect(scene(page).locator('.still.hole')).toHaveCSS('opacity', '0');
     await expect(
       scene(page).getByRole('heading', { name: 'The long version starts far from here.' }),
     ).toBeVisible();
