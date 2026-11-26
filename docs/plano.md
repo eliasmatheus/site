@@ -27,7 +27,7 @@ Cada fase termina com deploy funcionando. Uma cena só conta como pronta quando 
 
 ## Fase 3 · Engenharia
 
-- [ ] Structures com a sapata guiada e o layout mobile novo.
+- [x] Structures com a sapata guiada e o layout mobile novo.
 
 ## Fase 4 · A virada
 

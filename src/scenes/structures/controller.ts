@@ -15,6 +15,7 @@ import {
   soilRows,
   sweetSpot,
 } from './footingView';
+import type { Model3D } from './model3d';
 import { depthAt, sectionGeometry, widthAt, type Rect } from './section';
 
 const SHOW_ME_MS = 1400;
@@ -45,6 +46,9 @@ const structuresScene: SceneController = ({ el, mode }) => {
   let changed = false;
   let questDone = false;
   let anim = 0;
+  let model: Model3D | undefined;
+  let visible = false;
+  let progress = 0;
 
   const render = (): void => {
     const v = footingView(B, D, changed, questDone);
@@ -61,6 +65,15 @@ const structuresScene: SceneController = ({ el, mode }) => {
     text('[data-verdict]', v.verdict);
     text('[data-step-text]', v.stepText);
     text('[data-tag]', v.tag);
+    text('[data-tag3d]', v.tag);
+    model?.update({
+      B,
+      D,
+      tone: v.tone,
+      changed,
+      guide: el.hasAttribute('data-guide'),
+      target: sweetSpot(),
+    });
     text('[data-load]', structures.section.load(v.load));
     text('[data-width-value]', structures.controls.widthValue(B));
     text('[data-depth-value]', structures.controls.depthValue(D));
@@ -110,16 +123,22 @@ const structuresScene: SceneController = ({ el, mode }) => {
   const touch = (): void => {
     cancelAnimationFrame(anim);
     anim = 0;
-    el.setAttribute('data-guide', '');
+    if (!el.hasAttribute('data-guide')) {
+      el.setAttribute('data-guide', '');
+      render();
+    }
   };
 
+  // Read the slider before touch(): its render would put the old value back.
   width?.addEventListener('input', () => {
+    const next = Number(width.value);
     touch();
-    set(Number(width.value), D);
+    set(next, D);
   });
   depth?.addEventListener('input', () => {
+    const next = Number(depth.value);
     touch();
-    set(B, Number(depth.value));
+    set(B, next);
   });
 
   showMe?.addEventListener('click', () => {
@@ -175,14 +194,46 @@ const structuresScene: SceneController = ({ el, mode }) => {
 
   render();
 
+  // The 3D model: three.js loads now, while the camera is still one scene away.
+  const canvas = q<HTMLCanvasElement>('[data-canvas]');
+  if (canvas) {
+    void import('./model3d')
+      .then(({ createModel }) => {
+        model = createModel({
+          canvas,
+          label: q('[data-tag3d]'),
+          compact: mode === 'stack',
+          still: mode === 'fade',
+          onDrag: (kind, value) => (kind === 'width' ? set(value, D) : set(B, value)),
+          onGrab: touch,
+        });
+        if (!model) return;
+        el.setAttribute('data-3d', '');
+        model.setProgress(progress);
+        render();
+        if (visible) model.start();
+      })
+      .catch(() => {
+        // Keep the SVG section.
+      });
+  }
+
   return {
+    onShow() {
+      visible = true;
+      model?.start();
+    },
     onProgress(p) {
+      progress = p;
+      model?.setProgress(p);
       const next = p >= PLANS_CHANGE_AT;
       if (next === changed) return;
       changed = next;
       render();
     },
     onHide() {
+      visible = false;
+      model?.stop();
       cancelAnimationFrame(anim);
       anim = 0;
     },
