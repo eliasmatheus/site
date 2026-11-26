@@ -14,6 +14,11 @@ export interface ScenePlacement {
   /** Offset of the scene in the world, px. z comes from its index. */
   x: number;
   y: number;
+  /**
+   * Points of the dwell (0 to 1) told one gesture at a time (src/engine/pacing.ts). Without
+   * them the scene scrolls freely.
+   */
+  stops?: readonly number[];
 }
 
 export interface TimelineConfig {

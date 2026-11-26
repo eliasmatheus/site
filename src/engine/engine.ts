@@ -1,9 +1,11 @@
 /**
  * Scroll engine runtime: one requestAnimationFrame loop that reads scrollY and writes
- * only transforms, opacity, visibility and CSS custom properties. No scroll-jacking:
- * the document scrolls natively and its height is the timeline length plus one viewport.
+ * only transforms, opacity, visibility and CSS custom properties. The document scrolls
+ * natively and its height is the timeline length plus one viewport. The one exception is a
+ * scene with stops: there each gesture glides to the next stop (src/engine/pacing.ts).
  */
 import { layerStyle, type StageMode } from './layers';
+import { createPacer, type Zone } from './pacing';
 import {
   activeIndex,
   createTimeline,
@@ -255,6 +257,16 @@ export function createEngine(opts: EngineOptions): Engine {
   window.addEventListener('resize', onResize);
   window.addEventListener('hashchange', goToHash);
   queries.forEach((q) => q.addEventListener('change', onModeChange));
+  // Stops in document px, read on each gesture so they follow resizes and mode changes.
+  const zones = (): Zone[] =>
+    placements.flatMap((s, j) =>
+      s.stops?.length
+        ? [s.stops.map((p) => Math.round(origin + (tl.starts[j] ?? 0) + s.dwell * p))]
+        : [],
+    );
+  const pacer = placements.some((s) => s.stops?.length)
+    ? createPacer(zones, () => mode === 'fade')
+    : undefined;
   if (window.location.hash) goToHash();
   schedule();
 
@@ -278,6 +290,7 @@ export function createEngine(opts: EngineOptions): Engine {
       window.removeEventListener('resize', onResize);
       window.removeEventListener('hashchange', goToHash);
       queries.forEach((q) => q.removeEventListener('change', onModeChange));
+      pacer?.destroy();
     },
   };
 }
