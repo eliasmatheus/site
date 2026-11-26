@@ -4,8 +4,9 @@
  * The shader starts on the first sign of a visitor (pointer, touch, scroll or key) so the
  * text paints first, and quality drops on its own when frames run slow.
  */
+import { createFollow } from '../../engine/follow';
 import type { SceneController } from '../registry';
-import { beatAt, horizonFrame, instruments, smooth, type HorizonFrame } from './beats';
+import { beatAt, horizonFrame, instruments, smooth, WARP_END, type HorizonFrame } from './beats';
 import { createFlare } from './flare';
 import { FRAGMENT, UNIFORMS, VERTEX } from './shader';
 
@@ -69,6 +70,15 @@ function createRenderer(canvas: HTMLCanvasElement, coarse: boolean): Renderer | 
       gl.uniform1f(u.uWarp, f.warp);
       gl.uniform1f(u.uSteps, steps);
       gl.uniform2f(u.uShift, f.sx, f.sy);
+      // The sphere grows from a marble far ahead to filling the screen, drifting to center.
+      const near = Math.pow(f.approach, 2.4);
+      const aspect = w / h;
+      // Off the title: up and to the right on a wide screen, above it on a phone.
+      const cx = aspect < 0.8 ? 0.02 : 0.34 * Math.min(1, aspect / 1.6);
+      const cy = aspect < 0.8 ? 0.24 : 0.14;
+      gl.uniform2f(u.uWormC, cx * (1 - near), cy * (1 - near));
+      gl.uniform1f(u.uWormR, 0.11 + near * 1.8);
+      gl.uniform1f(u.uIn, f.inside);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     },
     slower() {
@@ -104,6 +114,8 @@ const horizonScene: SceneController = ({ el, mode }) => {
   const flare = createFlare();
 
   let p = 0;
+  // The camera follows the scroll with some mass: moves start and end slow.
+  const view = createFollow(4.2);
   let beat = 0;
   let alertsUp = -1;
   let renderer: Renderer | null | undefined;
@@ -140,8 +152,11 @@ const horizonScene: SceneController = ({ el, mode }) => {
     last = now;
     const w = el.clientWidth;
     const h = el.clientHeight;
-    const f = horizonFrame(p, w / Math.max(1, h));
-    clock += dt * (reduce ? 0.3 : 1);
+    if (reduce || Math.abs(p - view.value) > 0.3) view.snap(p);
+    const shown = view.step(p, dt);
+    const f = horizonFrame(shown, w / Math.max(1, h));
+    // Moving fast through the wormhole, the sparks rush faster.
+    clock += dt * (reduce ? 0.3 : 1 + Math.min(5, Math.abs(view.speed) * 40));
     diskTime += dt * (reduce ? 0.25 : 1);
 
     // The hard stop out of the wormhole: a jolt and a flash.
@@ -155,7 +170,8 @@ const horizonScene: SceneController = ({ el, mode }) => {
           ? `translate(${((Math.random() - 0.5) * quake).toFixed(1)}px, ${((Math.random() - 0.5) * quake).toFixed(1)}px)`
           : '';
     }
-    if (flash) flash.style.opacity = String(Math.max(reduce ? 0 : kick * 0.85, smooth(0.94, 1, p)));
+    if (flash)
+      flash.style.opacity = String(Math.max(reduce ? 0 : kick * 0.85, smooth(0.94, 1, shown)));
     if (vignette) vignette.style.opacity = String(f.fall * 0.9);
 
     if (renderer) {
@@ -223,6 +239,7 @@ const horizonScene: SceneController = ({ el, mode }) => {
   return {
     onShow() {
       visible = true;
+      view.snap(p);
       start();
       run();
     },
@@ -238,6 +255,7 @@ const horizonScene: SceneController = ({ el, mode }) => {
         beats.forEach((node, i) => node.toggleAttribute('data-on', i === b));
       }
       if (hint) hint.style.opacity = p < 0.02 ? '1' : '0';
+      el.toggleAttribute('data-past', p > WARP_END);
       const f = horizonFrame(p, el.clientWidth / Math.max(1, el.clientHeight));
       hud?.toggleAttribute('data-on', f.fall > 0.02 && f.fall < 0.97);
       if (f.fall <= 0) return;

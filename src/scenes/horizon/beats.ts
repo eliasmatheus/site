@@ -3,6 +3,8 @@
  * the wormhole, the fall and the instruments. Pure functions, no DOM.
  */
 
+/** The wormhole floats ahead until here; then the camera is inside it. */
+export const ENTER_AT = 0.13;
 /** Wormhole until here, then a hard stop. */
 export const WARP_END = 0.2;
 /** Drifting in to the Off-axis view. */
@@ -27,6 +29,10 @@ export interface Framing {
 export interface HorizonFrame extends Framing {
   /** 1 inside the wormhole, 0 out of it. */
   warp: number;
+  /** Approaching the wormhole, 0 far to 1 at its mouth. */
+  approach: number;
+  /** 0 outside the sphere, 1 in the tunnel. */
+  inside: number;
   /** 0 before the fall, 1 at the end. */
   fall: number;
 }
@@ -60,6 +66,8 @@ export function horizonFrame(p: number, aspect: number): HorizonFrame {
     sy: at('sy'),
     fov: at('fov'),
     warp: 1 - smooth(WARP_END - 0.02, WARP_END, p),
+    approach: smooth(0, ENTER_AT, p),
+    inside: smooth(ENTER_AT - 0.012, ENTER_AT + 0.012, p),
     fall: smooth(FALL_START, 1, p),
   };
 }

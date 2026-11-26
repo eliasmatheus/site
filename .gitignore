@@ -6,3 +6,6 @@ dist/
 .DS_Store
 test-results/
 playwright-report/
+
+# Inspiration images: local only, never published
+reference/inspiration/
