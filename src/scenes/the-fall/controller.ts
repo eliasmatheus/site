@@ -46,6 +46,11 @@ const theFallScene: SceneController = ({ el, mode }) => {
   // The camera follows the scroll with mass: a flick becomes one flight that starts and ends
   // slow. Copy and overlays stay on the raw scroll.
   const view = createFollow(3.6);
+  /** The fall plays at most this fast (dwell per second), so a flick never skips it. */
+  const FALL_SPEED = 0.16;
+  /** Going back, the tape rewinds, visibly faster. */
+  const REWIND_SPEED = 0.5;
+  let rewinding = false;
   let last = 0;
   let glimpseAt = -2;
   let screen = -1;
@@ -65,8 +70,13 @@ const theFallScene: SceneController = ({ el, mode }) => {
     look.y += (look.ty - look.y) * 0.05;
     const dt = last ? Math.min(0.1, (now - last) / 1000) : 1 / 60;
     last = now;
-    if (still || Math.abs(p - view.value) > 0.35) view.snap(p);
-    const s = fallState(view.step(p, dt));
+    if (still) view.snap(p);
+    const s = fallState(view.step(p, dt, p < view.value ? REWIND_SPEED : FALL_SPEED));
+    const rewind = !still && view.speed < -0.02;
+    if (rewind !== rewinding) {
+      rewinding = rewind;
+      window.dispatchEvent(new CustomEvent('journey:rewind', { detail: rewind }));
+    }
     // Progress per second: a hard flick is about 0.3.
     const speed = Math.min(1, Math.abs(view.speed) / 0.3);
     world.draw({
@@ -116,6 +126,10 @@ const theFallScene: SceneController = ({ el, mode }) => {
       run();
     },
     onHide() {
+      if (rewinding) {
+        rewinding = false;
+        window.dispatchEvent(new CustomEvent('journey:rewind', { detail: false }));
+      }
       visible = false;
       window.removeEventListener('pointermove', onPointer);
       cancelAnimationFrame(raf);
