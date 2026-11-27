@@ -16,6 +16,8 @@ const WANDER_STRENGTH = 0.6;
 const WANDER_DELAY = 1200;
 /** Touch screens have no hover, so sliding the view lights up more of the sky. */
 const TOUCH_GLOW_OPACITY = 0.45;
+/** How much brighter the nebula gets at the door to the journey. */
+const DOOR_GLOW = 0.5;
 
 interface Star {
   x: number;
@@ -112,6 +114,15 @@ export function startSky(): void {
     });
   }
   const panWidth = (): number => window.innerWidth * (PANORAMA - 1);
+  // Leaving the résumé, the nebula brightens: it peaks at the door to the journey, like the
+  // lights before a film. Then the journey fades in over it, black.
+  const door = document.getElementById('door');
+  const approach = (): number => {
+    if (!door) return 0;
+    const top = door.getBoundingClientRect().top / window.innerHeight;
+    const t = Math.min(1, Math.max(0, 1.2 - top));
+    return t * t * (3 - 2 * t);
+  };
   function applyView(): void {
     if (!nebula || !light) return;
     const pan = view.x * panWidth();
@@ -119,7 +130,8 @@ export function startSky(): void {
     nebula.style.transform = move;
     light.style.transform = move;
     const glow = coarse ? TOUCH_GLOW_OPACITY : GLOW_OPACITY;
-    nebula.style.setProperty('--glow', (REST_OPACITY + glow * view.glow).toFixed(3));
+    const lit = REST_OPACITY + glow * view.glow + DOOR_GLOW * approach();
+    nebula.style.setProperty('--glow', Math.min(0.95, lit).toFixed(3));
     const mask = lightMask(wander.s > 0.01 ? [...trail, wander] : trail, pan);
     light.style.maskImage = mask;
     light.style.setProperty('-webkit-mask-image', mask);
