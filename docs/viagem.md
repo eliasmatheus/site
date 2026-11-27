@@ -84,6 +84,14 @@ Rascunho de copy (inglês simples, sem travessão, a revisar com o Elias):
 6. **Tempo:** refinado no caminho, equilibrando engajamento, entretenimento e entendimento.
 7. **Pivô:** a nova narrativa é a direção. O que não fizer mais sentido do que já foi feito pode ser descartado.
 8. **A estante pode ficar**, como referência e easter egg.
+9. **Cutscene e jogo:** os planos de Saturno (abertura com pan, o close e o take por baixo do planeta olhando para cima, separados por cortes secos) são cutscenes em terceira pessoa, com barras de cinema. As barras saem quando a câmera passa para a primeira pessoa, o "jogo".
+10. **A nave (por enquanto):** uma nave tripulada original, um anel que gira para dar gravidade à tripulação (a ideia antiga da roda giratória), com quatro raios, um eixo central e o motor na ponta, num modelo básico. Aparece no take por baixo do planeta para dar escala, e por ser tripulada justifica a passagem para a primeira pessoa. Naves de filme (Falcon, Enterprise, Endurance) ficam fora: são assets dos estúdios.
+
+11. **Scroll da narrativa:** a partida anda em paradas, um gesto por take, e a câmera nunca pula: ela anda no ritmo do filme mesmo com um scroll rápido. Voltar no meio da narrativa mostra um rewind (a imagem volta rápida, com marca de rewind), para ficar claro que é a fita voltando.
+
+## Em espera (pin)
+
+- **Seletor de naves no começo da jornada:** opcional, no visual minimalista dos posters (só o contorno). Opções originais ou reais, nunca naves de filme. A nave escolhida aparece nas cutscenes e a passagem para a primeira pessoa acontece de dentro dela.
 
 ## Ordem de trabalho proposta (uma cena por PR, em stack)
 
