@@ -6,6 +6,7 @@
 import type { SceneHooks } from '../engine/engine';
 import type { ScenePlacement } from '../engine/timeline';
 import { CALL_STOPS } from './call/beats';
+import { HORIZON_STOPS } from './horizon/beats';
 
 export interface SceneContext {
   /** The scene's layer element. */
@@ -27,8 +28,10 @@ export const SCENES: readonly SceneEntry[] = [
     id: 'horizon',
     label: 'Horizon',
     // The departure (ringed planet, wormhole, tunnel, calm, still sky), then the black hole:
-    // arrival and the fall. A long dwell so each beat gets room.
-    dwell: 9500,
+    // arrival and the fall. A long dwell so each beat gets room, and stops through the
+    // departure so each take plays.
+    dwell: 12500,
+    stops: HORIZON_STOPS,
     x: 0,
     y: 0,
     load: () => import('./horizon/controller'),

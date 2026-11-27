@@ -7,18 +7,48 @@
  * after the departure, so its beats and framings did not have to change.
  */
 
+/** The film starts in the dark: the stars come up while the camera is already moving. */
+export const DAWN_END = 0.03;
+/** The first line is on from the start; over the landing it waits for the dark (CSS). */
+export const TITLE_AT = 0;
 /** The ringed planet against the light: the camera pans until it sits in the middle. */
-export const PAN_END = 0.08;
+export const PAN_END = 0.1;
 /** Then it zooms in, the rings level out and we fly under them, past the planet. */
-export const PLANET_END = 0.18;
+export const PLANET_END = 0.25;
 /** A tiny point ahead grows into the wormhole, revealed a little at a time, until its mouth. */
-export const MOUTH_AT = 0.3;
+export const MOUTH_AT = 0.35;
 /** Inside: the tunnel seen from near its wall, shaking. */
-export const TUNNEL_END = 0.37;
+export const TUNNEL_END = 0.42;
 /** The calm: speed falls away, the center opens. */
-export const CALM_END = 0.41;
+export const CALM_END = 0.46;
 /** A still sky; then the black hole. */
-export const DEPARTURE_END = 0.46;
+export const DEPARTURE_END = 0.5;
+
+/**
+ * After the first cut the planet is told in takes, each a share of PAN_END to PLANET_END:
+ * the close-up to CLOSE_SHARE, the view from under the planet to UNDER_SHARE, then the ship
+ * heads out to the wormhole (the cutscenes end there).
+ */
+export const CLOSE_SHARE = 0.45;
+export const UNDER_SHARE = 0.85;
+const take = (share: number): number => PAN_END + (PLANET_END - PAN_END) * share;
+/**
+ * Stops through the departure: one gesture plays one beat (the first frame, the pan, each
+ * take, the way to the wormhole, its mouth, the tunnel, the calm, the still sky), so a fast
+ * flick never skips the story. Past the last one the scroll is native again.
+ */
+export const HORIZON_STOPS: readonly number[] = [
+  0,
+  0.04,
+  PAN_END - 0.001,
+  take(CLOSE_SHARE) - 0.002,
+  take(UNDER_SHARE) - 0.002,
+  0.3,
+  MOUTH_AT,
+  TUNNEL_END,
+  CALM_END,
+  DEPARTURE_END,
+];
 
 /** The black hole's own timeline (q). */
 const Q_START = 0.2;
@@ -53,12 +83,18 @@ export interface Framing {
 export interface HorizonFrame extends Framing {
   /** 1 during the departure, 0 once the black hole shows. */
   warp: number;
+  /** The stars coming up out of the dark, 0 to 1. */
+  dawn: number;
   /** The ringed planet: 1 in view, 0 gone. */
   planet: number;
   /** The camera's pan until the planet is in the middle, 0 to 1. */
   pan: number;
   /** The zoom and the flight under the rings, 0 to 1. */
   zoom: number;
+  /** The whole flight past the planet, linear, 0 to 1 (the camera eases it as one move). */
+  flight: number;
+  /** After the cut: the flyby, linear, 0 to 1. */
+  shot2: number;
   /** Approaching the wormhole, 0 far to 1 at its mouth. */
   approach: number;
   /** How much of the wormhole shows, 0 (a faint lens) to 1 (all its light). */
@@ -105,9 +141,14 @@ export function horizonFrame(p: number, aspect: number): HorizonFrame {
     sy: at('sy'),
     fov: at('fov'),
     warp: 1 - smooth(DEPARTURE_END - 0.025, DEPARTURE_END, p),
+    dawn: smooth(0, DAWN_END, p),
+    // No fade in: the planet comes into view because we fly towards it.
     planet: 1 - smooth(PLANET_END - 0.01, PLANET_END + 0.01, p),
-    pan: smooth(0, PAN_END, p),
+    // The film's frame holds for a moment once it is up, then the slow pan.
+    pan: smooth(DAWN_END + 0.012, PAN_END, p),
     zoom: smooth(PAN_END, PLANET_END, p),
+    flight: clamp(p / PLANET_END, 0, 1),
+    shot2: clamp((p - PAN_END) / (PLANET_END - PAN_END), 0, 1),
     approach: smooth(PLANET_END - 0.01, MOUTH_AT, p),
     reveal: smooth(PLANET_END, MOUTH_AT - 0.015, p),
     inside: smooth(MOUTH_AT - 0.012, MOUTH_AT + 0.012, p),
@@ -152,7 +193,7 @@ const BEAT_RANGES_Q: readonly (readonly [number, number])[] = [
   [0.86, 1.01],
 ];
 export const BEAT_RANGES: readonly (readonly [number, number])[] = [
-  [0, TUNNEL_END - 0.01],
+  [TITLE_AT, TUNNEL_END - 0.01],
   ...BEAT_RANGES_Q.map(([a, b]) => [atQ(a), atQ(b)] as const),
 ];
 

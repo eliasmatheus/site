@@ -6,8 +6,8 @@
  * src/scenes/horizon/controller.ts draws it (WebGL shader + a 2D lens flare); the beats and
  * the camera come from src/scenes/horizon/beats.ts.
  *
- * Before the shader is ready, and without WebGL or JS, CSS gradients stand in: a still
- * ringed planet first, the black hole once past the departure. Every line of copy stays
+ * Before the shader is ready, and without WebGL or JS, stills stand in: the shader's own
+ * first frame of the ringed planet, then a CSS black hole once past the departure. Every line of copy stays
  * readable.
  */
 import { horizon } from '../../content/horizon';
@@ -24,6 +24,7 @@ const centered = new Set([0, 3]);
   </div>
   <div class="vignette" data-vignette aria-hidden="true"></div>
   <div class="flash" data-flash aria-hidden="true"></div>
+  <div class="bars" aria-hidden="true"></div>
 
   <div class="copy">
     {horizon.beats.map((b, i) => (
@@ -95,72 +96,20 @@ const centered = new Set([0, 3]);
   }
 
   /*
-   * The still ringed planet, the journey's opening (the same place as the shader's first
-   * frame): a dark planet with a lit crescent on its limb, tilted rings, a star past its edge.
-   * What waits past it stays a surprise.
+   * The still ringed planet, the journey's opening: the shader's own first frame, rendered
+   * and saved (public/images/horizon), so the page opens on exactly what the camera shows.
+   * Sized like the shader's lens: the frame's width on screens narrower than 16:9, its
+   * height on wider ones (the rest is black space); a phone gets its own taller frame,
+   * matched by height. What waits past the planet stays a surprise.
    */
   .planet {
-    --px: 89%;
-    --py: 30%;
-    --pr: 24vh;
-    --sx: 65%;
-    --sy: 15%;
-
-    background:
-      radial-gradient(
-        circle at var(--sx) var(--sy),
-        #fff6e6 0 0.25vmin,
-        rgb(255 214 160 / 0.5) 0.6vmin,
-        transparent 3vmin
-      ),
-      radial-gradient(
-        circle at calc(var(--px) + var(--pr) * 0.2) calc(var(--py) + var(--pr) * 0.13),
-        #07070a 0 calc(var(--pr) * 0.99),
-        transparent calc(var(--pr) * 1.01)
-      ),
-      radial-gradient(
-        circle at var(--px) var(--py),
-        rgb(232 214 182 / 0.85) 0 var(--pr),
-        rgb(255 228 190 / 0.12) calc(var(--pr) + 2px),
-        transparent calc(var(--pr) * 1.08)
-      ),
-      radial-gradient(1.5px 1.5px at 12% 18%, #fff, transparent),
-      radial-gradient(1px 1px at 28% 64%, #dfe8ff, transparent),
-      radial-gradient(1.5px 1.5px at 41% 27%, #ffe9d2, transparent),
-      radial-gradient(1px 1px at 18% 84%, #fff, transparent),
-      radial-gradient(1px 1px at 84% 72%, #dfe8ff, transparent),
-      radial-gradient(1.5px 1.5px at 90% 86%, #fff, transparent),
-      radial-gradient(1px 1px at 52% 88%, #ffe9d2, transparent),
-      radial-gradient(1px 1px at 74% 62%, #fff, transparent), #040508;
-  }
-
-  /* The rings: a thin tilted ellipse, bright with the light behind them. */
-  .planet::before {
-    content: '';
-    position: absolute;
-    left: calc(var(--px) - var(--pr) * 2.1);
-    top: calc(var(--py) - var(--pr) * 0.42);
-    width: calc(var(--pr) * 4.2);
-    height: calc(var(--pr) * 0.84);
-    border-radius: 50%;
-    background: radial-gradient(
-      ellipse closest-side,
-      transparent 56%,
-      rgb(214 196 166 / 0.55) 58%,
-      rgb(214 196 166 / 0.25) 80%,
-      rgb(214 196 166 / 0.6) 86%,
-      transparent 100%
-    );
-    transform: rotate(-17deg);
+    background: #000 url('/images/horizon/first-frame-wide.webp') center / contain no-repeat;
   }
 
   @media (max-aspect-ratio: 4 / 5) {
     .planet {
-      --px: 80%;
-      --py: 20%;
-      --pr: 15vh;
-      --sx: 30%;
-      --sy: 11%;
+      background-image: url('/images/horizon/first-frame-tall.webp');
+      background-size: auto 100%;
     }
   }
 
@@ -184,12 +133,68 @@ const centered = new Set([0, 3]);
       radial-gradient(ellipse at 70% 38%, rgb(255 160 80 / 0.12), transparent 45%), #040508;
   }
 
+  /* Coming from the landing, the stage fades in black over the door like a cinema going
+     dark; the first line waits for the dark to settle, then fades up. */
+  .copy {
+    transition: opacity 1.4s ease 0.3s;
+  }
+
+  :global([data-entering]) .horizon .copy {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
   .horizon[data-past] .planet {
     opacity: 0;
   }
 
   .horizon[data-past] .hole {
     opacity: 1;
+  }
+
+  /*
+   * Cinema bars while the camera is a film camera (the cutscenes at the planet), cropping to
+   * about 2.39:1; they slide away when the view becomes the visitor's own, first person.
+   */
+  .bars {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .bars::before,
+  .bars::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: max(0px, calc((100% - 100vw / 2.39) / 2));
+    background: #000;
+    transition: transform 1.1s cubic-bezier(0.6, 0, 0.2, 1);
+  }
+
+  .bars::before {
+    top: 0;
+    transform: translateY(-100%);
+  }
+
+  .bars::after {
+    bottom: 0;
+    transform: translateY(100%);
+  }
+
+  /* A phone held upright cannot crop to 2.39:1: thinner bars, just the sign of a cutscene. */
+  @media (max-aspect-ratio: 4 / 5) {
+    .bars::before,
+    .bars::after {
+      height: 9%;
+    }
+  }
+
+  .horizon[data-cutscene] .bars::before,
+  .horizon[data-cutscene] .bars::after {
+    transform: none;
   }
 
   /* Once the shader draws, it replaces both. */

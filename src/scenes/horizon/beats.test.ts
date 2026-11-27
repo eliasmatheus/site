@@ -5,6 +5,7 @@ import {
   atQ,
   beatAt,
   CALM_END,
+  DAWN_END,
   DEPARTURE_END,
   FALL_START as FALL_Q,
   horizonFrame,
@@ -12,6 +13,7 @@ import {
   MOUTH_AT,
   PAN_END,
   PLANET_END,
+  TITLE_AT,
   TUNNEL_END,
 } from './beats';
 
@@ -19,9 +21,15 @@ const ARRIVE_END = atQ(ARRIVE_Q);
 const FALL_START = atQ(FALL_Q);
 
 describe('the departure', () => {
+  it('starts in the dark, then the stars, then the planet', () => {
+    const start = horizonFrame(0, 1.6);
+    expect(start.dawn).toBe(0);
+    expect(horizonFrame(DAWN_END, 1.6).dawn).toBe(1);
+    expect(horizonFrame(PAN_END, 1.6).planet).toBe(1);
+  });
+
   it('opens on the ringed planet, then the wormhole, then the tunnel', () => {
     const start = horizonFrame(0, 1.6);
-    expect(start.planet).toBe(1);
     expect(start.inside).toBe(0);
     expect(horizonFrame(PAN_END, 1.6).pan).toBe(1);
     expect(horizonFrame(PAN_END, 1.6).zoom).toBe(0);
@@ -106,7 +114,7 @@ describe('instruments', () => {
 
 describe('beatAt', () => {
   it('shows one line at a time, and none in the gaps', () => {
-    expect(beatAt(0)).toBe(0);
+    expect(beatAt(TITLE_AT)).toBe(0);
     expect(beatAt(CALM_END)).toBe(-1);
     expect(beatAt(atQ(0.3))).toBe(1);
     expect(beatAt(atQ(0.6))).toBe(2);

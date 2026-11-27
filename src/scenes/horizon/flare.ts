@@ -1,24 +1,29 @@
-// Lens flare drawn on a 2D canvas over the black hole, in the style of the Dune title cards:
-// a warm amber core, a wide bloom, a long anamorphic streak with teal ends, ghosts mirrored
-// through the center of the screen, a cyan sliver and gold dust.
+// Lens flare drawn on a 2D canvas, matched to the film's first view of the ringed planet
+// (measured on a 1280 x 720 still): a hard eight-pointed star, then a column of ghosts falling
+// from it along the line through the lens axis (blue, a green-white cap, a pale pink ring,
+// red, a tiny white point, a faint blue point, a bright orange dot) ending in a wide oval
+// halo, pink outside and violet inside, as far past the axis as the Sun is before it. A dim
+// blue haze hangs around the column. No anamorphic streak: the film shows none here.
+//
+// Sizes and the axis are in "units": the film frame's height. With the film's lens a unit is
+// the screen height; a wider lens draws everything smaller.
 
-interface Mote {
-  a: number;
-  r: number;
-  s: number;
-  o: number;
-}
+type Ghost = readonly [t: number, r: number, rgb: string, a: number, ring?: boolean];
 
-const clamp = (v: number, a: number, b: number): number => Math.min(b, Math.max(a, v));
-
-// [distance along the line through the center, radius, rgb, alpha]
-const GHOSTS: readonly (readonly [number, number, string, number])[] = [
-  [-0.35, 14, '120,210,220', 0.35],
-  [0.55, 40, '255,170,90', 0.12],
-  [1.2, 90, '60,150,160', 0.1],
-  [1.55, 26, '255,220,160', 0.22],
-  [1.9, 150, '50,120,130', 0.06],
+// t: distance along the line from the Sun (0) through the lens axis (1).
+const GHOSTS: readonly Ghost[] = [
+  [0.41, 0.004, '210,230,255', 0.75],
+  [0.49, 0.028, '60,120,220', 0.42],
+  [0.61, 0.014, '200,255,215', 0.38],
+  [0.73, 0.031, '255,185,160', 0.36, true],
+  [0.87, 0.022, '255,110,80', 0.5],
+  [0.94, 0.0028, '255,240,240', 0.7],
+  [1.36, 0.005, '40,110,170', 0.4],
+  [1.65, 0.01, '255,135,90', 0.9],
 ];
+
+/** The lens axis sits a little right of the frame's center in the film. */
+const AXIS_X = 26 / 720;
 
 export function createFlare(): (
   ctx: CanvasRenderingContext2D,
@@ -27,83 +32,106 @@ export function createFlare(): (
   w: number,
   h: number,
   k: number,
-  now: number,
+  unit: number,
 ) => void {
-  const dust: Mote[] = Array.from({ length: 70 }, () => ({
-    a: Math.random() * Math.PI * 2,
-    r: Math.random(),
-    s: 0.2 + Math.random() * 0.8,
-    o: Math.random(),
-  }));
-
-  return (ctx, lx, ly, w, h, k, now) => {
+  return (ctx, lx, ly, w, h, k, unit) => {
     if (k <= 0.01) return;
-    const cx = w / 2;
-    const cy = h / 2;
+    const ax = w / 2 + AXIS_X * unit;
+    const ay = h / 2;
+    const dx = ax - lx;
+    const dy = ay - ly;
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
 
-    const bloom = ctx.createRadialGradient(lx, ly, 0, lx, ly, h * 0.55);
-    bloom.addColorStop(0, `rgba(255,196,120,${0.32 * k})`);
-    bloom.addColorStop(0.25, `rgba(220,140,60,${0.12 * k})`);
-    bloom.addColorStop(1, 'rgba(40,110,120,0)');
-    ctx.fillStyle = bloom;
-    ctx.fillRect(0, 0, w, h);
-
-    const core = ctx.createRadialGradient(lx, ly, 0, lx, ly, 26);
-    core.addColorStop(0, `rgba(255,250,235,${0.95 * k})`);
-    core.addColorStop(0.4, `rgba(255,200,120,${0.5 * k})`);
-    core.addColorStop(1, 'rgba(255,170,80,0)');
-    ctx.fillStyle = core;
-    ctx.beginPath();
-    ctx.arc(lx, ly, 26, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Anamorphic streak: long, thin, teal at the ends.
-    const at = clamp(lx / w, 0.01, 0.99);
-    const streak = ctx.createLinearGradient(0, ly, w, ly);
-    streak.addColorStop(0, 'rgba(70,190,200,0)');
-    streak.addColorStop(Math.max(0, at - 0.25), `rgba(70,190,200,${0.18 * k})`);
-    streak.addColorStop(at, `rgba(255,236,200,${0.75 * k})`);
-    streak.addColorStop(Math.min(1, at + 0.25), `rgba(70,190,200,${0.18 * k})`);
-    streak.addColorStop(1, 'rgba(70,190,200,0)');
-    ctx.fillStyle = streak;
-    ctx.fillRect(0, ly - 1, w, 2);
-    ctx.globalAlpha = 0.35;
-    ctx.fillRect(0, ly - 7, w, 14);
-    ctx.globalAlpha = 1;
-
-    for (const [t, r, c, a] of GHOSTS) {
-      const gx = lx + (cx - lx) * t;
-      const gy = ly + (cy - ly) * t;
-      const g = ctx.createRadialGradient(gx, gy, r * 0.2, gx, gy, r);
-      g.addColorStop(0, `rgba(${c},${a * 0.6 * k})`);
-      g.addColorStop(0.85, `rgba(${c},${a * k})`);
-      g.addColorStop(1, `rgba(${c},0)`);
+    const blob = (x: number, y: number, r: number, stops: [number, string][]): void => {
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      for (const [o, c] of stops) g.addColorStop(o, c);
       ctx.fillStyle = g;
       ctx.beginPath();
-      ctx.arc(gx, gy, r, 0, Math.PI * 2);
+      ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
+    };
+
+    // The haze: a faint blue column around the ghosts.
+    for (let i = 0; i < 9; i++) {
+      const t = 0.32 + i * 0.15;
+      blob(lx + dx * t, ly + dy * t, 0.075 * unit, [
+        [0, `rgba(40,60,150,${0.09 * k})`],
+        [1, 'rgba(40,60,140,0)'],
+      ]);
     }
 
-    const sx = lx + (cx - lx) * 1.35;
-    const sy = ly + (cy - ly) * 1.35;
-    const sliver = ctx.createLinearGradient(sx - 3, 0, sx + 3, 0);
-    sliver.addColorStop(0, 'rgba(80,220,230,0)');
-    sliver.addColorStop(0.5, `rgba(140,240,240,${0.55 * k})`);
-    sliver.addColorStop(1, 'rgba(80,220,230,0)');
-    ctx.fillStyle = sliver;
-    ctx.fillRect(sx - 3, sy - 22, 6, 44);
-
-    for (const d of dust) {
-      const rr = (0.08 + d.r * 0.35) * h;
-      const ang = d.a + (now / 9000) * d.s;
-      const x = lx + Math.cos(ang) * rr;
-      const y = ly + Math.sin(ang) * rr * 0.7 - (((now / 40) * d.s) % (h * 0.3)) * 0.2;
-      const tw = 0.5 + 0.5 * Math.sin(now / 500 + d.o * 20);
-      ctx.fillStyle = `rgba(255,205,120,${0.5 * tw * k * (1 - d.r * 0.6)})`;
-      ctx.fillRect(x, y, 1.4, 1.4);
+    // The Sun: a small glow, a hard core and eight short points.
+    blob(lx, ly, 0.04 * unit, [
+      [0, `rgba(255,245,215,${0.6 * k})`],
+      [0.3, `rgba(255,225,170,${0.2 * k})`],
+      [1, 'rgba(255,215,160,0)'],
+    ]);
+    blob(lx, ly, 0.009 * unit, [
+      [0, `rgba(255,253,240,${k})`],
+      [0.6, `rgba(255,250,225,${0.9 * k})`],
+      [1, 'rgba(255,240,200,0)'],
+    ]);
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2 + Math.PI / 8;
+      const l = (i % 2 ? 0.014 : 0.019) * unit;
+      const g = ctx.createLinearGradient(lx, ly, lx + Math.cos(a) * l, ly + Math.sin(a) * l);
+      g.addColorStop(0, `rgba(255,250,232,${0.9 * k})`);
+      g.addColorStop(1, 'rgba(255,250,232,0)');
+      ctx.strokeStyle = g;
+      ctx.lineWidth = Math.max(1, 0.0028 * unit);
+      ctx.beginPath();
+      ctx.moveTo(lx, ly);
+      ctx.lineTo(lx + Math.cos(a) * l, ly + Math.sin(a) * l);
+      ctx.stroke();
     }
+
+    // The ghosts.
+    for (const [t, r, rgb, a, ring] of GHOSTS) {
+      const x = lx + dx * t;
+      const y = ly + dy * t;
+      const rad = Math.max(1, r * unit);
+      blob(
+        x,
+        y,
+        rad,
+        ring
+          ? [
+              [0, `rgba(${rgb},${a * 0.75 * k})`],
+              [0.75, `rgba(${rgb},${a * k})`],
+              [1, `rgba(${rgb},0)`],
+            ]
+          : [
+              [0, `rgba(${rgb},${a * k})`],
+              [0.6, `rgba(${rgb},${a * 0.7 * k})`],
+              [1, `rgba(${rgb},0)`],
+            ],
+      );
+    }
+    // The bright orange dot carries a small glow.
+    const ox = lx + dx * 1.65;
+    const oy = ly + dy * 1.65;
+    blob(ox, oy, 0.028 * unit, [
+      [0, `rgba(255,120,80,${0.3 * k})`],
+      [1, 'rgba(255,120,80,0)'],
+    ]);
+
+    // The wide oval halo, across the line, mirrored past the axis.
+    const hx = lx + dx * 1.97;
+    const hy = ly + dy * 1.97;
+    ctx.translate(hx, hy);
+    ctx.rotate(Math.atan2(dy, dx) - Math.PI / 2);
+    ctx.scale(1, 0.56);
+    const R = 0.19 * unit;
+    const halo = ctx.createRadialGradient(0, 0, 0, 0, 0, R);
+    halo.addColorStop(0, `rgba(120,60,100,${0.12 * k})`);
+    halo.addColorStop(0.45, `rgba(50,55,170,${0.13 * k})`);
+    halo.addColorStop(0.8, `rgba(200,100,140,${0.17 * k})`);
+    halo.addColorStop(1, 'rgba(200,90,120,0)');
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(0, 0, R, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
   };
 }
