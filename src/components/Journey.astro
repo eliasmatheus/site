@@ -6,11 +6,8 @@
  */
 import Header from './Header.astro';
 import Stage from './Stage.astro';
-import Call from '../scenes/call/Call.astro';
-import Desert from '../scenes/desert/Desert.astro';
 import Horizon from '../scenes/horizon/Horizon.astro';
 import TheFall from '../scenes/the-fall/TheFall.astro';
-import Structures from '../scenes/structures/Structures.astro';
 import ToBeContinued from '../scenes/to-be-continued/ToBeContinued.astro';
 
 interface Props {
@@ -25,8 +22,5 @@ const { below = false } = Astro.props;
 <Stage id="journey" entry={below}>
   <Horizon />
   <TheFall />
-  <Call />
-  <Structures />
-  <Desert />
   <ToBeContinued />
 </Stage>
