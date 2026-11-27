@@ -38,6 +38,17 @@ describe('follow', () => {
     expect(f.value).toBeLessThanOrEqual(1);
   });
 
+  it('never goes faster than maxSpeed', () => {
+    const f = createFollow(8);
+    let last = 0;
+    for (let i = 0; i < 60; i++) {
+      const x = f.step(1, 1 / 60, 0.5);
+      expect(x - last).toBeLessThanOrEqual(0.5 / 60 + 1e-9);
+      last = x;
+    }
+    expect(f.value).toBeLessThan(0.51);
+  });
+
   it('snaps', () => {
     const f = createFollow();
     f.snap(0.7);
