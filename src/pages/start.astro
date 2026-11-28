@@ -1,0 +1,375 @@
+---
+/**
+ * The first frame of the journey: a 2.5D painting of a launch base in Brazil, framed like a
+ * game's character screen. Every line on the card is a fact from the work record
+ * (src/content/work.ts); the style is epic, the content is true. Start the journey and the
+ * traveller walks out, then the journey (/journey) takes over.
+ */
+import '@fontsource-variable/cinzel';
+import '@fontsource-variable/fraunces';
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Elias Matheus: To the stars"
+  description="Chapter I. A launch base in Brazil, a traveller, and the start of the long version."
+>
+  <main class="screen">
+    <canvas data-painted aria-hidden="true"></canvas>
+
+    <section class="who" aria-label="The traveller">
+      <h1>Elias Matheus</h1>
+      <p class="class">Software engineer</p>
+      <dl class="card">
+        <div>
+          <dt>Origin</dt>
+          <dd>Civil engineering</dd>
+        </div>
+        <div>
+          <dt>Home</dt>
+          <dd>Brazil</dd>
+        </div>
+        <div>
+          <dt>Current quest</dt>
+          <dd>Payments, Dental Intelligence</dd>
+        </div>
+        <div class="skills">
+          <dt>Skills</dt>
+          <dd>
+            <span>Angular</span>
+            <span>Laravel</span>
+            <span>Next.js</span>
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="chapter" aria-label="Chapter one">
+      <p class="kicker">
+        <span>Chapter I</span>
+      </p>
+      <h2>To the stars</h2>
+      <p class="line">
+        To meet Elias, we need to go far.
+        <br />
+        Through space, and through time.
+      </p>
+      <p class="rule" aria-hidden="true"></p>
+      <div class="actions">
+        <a class="start" href="/journey">
+          <span class="play" aria-hidden="true"></span>
+          Start the journey
+        </a>
+        <a class="work" href="/">
+          See the work →
+        </a>
+      </div>
+    </section>
+
+    <p class="credit">
+      Traveller: <a href="https://skfb.ly/pPBUM">"Astronaut" by Jungle Jim</a>,
+      <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>, modified.
+    </p>
+  </main>
+</Base>
+
+<script>
+  import '../start/main';
+</script>
+
+<style>
+  .screen {
+    --gold: rgb(240 210 150);
+    --gold-deep: rgb(196 140 60);
+    --cream: rgb(244 236 222);
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: #05070d;
+    color: var(--cream);
+  }
+
+  canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Left: who he is. The name over the tree, the facts on a dark glass under it. */
+  .who {
+    position: absolute;
+    left: 3.6vw;
+    top: 23vh;
+    width: min(15rem, 16vw);
+    text-shadow: 0 2px 18px rgb(0 0 0 / 0.75);
+  }
+
+  h1 {
+    margin: 0;
+    font-family: 'Cinzel Variable', Georgia, serif;
+    font-weight: 500;
+    font-size: clamp(1.9rem, 3.1vw, 3.2rem);
+    line-height: 1.02;
+    letter-spacing: 0.02em;
+    color: var(--cream);
+  }
+
+  .class {
+    margin: 0.35rem 0 1.1rem;
+    font-family: 'Cinzel Variable', Georgia, serif;
+    font-size: clamp(0.95rem, 1.25vw, 1.25rem);
+    color: rgb(244 236 222 / 0.85);
+  }
+
+  .card {
+    margin: 0;
+    padding: 0.9rem 1rem 0.8rem;
+    background: linear-gradient(to right, rgb(6 8 14 / 0.62), rgb(6 8 14 / 0.25));
+    backdrop-filter: blur(3px);
+    border-left: 1px solid rgb(240 210 150 / 0.45);
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .card div {
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  dt {
+    font-family: 'Cinzel Variable', Georgia, serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  dd {
+    margin: 0;
+    font-size: 0.92rem;
+  }
+
+  /* A thin gold-to-dark bar under each fact, like a game's stat line, but no invented level. */
+  .card div::after {
+    content: '';
+    height: 2px;
+    margin-top: 0.35rem;
+    background: linear-gradient(to right, var(--gold-deep), rgb(240 210 150 / 0.08));
+  }
+
+  .skills dd {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .skills span {
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid rgb(240 210 150 / 0.4);
+  }
+
+  /* Right: the chapter, and the way in. */
+  .chapter {
+    position: absolute;
+    right: 3.5vw;
+    top: 20vh;
+    width: min(27rem, 30vw);
+    text-align: center;
+    text-shadow: 0 2px 22px rgb(0 0 0 / 0.7);
+  }
+
+  .kicker {
+    margin: 0;
+    font-family: 'Cinzel Variable', Georgia, serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--cream);
+  }
+
+  .kicker::after,
+  .rule {
+    content: '';
+    display: block;
+    height: 9px;
+    margin: 0.6rem auto 0;
+    width: 70%;
+    background:
+      linear-gradient(45deg, transparent 45%, var(--gold) 45% 55%, transparent 55%) center / 9px 9px
+        no-repeat,
+      linear-gradient(to right, transparent, var(--gold), transparent) center / 100% 1px no-repeat;
+  }
+
+  h2 {
+    margin: 0.4rem 0 0.7rem;
+    font-family: 'Fraunces Variable', Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(2.2rem, 3.6vw, 3.6rem);
+    line-height: 1.05;
+    color: var(--gold);
+  }
+
+  .line {
+    margin: 0;
+    font-family: 'Fraunces Variable', Georgia, serif;
+    font-size: clamp(0.98rem, 1.15vw, 1.15rem);
+    line-height: 1.45;
+  }
+
+  .rule {
+    margin: 1rem auto 1.6rem;
+    width: 50%;
+  }
+
+  .start {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 2.4rem;
+    font-family: 'Cinzel Variable', Georgia, serif;
+    font-size: clamp(1rem, 1.35vw, 1.3rem);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--cream);
+    background: linear-gradient(to bottom, rgb(40 26 14 / 0.92), rgb(16 10 6 / 0.92));
+    border: 1.5px solid var(--gold);
+    clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+    box-shadow: inset 0 0 18px rgb(240 180 90 / 0.25);
+    transition: filter 0.2s;
+  }
+
+  .start:hover,
+  .start:focus-visible {
+    filter: brightness(1.25);
+  }
+
+  .play {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0.55em 0 0.55em 0.9em;
+    border-color: transparent transparent transparent var(--gold);
+    filter: drop-shadow(0 0 6px rgb(255 190 90 / 0.8));
+  }
+
+  .work {
+    display: block;
+    margin-top: 1.1rem;
+    font-family: 'Cinzel Variable', Georgia, serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: rgb(244 236 222 / 0.85);
+  }
+
+  .work:hover,
+  .work:focus-visible {
+    color: var(--gold);
+  }
+
+  /* The model's licence asks for a credit: small, out of the way. */
+  .credit {
+    position: absolute;
+    right: 12px;
+    bottom: 8px;
+    margin: 0;
+    font-size: 0.68rem;
+    color: rgb(244 236 222 / 0.55);
+  }
+
+  .credit a {
+    color: inherit;
+  }
+
+  /* The game begins: the words step aside for him. */
+  .who,
+  .chapter,
+  .credit {
+    transition: opacity 0.9s ease;
+  }
+
+  .leaving .who,
+  .leaving .chapter,
+  .leaving .credit {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Then the screen goes dark, and the journey begins. */
+  .screen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #05070d;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.9s ease 2.6s;
+  }
+
+  .leaving::after {
+    opacity: 1;
+  }
+
+  /* Phone: the name and chapter in the sky above him, the way in at the bottom. */
+  @media (max-aspect-ratio: 4/5) {
+    .who {
+      left: 20px;
+      right: 20px;
+      top: 7vh;
+      width: auto;
+    }
+
+    .card {
+      display: none;
+    }
+
+    .chapter {
+      left: 20px;
+      right: 20px;
+      top: 23vh;
+      width: auto;
+      text-align: left;
+    }
+
+    .kicker::after {
+      margin-left: 0;
+      width: 55%;
+    }
+
+    h2 {
+      margin-top: 0.6rem;
+    }
+
+    .rule {
+      display: none;
+    }
+
+    .credit {
+      left: 0;
+      right: 0;
+      bottom: 6px;
+      text-align: center;
+      font-size: 0.6rem;
+    }
+
+    .actions {
+      position: fixed;
+      left: 20px;
+      right: 20px;
+      bottom: 30px;
+      text-align: center;
+    }
+
+    .start {
+      padding: 0.85rem 1.8rem;
+    }
+  }
+</style>
