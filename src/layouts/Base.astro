@@ -27,10 +27,11 @@ const { title, description } = Astro.props;
     <script is:inline>
       document.documentElement.classList.add('js');
     </script>
-    <Analytics />
   </head>
   <body>
     <slot />
+    <!-- In the body: its custom element would end the <head> early, and the CSP <meta> with it. -->
+    <Analytics />
   </body>
 </html>
 
