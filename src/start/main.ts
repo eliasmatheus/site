@@ -1,5 +1,5 @@
 /**
- * Lab: the first frame as a 2.5D painting. One painted image, split into layers (sky and land,
+ * The first frame as a 2.5D painting. One painted image, split into layers (sky and land,
  * the traveller, the foreground frame), each moving at its own depth; on top of it, what must be
  * true or alive: the real sky (Yale catalogue stars, meteors, satellites), the base's lights
  * blinking, mist drifting in the valley, the sea glinting, the leaves in the wind.
@@ -329,17 +329,29 @@ void main() {
   gl_FragColor = vec4(col, 1.0);
 }`;
 
-const canvas = document.querySelector<HTMLCanvasElement>('[data-painted]');
-// Without WebGL the screen is still its words and its two ways in.
-if (canvas) {
+/** The running screen, paused while its layer is out of view. */
+export interface StartScreen {
+  show(): void;
+  hide(): void;
+}
+
+/**
+ * Mount the first frame in `root` (its canvas, its words and its Start link). Without WebGL
+ * the screen is still its words and its two ways in: the canvas goes, and this returns null.
+ * `onStart` runs once he has walked out and the screen has gone dark.
+ */
+export function mountStart(root: HTMLElement, onStart: () => void): StartScreen | null {
+  const canvas = root.querySelector<HTMLCanvasElement>('[data-painted]');
+  if (!canvas) return null;
   try {
-    start(canvas);
+    return start(root, canvas, onStart);
   } catch {
     canvas.remove();
+    return null;
   }
 }
 
-function start(canvas: HTMLCanvasElement): void {
+function start(root: HTMLElement, canvas: HTMLCanvasElement, onStart: () => void): StartScreen {
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const pixelRatio = Math.min(devicePixelRatio, 2);
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
@@ -505,8 +517,10 @@ function start(canvas: HTMLCanvasElement): void {
     document.body.style.cursor = '';
   };
   canvas.style.touchAction = 'pan-y';
+  let visible = true;
   addEventListener('pointerdown', (e) => {
-    if (!HERO_3D || hero3D.walking || (e.target as Element).closest('a, button, .card')) return;
+    if (!visible || !HERO_3D || hero3D.walking || (e.target as Element).closest('a, button, .card'))
+      return;
     if (!overHero(e.clientX, e.clientY)) return;
     turn.dragging = true;
     turn.lastX = e.clientX;
@@ -521,7 +535,7 @@ function start(canvas: HTMLCanvasElement): void {
       turn.angle += d;
       turn.velocity = d;
       turn.lastX = e.clientX;
-    } else if (HERO_3D && e.pointerType === 'mouse') {
+    } else if (visible && HERO_3D && e.pointerType === 'mouse') {
       const over =
         overHero(e.clientX, e.clientY) && !(e.target as Element).closest('a, button, .card');
       document.body.style.cursor = over ? 'grab' : '';
@@ -549,10 +563,15 @@ function start(canvas: HTMLCanvasElement): void {
   const info = gl.getExtension('WEBGL_debug_renderer_info');
   const gpu = info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
   let slow = /swiftshader|llvmpipe|software/i.test(gpu);
+  /** Times between frames (ms), after the first few. */
+  const gaps: number[] = [];
   let frames = 0;
-  let spent = 0;
   let prev = 0;
+  let raf = 0;
+  let loaded = false;
   const frame = (): void => {
+    raf = 0;
+    if (!visible) return;
     const t = still ? num('t', 4) : (performance.now() - t0) / 1000;
     eased.lerp(pointer, 0.05);
     const drift = new THREE.Vector2(Math.sin(t * 0.13) * 0.5, Math.sin(t * 0.09) * 0.25);
@@ -576,37 +595,62 @@ function start(canvas: HTMLCanvasElement): void {
     renderer.setRenderTarget(null);
     renderer.render(scene, camera);
     const now = performance.now();
-    if (++frames > 3) spent += now - prev;
-    prev = now;
-    if (frames === 11 && spent / 8 > 120) slow = true;
-    if (still || slow) {
-      document.documentElement.dataset['ready'] = '';
-      return;
+    // Only back-to-back frames count, not the gap while the layer was hidden. The median, so a
+    // few stalls (the next scene compiling its shaders) do not read as a slow machine.
+    if (prev && ++frames > 3 && gaps.length < 15) {
+      gaps.push(now - prev);
+      if (gaps.length === 15) slow = (gaps.sort((x, y) => x - y)[7] ?? 0) > 120;
     }
-    requestAnimationFrame(frame);
+    prev = now;
+    root.dataset['ready'] = '';
+    if (still || slow) return;
+    raf = requestAnimationFrame(frame);
   };
+  let leaving = 0;
   if (HERO_3D)
     hero3D.load(uniforms.uBg.value, () => {
       pending--;
       if (!still && location.pathname.startsWith('/lab')) clipBar(hero3D);
       // The game begins: he turns to the left and walks out, the screen's words fade, the screen
       // goes dark and the journey takes over. With reduced motion the link just goes there.
-      const start = document.querySelector<HTMLAnchorElement>('a.start');
+      const start = root.querySelector<HTMLAnchorElement>('a.start');
       start?.addEventListener('click', (e) => {
-        if (reduced || slow || e.metaKey || e.ctrlKey || e.shiftKey) return;
+        if (reduced || slow || leaving || e.metaKey || e.ctrlKey || e.shiftKey) return;
         e.preventDefault();
         hero3D.walk();
-        start.closest('main')?.classList.add('leaving');
-        setTimeout(() => location.assign(start.href), 3600);
+        root.classList.add('leaving');
+        leaving = window.setTimeout(onStart, 3600);
       });
     });
   const whenLoaded = (): void => {
     if (pending > 0) setTimeout(whenLoaded, 100);
-    // Give the star catalogue a moment on a still render.
-    else if (still) setTimeout(frame, 900);
-    else requestAnimationFrame(frame);
+    else {
+      loaded = true;
+      // Give the star catalogue a moment on a still render.
+      if (still) setTimeout(frame, 900);
+      else if (visible && !raf) raf = requestAnimationFrame(frame);
+    }
   };
   whenLoaded();
+
+  return {
+    show() {
+      visible = true;
+      prev = 0;
+      if (loaded && !still && !slow && !raf) raf = requestAnimationFrame(frame);
+    },
+    hide() {
+      visible = false;
+      cancelAnimationFrame(raf);
+      raf = 0;
+      release();
+      // Back to the screen later, he stands where he stood, ready to go again.
+      clearTimeout(leaving);
+      leaving = 0;
+      root.classList.remove('leaving');
+      hero3D.reset();
+    },
+  };
 }
 
 /**
@@ -800,6 +844,19 @@ function createHero3D(renderer: THREE.WebGLRenderer) {
     },
     get walking(): boolean {
       return walkAsked;
+    },
+    /** Back on his spot, breathing, as before the walk. */
+    reset(): void {
+      if (!walkAsked) return;
+      walkAsked = false;
+      if (walkFrom >= 0) {
+        pivot.position.x = walkX;
+        pivot.position.z = walkZ;
+      }
+      walkFrom = -1;
+      auto = !params.has('clip') && !params.has('still');
+      until = 0;
+      play('Breathing');
     },
     setSpin(angle: number): void {
       if (walkAsked) return;

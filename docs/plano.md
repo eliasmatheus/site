@@ -61,6 +61,7 @@ A nova narrativa é a direção. O que não fizer mais sentido do que já foi fe
 - [ ] Tirar a The Call do registro quando a escolha e o My computer existirem.
 
 - [x] Demo "walking skeleton" (27/11/2026): tudo o que existe, ligado mesmo com cortes. A porta da landing abre a primeira tela (`/start`: a base de lançamento no Brasil, pintura 2.5D com o astronauta 3D e mocap do Mixamo). O "Start the journey" faz ele sair andando e corta para a jornada (`/journey`: Horizon v3, The fall, To be continued). Rolar a porta ainda entra direto na jornada. Falta: performance mobile da `/start` (Lighthouse 65; LCP 0,9 s, mas TBT de 9 s pelo WebGL), o céu em camadas, o buraco no peito do traje e a ponte da caminhada até a decolagem.
+- [x] A primeira tela entra no fluxo principal (28/11/2026): virou a cena `start` da jornada, entre o currículo (a landing) e Saturno (Horizon). Rolar a porta cai nela; o "Start the journey" faz a caminhada, escurece e pula para `#horizon`; rolar segue voando para Saturno. `/start` redireciona para `/journey`. Em WebGL por CPU ou sem WebGL, a pintura fica parada atrás do texto.
 
 ## Fase 5 · A virada
 

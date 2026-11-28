@@ -8,5 +8,6 @@ export default defineConfig({
   integrations: [react()],
   // The old work page now lives on the landing. Vercel answers with a 308 (vercel.json);
   // this static redirect covers local previews.
-  redirects: { '/work': '/' },
+  // The first frame was its own page (/start) before it opened the journey.
+  redirects: { '/work': '/', '/start': '/journey' },
 });

@@ -6,6 +6,7 @@
  */
 import Header from './Header.astro';
 import Stage from './Stage.astro';
+import Start from '../scenes/start/Start.astro';
 import Horizon from '../scenes/horizon/Horizon.astro';
 import TheFall from '../scenes/the-fall/TheFall.astro';
 import ToBeContinued from '../scenes/to-be-continued/ToBeContinued.astro';
@@ -20,6 +21,7 @@ const { below = false } = Astro.props;
 
 <Header away={below} />
 <Stage id="journey" entry={below}>
+  <Start />
   <Horizon />
   <TheFall />
   <ToBeContinued />

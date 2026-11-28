@@ -37,8 +37,9 @@ const scrollTop = (page: Page) => page.evaluate(() => Math.round(scrollY));
 test.describe('pacing', () => {
   test.skip(({ isMobile }) => isMobile, 'the wheel is a desktop gesture');
 
-  test('a long scroll from the first frame stops at the next take', async ({ page }) => {
-    await page.goto('/journey');
+  test('a long scroll from the first take stops at the next one', async ({ page }) => {
+    await page.goto('/journey#horizon');
+    await expect.poll(() => scrollTop(page)).toBe(await stopY(page, 0));
     await page.mouse.move(700, 450);
     await page.mouse.wheel(0, 1500);
     await expect.poll(() => scrollTop(page)).toBe(await stopY(page, 1));

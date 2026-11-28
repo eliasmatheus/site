@@ -24,8 +24,8 @@ export const landing = {
     title: 'That was the short version',
     text: 'The long one starts on a launch pad in Brazil.',
     cta: 'Begin the journey →',
-    // The link opens the first frame (/start), on Earth. Scrolling on past the door still flies
-    // straight into the journey below, out past Saturn.
-    href: '/start',
+    // The journey opens on the first frame, on Earth (src/scenes/start), then flies to Saturn.
+    // Scrolling on past the door gets there too, no click needed.
+    href: '/journey',
   },
 } as const;
