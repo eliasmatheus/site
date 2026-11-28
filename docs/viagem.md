@@ -89,6 +89,20 @@ Rascunho de copy (inglês simples, sem travessão, a revisar com o Elias):
 
 11. **Scroll da narrativa:** a partida anda em paradas, um gesto por take, e a câmera nunca pula: ela anda no ritmo do filme mesmo com um scroll rápido. Voltar no meio da narrativa mostra um rewind (a imagem volta rápida, com marca de rewind), para ficar claro que é a fita voltando.
 
+## Princípios de tela (27/11/2026)
+
+Toda cena da viagem segue as técnicas de narrativa, imersão e ambientação das telas de abertura e de seleção de personagem dos jogos. Valem para o Ato I e para as cenas seguintes.
+
+1. **O fundo é a promessa do mundo.** O quadro é ocupado de ponta a ponta. Uma imagem resume o tom e a aventura que vem pela frente; fundo vazio é cenário, fundo cheio é mundo.
+2. **Um lugar base por cena.** Uma localização reconhecível, adaptada para ser "jogável", em vez de muitas referências misturadas. O real entra como referência; a composição manda.
+3. **Personagem pequeno, mundo grande, os dois juntos.** Contraste de escala. Teleobjetiva para comprimir as camadas e trazer o fundo para perto.
+4. **Camadas de profundidade.** Primeiro plano, meio e fundo, cada camada mais clara pela névoa, dando ao olho um caminho do personagem ao mundo e de volta.
+5. **Vista e abrigo.** Um elemento perto da lente (abrigo) e o mundo aberto atrás (vista): o espectador está ali, junto do personagem.
+6. **Ele olha para nós.** O personagem encara a câmera, de três quartos, em pose relaxada e aberta.
+7. **O personagem é o visitante também.** Painel de atributos com fatos reais (classe, origem, missão atual), nunca inventados.
+8. **Tudo vivo.** Respiração, vento, partículas, luzes; a tela se mexe mesmo com o visitante parado.
+9. **Céu exato, cena montada.** As estrelas são as reais; a orientação, a lente e o cenário são direção de arte.
+
 ## Em espera (pin)
 
 - **Seletor de naves no começo da jornada:** opcional, no visual minimalista dos posters (só o contorno). Opções originais ou reais, nunca naves de filme. A nave escolhida aparece nas cutscenes e a passagem para a primeira pessoa acontece de dentro dela.

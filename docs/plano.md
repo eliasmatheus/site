@@ -60,6 +60,8 @@ A nova narrativa é a direção. O que não fizer mais sentido do que já foi fe
 - [ ] O presente e a volta: ponto de inflexão, colapso do tesseract, volta gentil pelo wormhole, prata derretida e Saturno com o CTA de contato ou recomeçar (Ato V). Substitui o "To be continued".
 - [ ] Tirar a The Call do registro quando a escolha e o My computer existirem.
 
+- [x] Demo "walking skeleton" (27/11/2026): tudo o que existe, ligado mesmo com cortes. A porta da landing abre a primeira tela (`/start`: a base de lançamento no Brasil, pintura 2.5D com o astronauta 3D e mocap do Mixamo). O "Start the journey" faz ele sair andando e corta para a jornada (`/journey`: Horizon v3, The fall, To be continued). Rolar a porta ainda entra direto na jornada. Falta: performance mobile da `/start` (Lighthouse 65; LCP 0,9 s, mas TBT de 9 s pelo WebGL), o céu em camadas, o buraco no peito do traje e a ponte da caminhada até a decolagem.
+
 ## Fase 5 · A virada
 
 - [ ] The Click (com placeholders de vídeo até os clipes existirem).
