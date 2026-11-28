@@ -8,23 +8,11 @@
 import { theFall } from '../../content/the-fall';
 import { createFollow } from '../../engine/follow';
 import type { SceneController } from '../registry';
+import { softwareGl } from '../software-gl';
 import { fallState } from './beats';
 import type { World } from './world';
 
 const SIGNS = ['scroll', 'pointerdown', 'pointermove', 'wheel', 'touchstart', 'keydown'] as const;
-
-/**
- * WebGL drawn by the CPU (no GPU, or a blocked one). Building the lattice there stalls the
- * page for seconds, scroll included, so the still shaft stays instead.
- */
-const softwareGl = (): boolean => {
-  const gl = document.createElement('canvas').getContext('webgl');
-  if (!gl) return false;
-  const info = gl.getExtension('WEBGL_debug_renderer_info');
-  const name = info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
-  gl.getExtension('WEBGL_lose_context')?.loseContext();
-  return /swiftshader|llvmpipe|softpipe|software/i.test(name);
-};
 
 const theFallScene: SceneController = ({ el, mode }) => {
   const q = <T extends Element>(sel: string): T | null => el.querySelector<T>(sel);
@@ -120,6 +108,8 @@ const theFallScene: SceneController = ({ el, mode }) => {
     },
     onShow() {
       visible = true;
+      // In view already (a jump, or a scroll that came before this code): no need to wait.
+      load();
       view.snap(p);
       last = 0;
       window.addEventListener('pointermove', onPointer, { passive: true });
