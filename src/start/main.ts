@@ -542,6 +542,16 @@ function start(canvas: HTMLCanvasElement): void {
   const still = params.has('still');
   const parallax = num('par', 1);
   const t0 = performance.now();
+  // Too slow to animate (no GPU, or a very weak one): paint one frame and stop, so the page and
+  // its links stay responsive. A software renderer is slow from the start; otherwise judge by
+  // the frames after the first few (those compile shaders).
+  const gl = renderer.getContext();
+  const info = gl.getExtension('WEBGL_debug_renderer_info');
+  const gpu = info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
+  let slow = /swiftshader|llvmpipe|software/i.test(gpu);
+  let frames = 0;
+  let spent = 0;
+  let prev = 0;
   const frame = (): void => {
     const t = still ? num('t', 4) : (performance.now() - t0) / 1000;
     eased.lerp(pointer, 0.05);
@@ -565,7 +575,11 @@ function start(canvas: HTMLCanvasElement): void {
     renderer.render(skyScene, skyCamera);
     renderer.setRenderTarget(null);
     renderer.render(scene, camera);
-    if (still) {
+    const now = performance.now();
+    if (++frames > 3) spent += now - prev;
+    prev = now;
+    if (frames === 11 && spent / 8 > 120) slow = true;
+    if (still || slow) {
       document.documentElement.dataset['ready'] = '';
       return;
     }
@@ -579,7 +593,7 @@ function start(canvas: HTMLCanvasElement): void {
       // goes dark and the journey takes over. With reduced motion the link just goes there.
       const start = document.querySelector<HTMLAnchorElement>('a.start');
       start?.addEventListener('click', (e) => {
-        if (reduced || e.metaKey || e.ctrlKey || e.shiftKey) return;
+        if (reduced || slow || e.metaKey || e.ctrlKey || e.shiftKey) return;
         e.preventDefault();
         hero3D.walk();
         start.closest('main')?.classList.add('leaving');
