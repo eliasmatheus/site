@@ -42,9 +42,7 @@ test.describe('landing', () => {
       window.scrollTo(0, y + 10);
       window.dispatchEvent(new Event('scroll'));
     }, start);
-    await expect(
-      page.getByRole('heading', { name: 'The long version starts far from here.' }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'To the stars' })).toBeVisible();
     await expect(header).toBeVisible();
     await expect(page).toHaveURL(/\/$/);
   });
@@ -66,12 +64,12 @@ test.describe('landing', () => {
     await expect(page.locator('[data-header]')).toBeVisible();
   });
 
-  test('the door link opens the first frame, on Earth', async ({ page }) => {
+  test('the door link opens the journey on its first frame, on Earth', async ({ page }) => {
     await page.goto('/');
     const door = page.getByRole('link', { name: 'Begin the journey →' });
     await door.scrollIntoViewIfNeeded();
     await door.click();
-    await expect(page).toHaveURL(/\/start$/);
+    await expect(page).toHaveURL(/\/journey$/);
     await expect(page.getByRole('heading', { level: 2, name: 'To the stars' })).toBeVisible();
   });
 

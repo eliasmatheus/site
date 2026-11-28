@@ -24,6 +24,16 @@ export interface SceneEntry extends ScenePlacement {
 // Positions and dwells from the prototype (World.dc.html, this.SC), Horizon from black-hole.html.
 export const SCENES: readonly SceneEntry[] = [
   {
+    id: 'start',
+    label: 'To the stars',
+    // The first frame, on Earth: who he is and the way in. Start plays his walk out and jumps
+    // to Saturn; scrolling on just flies there.
+    dwell: 700,
+    x: 0,
+    y: 0,
+    load: () => import('./start/controller'),
+  },
+  {
     id: 'horizon',
     label: 'Horizon',
     // The departure (ringed planet, wormhole, tunnel, calm, still sky), then the black hole:

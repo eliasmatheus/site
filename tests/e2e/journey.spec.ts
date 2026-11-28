@@ -20,9 +20,7 @@ const toEnd = async (page: Page) => {
 test.describe('journey', () => {
   test('starts on the first scene with the header always visible', async ({ page }) => {
     await page.goto('/journey');
-    await expect(
-      page.getByRole('heading', { name: 'The long version starts far from here.' }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'To the stars' })).toBeVisible();
     await expect.poll(() => active(page)).toBe(first.id);
     await expect(page.getByRole('link', { name: 'Work →' }).first()).toBeVisible();
     await expect(page.getByText('QUESTS 0/2')).toBeVisible();

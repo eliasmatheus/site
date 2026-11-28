@@ -1,15 +1,22 @@
 import { expect, test, type Page } from '@playwright/test';
+import { MODE_CONFIG } from '../../src/engine/engine';
+import type { StageMode } from '../../src/engine/layers';
+import { createTimeline } from '../../src/engine/timeline';
 import { SCENES } from '../../src/scenes/registry';
 import { atQ, MOUTH_AT } from '../../src/scenes/horizon/beats';
 
-const horizon = SCENES[0];
-if (horizon?.id !== 'horizon') throw new Error('Horizon should open the journey.');
+const index = SCENES.findIndex((s) => s.id === 'horizon');
+const horizon = SCENES[index];
+if (!horizon) throw new Error('The journey should go through Horizon.');
 const dwell = horizon.dwell;
 const scene = (page: Page) => page.locator('[data-scene="horizon"]');
 
-/** Scroll to a point of the Horizon dwell (0 to 1). Horizon is the first scene. */
+/** Scroll to a point of the Horizon dwell (0 to 1). It comes right after the first frame. */
 const at = async (page: Page, p: number) => {
-  const y = Math.round(dwell * p);
+  const mode = ((await page.locator('[data-stage]').getAttribute('data-mode')) ??
+    'fly') as StageMode;
+  const start = createTimeline(SCENES, MODE_CONFIG[mode]).starts[index] ?? 0;
+  const y = Math.round(start + dwell * p);
   await expect
     .poll(() =>
       page.evaluate((top) => {
@@ -24,7 +31,7 @@ const at = async (page: Page, p: number) => {
 
 test.describe('horizon', () => {
   test('starts at the ringed planet, then meets Elias at the black hole', async ({ page }) => {
-    await page.goto('/journey');
+    await page.goto('/journey#horizon');
     await expect(
       scene(page).getByRole('heading', { name: 'The long version starts far from here.' }),
     ).toBeVisible();
@@ -37,7 +44,7 @@ test.describe('horizon', () => {
   });
 
   test('the fall brings up the instruments and every alert', async ({ page }) => {
-    await page.goto('/journey');
+    await page.goto('/journey#horizon');
     await expect(scene(page).locator('[data-hud]')).toBeHidden();
     await at(page, 0.95);
     const hud = scene(page).locator('[data-hud]');
@@ -53,7 +60,7 @@ test.describe('horizon', () => {
   test('the text paints before the shader, over a still ringed planet, not the black hole', async ({
     page,
   }) => {
-    await page.goto('/journey');
+    await page.goto('/journey#horizon');
     // The black hole is a surprise for later: the opening is the ringed planet.
     await expect(scene(page).locator('.still.planet')).toHaveCSS('opacity', '1');
     await expect(scene(page).locator('.still.hole')).toHaveCSS('opacity', '0');
@@ -65,7 +72,7 @@ test.describe('horizon', () => {
   test('reduced motion never shakes the view', async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await ctx.newPage();
-    await page.goto('/journey');
+    await page.goto('/journey#horizon');
     await at(page, MOUTH_AT + 0.03);
     await at(page, 0.9);
     await page.waitForTimeout(300);

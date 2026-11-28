@@ -6,7 +6,7 @@ export const horizon = {
   hint: 'Scroll',
   beats: [
     {
-      kicker: 'From the short version · keep scrolling',
+      kicker: 'Far from home · keep scrolling',
       title: 'The long version starts far from here.',
     },
     {

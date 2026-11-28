@@ -31,9 +31,7 @@ const at = async (page: Page, p: number) => {
 
 test.describe('the fall', () => {
   test('comes right after the black hole', () => {
-    expect(SCENES[0]?.id).toBe('horizon');
-    expect(SCENES[1]?.id).toBe('the-fall');
-    expect(SCENES[2]?.id).toBe('to-be-continued');
+    expect(SCENES.map((s) => s.id)).toEqual(['start', 'horizon', 'the-fall', 'to-be-continued']);
   });
 
   test('opens on its title, over a still shaft before any 3D loads', async ({ page }) => {
