@@ -5,7 +5,7 @@
  */
 import type { SceneHooks } from '../engine/engine';
 import type { ScenePlacement } from '../engine/timeline';
-import { CALL_STOPS } from './call/beats';
+import { HORIZON_STOPS } from './horizon/beats';
 
 export interface SceneContext {
   /** The scene's layer element. */
@@ -26,8 +26,11 @@ export const SCENES: readonly SceneEntry[] = [
   {
     id: 'horizon',
     label: 'Horizon',
-    // Wormhole, hard stop, arrival, then the fall: a long dwell so each beat gets room.
-    dwell: 5200,
+    // The departure (ringed planet, wormhole, tunnel, calm, still sky), then the black hole:
+    // arrival and the fall. A long dwell so each beat gets room, and stops through the
+    // departure so each take plays.
+    dwell: 12500,
+    stops: HORIZON_STOPS,
     x: 0,
     y: 0,
     load: () => import('./horizon/controller'),
@@ -44,32 +47,8 @@ export const SCENES: readonly SceneEntry[] = [
   },
   // The Prologue (photography) left the opening on 25/11/2026 (docs/plano.md, Fase 4). Its
   // code stays in src/scenes/prologue until it gets a place in the timeline.
-  {
-    id: 'call',
-    label: 'The Call',
-    // Longer than the prototype's card scene: boot, eight vignettes, the choice and the save.
-    // Told one gesture at a time, so a fast flick never skips a line.
-    dwell: 4800,
-    stops: CALL_STOPS,
-    x: 520,
-    y: -120,
-    load: () => import('./call/controller'),
-  },
-  {
-    id: 'structures',
-    label: 'Structures',
-    dwell: 3000,
-    x: -480,
-    y: 80,
-    load: () => import('./structures/controller'),
-  },
-  {
-    id: 'desert',
-    label: 'The Desert',
-    dwell: 1500,
-    x: 380,
-    y: 140,
-    load: () => import('./desert/controller'),
-  },
+  // The Call, Structures and The Desert left the journey on 26/11/2026 (docs/viagem.md,
+  // decision 7): The Call is gone, Structures and The Desert come back as Act IV rooms. Their
+  // code stays in src/scenes until then.
   { id: 'to-be-continued', label: 'To be continued', dwell: 900, x: 0, y: 0 },
 ];

@@ -66,14 +66,13 @@ test.describe('landing', () => {
     await expect(page.locator('[data-header]')).toBeVisible();
   });
 
-  test('the door link jumps to the start of the journey', async ({ page }) => {
+  test('the door link opens the first frame, on Earth', async ({ page }) => {
     await page.goto('/');
-    const door = page.getByRole('link', { name: 'Begin the journey ↓' });
+    const door = page.getByRole('link', { name: 'Begin the journey →' });
     await door.scrollIntoViewIfNeeded();
     await door.click();
-    await expect(
-      page.getByRole('heading', { name: 'The long version starts far from here.' }),
-    ).toBeVisible();
+    await expect(page).toHaveURL(/\/start$/);
+    await expect(page.getByRole('heading', { level: 2, name: 'To the stars' })).toBeVisible();
   });
 
   test('the old work page lands here', async ({ page }) => {
@@ -90,7 +89,7 @@ test.describe('landing without JavaScript', () => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 3, name: 'Cocreare' })).toBeAttached();
     await expect(page.getByRole('heading', { level: 3, name: 'Open Finance MCP' })).toBeAttached();
-    await expect(page.getByRole('link', { name: 'Begin the journey ↓' })).toBeAttached();
+    await expect(page.getByRole('link', { name: 'Begin the journey →' })).toBeAttached();
   });
 });
 

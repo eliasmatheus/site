@@ -36,25 +36,22 @@ O site é híbrido:
 1. **Landing TL;DR** em `/`: para quem está com pressa e para o SEO. Simples no design, não no capricho (referência: brittanychiang.com). Direção escolhida: **Orbit** (`reference/prototype/landing-orbit.html`). Termina numa porta: "That was the short version. The long one starts at the edge of a black hole."
 2. **Jornada**: quem continua rolando atravessa a porta e cai na história.
 
-## Jornada (nova ordem)
+## Jornada: a viagem (decidida em 26/11/2026)
 
-| # | Cena | Ano | Quest |
-|---|------|-----|-------|
-| 1 | Horizon: o wormhole, o buraco negro e a queda | hoje | (em aberto; o planeta no cursor ficou em espera) |
-| 2 | The fall: a queda por dentro da estrutura do tempo | do fim dos anos 90 a hoje | |
-| 3 | My computer: a história pelas versões do Windows (95 a 8), da primeira máquina à escolha do curso | fim dos anos 90 a 2011 | |
-| 4 | Structures: a sapata | 2012 a 2020 | Dimensionar a sapata mais barata segura |
-| 5 | The Desert | 2019 a 2020 | |
-| 6 | The Click: o primeiro Python | 2020 | Fazer o programa dizer o seu nome |
-| 7 | 2020 no Windows: o desafio A + B | 2020 | |
-| 8 | Tux: Ubuntu e a NLW | ago 2020 | |
-| 9 | To be continued | | |
+A jornada virou um arco só, em cinco atos, descrito em `docs/viagem.md` (a fonte de verdade para ordem, momentos e decisões). Em resumo: o Elias passa por um planeta com anéis, atravessa um wormhole e cai num buraco negro. Lá dentro, num tesseract onde o passado é um lugar, tenta mudar a escolha do curso em 2011 e não consegue. Entende que foi essa escolha que o trouxe até aqui: a missão não é mudar o passado, é mudar o presente. Navega pelas memórias em ordem e chega ao hoje, se reinventando como engenheiro de IA. O tesseract colapsa, ele volta pelo wormhole fazendo as pazes com o Elias antigo e reaparece diante de Saturno: o começo e o fim são o mesmo lugar.
 
-- **Horizon** abre a jornada com um hobby que traduz bem para a web: o espaço (Interestelar, Star Wars, Star Trek, só como homenagem de estilo). Protótipo: Cinematic, enquadramento Off-axis, chegada por wormhole, lens flare no cursor e queda em primeira pessoa (`reference/prototype/black-hole.html`). O planeta gasoso ficou em espera.
-- **The fall** é o navegante caindo no buraco negro e entrando num espaço tridimensional onde dá para visitar o passado, assistir e interagir de leve com algumas coisas. As cenas seguintes (Call a Tux) passam a ser momentos desse espaço, cada um uma porta para a cena completa. Protótipo: `reference/prototype/the-fall.html` (queda por um poço dentro de uma estrutura de vigas, momentos vistos por brechas, e ao atravessar a última brecha o site vira uma tela de computador antigo).
-- **My computer** substitui a The Call como era: depois do The fall, a estética do espaço acaba e o computador do Elias conta a história, uma versão do Windows por capítulo (`docs/cenas/my-computer.md`).
-- **Fotografia** (o antigo Prologue, com a câmera e a quest da exposição) surgiu mais tarde na vida do Elias e sai da abertura. Volta mais adiante, no ponto certo da linha do tempo, a definir.
-- **Quests**: a do Horizon está em aberto. A sapata e o nome no Python continuam; a da exposição volta junto com a fotografia.
+| Ato | Cena | O que acontece |
+|---|---|---|
+| I · A partida | Horizon | O planeta contra a luz, o wormhole, o túnel, a calmaria, o universo parado |
+| II · O buraco negro | Horizon | A estrela que vira buraco negro ("Meet Elias."), a órbita, a queda, a tempestade, a ejeção |
+| III · O tesseract | The fall | A colmeia, o poço, zero G, o quarto pela fresta, a escolha (seleção de personagem: dev, civil, aeronáutico), o rádio, a missão |
+| IV · As memórias | Salas do tesseract | My computer, Structures, Desert, The Click, 2020, Tux, primeiro emprego |
+| V · O presente e a volta | Fim | O ponto de inflexão, a nova jornada como engenheiro de IA, o colapso do tesseract, a volta gentil pelo wormhole e a chegada a Saturno, onde tudo começou: contato ou recomeçar |
+
+- A The Call (a montagem retrô) sai: as memórias dela passam a viver no My computer, e a escolha vira a seleção de personagem no Ato III.
+- O ponto de não retorno (dentro do wormhole e na queda) é um piloto automático curto, sem travar quem quer sair ("Work →", teclado e links funcionam).
+- Homenagem a Interestelar só no estilo. A estante pode aparecer como easter egg; nave, robô, nomes e falas do filme não.
+- **Fotografia** (o antigo Prologue) continua guardada até ganhar lugar.
 
 Próximos capítulos (ainda sem protótipo na v2, alguns rascunhados na v1): primeiro emprego e Interfaces (voo pela janela do avião), Method (painel estilo The Sims), Worlds (árvore de talentos estilo Dota 2), Time (estante estilo Interestelar), Epilogue (solo de guitarra com Web Audio e um mapa do site estilo Fallout Shelter). Também falta trazer o jogo do CS50 (https://scratch.mit.edu/projects/405948947/) e as pranchas CAD se desenhando.
 

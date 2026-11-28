@@ -1,13 +1,14 @@
 ---
 /**
- * Horizon: the journey opens at a wormhole. Scroll plays it: into the sphere, a tunnel, a hard
- * stop at a black hole, the arrival at the Off-axis view, then a first-person fall with
- * instruments and alerts.
+ * Horizon: the journey opens at a ringed planet. Scroll plays it: a wormhole, its tunnel, a
+ * calm, a still sky, then a black hole, the arrival at the Off-axis view and a first-person
+ * fall with instruments and alerts.
  * src/scenes/horizon/controller.ts draws it (WebGL shader + a 2D lens flare); the beats and
  * the camera come from src/scenes/horizon/beats.ts.
  *
- * Before the shader is ready, and without WebGL or JS, CSS gradients stand in: a still
- * wormhole first, the black hole once past it. Every line of copy stays readable.
+ * Before the shader is ready, and without WebGL or JS, stills stand in: the shader's own
+ * first frame of the ringed planet, then a CSS black hole once past the departure. Every line of copy stays
+ * readable.
  */
 import { horizon } from '../../content/horizon';
 
@@ -16,13 +17,14 @@ const centered = new Set([0, 3]);
 
 <section class="horizon" data-scene="horizon" aria-labelledby="horizon-title">
   <div class="sky" data-shake>
-    <div class="still worm" aria-hidden="true"></div>
+    <div class="still planet" aria-hidden="true"></div>
     <div class="still hole" aria-hidden="true"></div>
     <canvas class="gl" data-gl role="img" aria-label={horizon.label}></canvas>
     <canvas class="fx" data-fx aria-hidden="true"></canvas>
   </div>
   <div class="vignette" data-vignette aria-hidden="true"></div>
   <div class="flash" data-flash aria-hidden="true"></div>
+  <div class="bars" aria-hidden="true"></div>
 
   <div class="copy">
     {horizon.beats.map((b, i) => (
@@ -94,29 +96,21 @@ const centered = new Set([0, 3]);
   }
 
   /*
-   * The still wormhole, the journey's opening: a sphere with another galaxy inside it and a
-   * pale rim, in a field of stars. What waits past it stays a surprise.
+   * The still ringed planet, the journey's opening: the shader's own first frame, rendered
+   * and saved (public/images/horizon), so the page opens on exactly what the camera shows.
+   * Sized like the shader's lens: the frame's width on screens narrower than 16:9, its
+   * height on wider ones (the rest is black space); a phone gets its own taller frame,
+   * matched by height. What waits past the planet stays a surprise.
    */
-  .worm {
-    background:
-      radial-gradient(circle at 63% 41%, rgb(255 238 214 / 0.8) 0 0.4vmin, transparent 1.8vmin),
-      radial-gradient(ellipse 6vmin 2.2vmin at 63% 41%, rgb(255 196 140 / 0.35), transparent 70%),
-      radial-gradient(
-        circle at 62% 42%,
-        rgb(16 22 36) 0 8.4vmin,
-        rgb(150 160 185 / 0.35) 8.9vmin,
-        rgb(240 232 220 / 0.6) 9.2vmin,
-        rgb(140 160 200 / 0.12) 9.8vmin,
-        transparent 12vmin
-      ),
-      radial-gradient(1.5px 1.5px at 12% 18%, #fff, transparent),
-      radial-gradient(1px 1px at 28% 64%, #dfe8ff, transparent),
-      radial-gradient(1.5px 1.5px at 41% 27%, #ffe9d2, transparent),
-      radial-gradient(1px 1px at 18% 84%, #fff, transparent),
-      radial-gradient(1px 1px at 84% 72%, #dfe8ff, transparent),
-      radial-gradient(1.5px 1.5px at 90% 16%, #fff, transparent),
-      radial-gradient(1px 1px at 52% 88%, #ffe9d2, transparent),
-      radial-gradient(1px 1px at 74% 12%, #fff, transparent), #040508;
+  .planet {
+    background: #000 url('/images/horizon/first-frame-wide.webp') center / contain no-repeat;
+  }
+
+  @media (max-aspect-ratio: 4 / 5) {
+    .planet {
+      background-image: url('/images/horizon/first-frame-tall.webp');
+      background-size: auto 100%;
+    }
   }
 
   /* The still black hole, past the wormhole: a shadow, a hot ring and a flat disk. */
@@ -139,12 +133,68 @@ const centered = new Set([0, 3]);
       radial-gradient(ellipse at 70% 38%, rgb(255 160 80 / 0.12), transparent 45%), #040508;
   }
 
-  .horizon[data-past] .worm {
+  /* Coming from the landing, the stage fades in black over the door like a cinema going
+     dark; the first line waits for the dark to settle, then fades up. */
+  .copy {
+    transition: opacity 1.4s ease 0.3s;
+  }
+
+  :global([data-entering]) .horizon .copy {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .horizon[data-past] .planet {
     opacity: 0;
   }
 
   .horizon[data-past] .hole {
     opacity: 1;
+  }
+
+  /*
+   * Cinema bars while the camera is a film camera (the cutscenes at the planet), cropping to
+   * about 2.39:1; they slide away when the view becomes the visitor's own, first person.
+   */
+  .bars {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .bars::before,
+  .bars::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: max(0px, calc((100% - 100vw / 2.39) / 2));
+    background: #000;
+    transition: transform 1.1s cubic-bezier(0.6, 0, 0.2, 1);
+  }
+
+  .bars::before {
+    top: 0;
+    transform: translateY(-100%);
+  }
+
+  .bars::after {
+    bottom: 0;
+    transform: translateY(100%);
+  }
+
+  /* A phone held upright cannot crop to 2.39:1: thinner bars, just the sign of a cutscene. */
+  @media (max-aspect-ratio: 4 / 5) {
+    .bars::before,
+    .bars::after {
+      height: 9%;
+    }
+  }
+
+  .horizon[data-cutscene] .bars::before,
+  .horizon[data-cutscene] .bars::after {
+    transform: none;
   }
 
   /* Once the shader draws, it replaces both. */
@@ -427,7 +477,8 @@ const centered = new Set([0, 3]);
       width: calc(100% - 32px);
     }
 
-    .still {
+    /* On a phone the still black hole sits above the copy, centered. */
+    .hole {
       background:
         radial-gradient(circle at 50% 34%, #000 0 12vmin, transparent 12.3vmin),
         radial-gradient(

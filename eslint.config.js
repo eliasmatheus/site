@@ -13,6 +13,7 @@ export default defineConfig(
       '.astro/',
       'node_modules/',
       'reference/',
+      'public/models/lab/',
       'playwright-report/',
       'test-results/',
     ],

@@ -47,6 +47,21 @@ Protótipos em `reference/prototype/` (`landing-orbit.html`, `black-hole.html`).
 - [x] Prologue (fotografia) sai da abertura e fica guardado até ganhar lugar na linha do tempo. Saiu do registro; código e testes ficam (testes em `describe.skip`), e a quest de exposição saiu da contagem (`JOURNEY_QUESTS`).
 - [ ] Sapata: nova interação (protótipo C). O arrasto no 3D é impreciso: perto do ângulo errado aumentar e diminuir quase não se diferenciam, e chegar ao sweet spot leva umas três tentativas. Referência de fluxo: grail-app.com (o scroll continua, a interação é opcional).
 
+## Fase 4b · A viagem (decidida em 26/11/2026, ver `docs/viagem.md`)
+
+A nova narrativa é a direção. O que não fizer mais sentido do que já foi feito pode ser descartado. Uma PR por passo, em stack.
+
+- [x] Horizon v3, a partida: Saturno contra a luz com o flare no pan, o wormhole revelado aos poucos, o túnel visto da borda, a calmaria, o universo parado (Ato I). A porta da landing também troca o buraco negro pelo planeta. Falta medir o LCP com a máquina tranquila.
+- [ ] Horizon v3, o buraco negro: a estrela que vira buraco negro, a órbita sobre o disco, a queda, a tempestade de partículas e fagulhas, o apagão, a ejeção, a paz (Ato II).
+- [ ] Piloto automático no ponto de não retorno (engine), com rewind na ida e corte em reduced motion.
+- [ ] The fall v4, a chegada: a colmeia cúbica, o poço, zero G, a fresta, o quarto do Elias e a interação (Ato III, momentos 11 a 14).
+- [ ] The fall v4, a escolha: quartos em todas as direções, a seleção de personagem no notebook (dev, civil, aeronáutico) como quest que falha, o rádio em língua inventada, a missão (Ato III, momentos 15 a 18).
+- [ ] As salas do Ato IV: hub de memórias, My computer como primeira sala, Structures e Desert como salas.
+- [ ] O presente e a volta: ponto de inflexão, colapso do tesseract, volta gentil pelo wormhole, prata derretida e Saturno com o CTA de contato ou recomeçar (Ato V). Substitui o "To be continued".
+- [ ] Tirar a The Call do registro quando a escolha e o My computer existirem.
+
+- [x] Demo "walking skeleton" (27/11/2026): tudo o que existe, ligado mesmo com cortes. A porta da landing abre a primeira tela (`/start`: a base de lançamento no Brasil, pintura 2.5D com o astronauta 3D e mocap do Mixamo). O "Start the journey" faz ele sair andando e corta para a jornada (`/journey`: Horizon v3, The fall, To be continued). Rolar a porta ainda entra direto na jornada. Falta: performance mobile da `/start` (Lighthouse 65; LCP 0,9 s, mas TBT de 9 s pelo WebGL), o céu em camadas, o buraco no peito do traje e a ponte da caminhada até a decolagem.
+
 ## Fase 5 · A virada
 
 - [ ] The Click (com placeholders de vídeo até os clipes existirem).

@@ -9,3 +9,7 @@ playwright-report/
 
 # Inspiration images: local only, never published
 reference/inspiration/
+reference/handoff/
+
+# Lab-only models (sources in reference/inspiration)
+public/models/lab/

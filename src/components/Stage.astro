@@ -28,6 +28,11 @@ const length = createTimeline(SCENES, MODE_CONFIG.fly).length;
   <div class="stage" data-stage data-mode="fly">
     <div class="stars" aria-hidden="true"></div>
     <slot />
+    <div class="rewind" aria-hidden="true">
+      <span>
+        ◀◀ <small>Rewind</small>
+      </span>
+    </div>
   </div>
 </div>
 
@@ -39,6 +44,13 @@ const length = createTimeline(SCENES, MODE_CONFIG.fly).length;
   const stage = document.querySelector<HTMLElement>('[data-stage]');
   const header = document.querySelector<HTMLElement>('[data-header]');
   if (root && stage) {
+    let lastProgress = 0;
+    let lastBack = -Infinity;
+    // A scene can hold the rewind on while its own camera is still running back.
+    let sceneRewind = false;
+    window.addEventListener('journey:rewind', (e) => {
+      sceneRewind = (e as CustomEvent<boolean>).detail;
+    });
     const layers = SCENES.map((s) => stage.querySelector<HTMLElement>(`[data-scene="${s.id}"]`));
     if (layers.every((l): l is HTMLElement => l !== null)) {
       const engine = createEngine({
@@ -49,6 +61,11 @@ const length = createTimeline(SCENES, MODE_CONFIG.fly).length;
         entry: root.hasAttribute('data-entry'),
         onJourney(progress) {
           header?.style.setProperty('--journey', progress.toFixed(4));
+          // Going back in the middle of the story reads as a tape rewinding.
+          const now = performance.now();
+          if (progress < lastProgress - 1e-5 && progress > 0.002) lastBack = now;
+          lastProgress = progress;
+          stage.toggleAttribute('data-rewind', sceneRewind || now - lastBack < 260);
         },
         onStage(inView) {
           // Below the landing, the header shows up with the journey, and the landing's sky
@@ -81,6 +98,72 @@ const length = createTimeline(SCENES, MODE_CONFIG.fly).length;
 
   .stars {
     display: none;
+  }
+
+  /*
+   * Rewind: going back mid-story looks like a tape running back, scan lines, a rolling band
+   * and the mark in the corner. It never blocks anything.
+   */
+  .rewind {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    background:
+      repeating-linear-gradient(to bottom, transparent 0 2px, rgb(255 255 255 / 0.04) 2px 3px),
+      rgb(70 90 140 / 0.08);
+  }
+
+  .rewind::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -20%;
+    height: 14%;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(255 255 255 / 0.07) 45%,
+      rgb(255 255 255 / 0.11) 50%,
+      transparent
+    );
+    animation: rewind-roll 0.9s linear infinite;
+  }
+
+  .rewind span {
+    position: absolute;
+    top: calc(4.5rem + 2vh);
+    left: clamp(16px, 4vw, 48px);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    color: rgb(240 244 255 / 0.9);
+    text-shadow: 0 0 8px rgb(140 170 255 / 0.6);
+  }
+
+  .rewind small {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+  }
+
+  .stage[data-rewind] .rewind {
+    opacity: 1;
+  }
+
+  @keyframes rewind-roll {
+    to {
+      transform: translateY(850%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rewind::after {
+      animation: none;
+      display: none;
+    }
   }
 
   /* Over anything fixed on the page before it (the landing's sky). */

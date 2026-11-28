@@ -11,8 +11,11 @@ export interface Follow {
   readonly value: number;
   /** Current speed, units per second. */
   readonly speed: number;
-  /** Move towards the target over dt seconds and return the new value. */
-  step(target: number, dt: number): number;
+  /**
+   * Move towards the target over dt seconds and return the new value. With maxSpeed (units
+   * per second) it never goes faster: a hard flick plays at that pace, like a film.
+   */
+  step(target: number, dt: number, maxSpeed?: number): number;
   /** Jump straight to a value (a far jump, a hidden scene, reduced motion). */
   snap(v: number): void;
   /** Is it still moving towards this target? */
@@ -29,13 +32,15 @@ export function createFollow(rate = 4.5, start = 0): Follow {
     get speed() {
       return v;
     },
-    step(target, dt) {
+    step(target, dt, maxSpeed = Infinity) {
       // Small fixed substeps keep the spring stable on slow frames.
       let left = Math.min(dt, 0.1);
       while (left > 0) {
         const h = Math.min(left, 1 / 120);
         const a = rate * rate * (target - x) - 2 * rate * v;
         v += a * h;
+        if (v > maxSpeed) v = maxSpeed;
+        else if (v < -maxSpeed) v = -maxSpeed;
         x += v * h;
         left -= h;
       }
