@@ -75,6 +75,24 @@ test.describe('journey', () => {
     }
   });
 
+  test('a malformed anchor is ignored, and the scenes still load', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto('/journey#%E0%A4%A');
+    await expect.poll(() => active(page)).toBe(first.id);
+    // The first frame's controller registers: with or without WebGL, it marks itself.
+    await expect
+      .poll(
+        () =>
+          page
+            .locator(`[data-scene="${first.id}"]`)
+            .evaluate((el) => el.hasAttribute('data-ready') || el.hasAttribute('data-still')),
+        { timeout: 20_000 },
+      )
+      .toBe(true);
+    expect(errors).toEqual([]);
+  });
+
   test('an anchor opens the journey on that scene', async ({ page }) => {
     await page.goto('/journey#to-be-continued');
     await expect.poll(() => active(page)).toBe('to-be-continued');

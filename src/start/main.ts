@@ -4,7 +4,8 @@
  * true or alive: the real sky (Yale catalogue stars, meteors, satellites), the base's lights
  * blinking, mist drifting in the valley, the sea glinting, the leaves in the wind.
  *
- * Query: ?still (one frame, for screenshots), ?t=4 (time of the still), ?par=0 (no parallax).
+ * Query, in development and the lab only: ?still (one frame, for screenshots), ?t=4 (time of
+ * the still), ?par=0 (no parallax).
  */
 import * as THREE from 'three';
 import { createSky, equatorialToLocal, framedSky } from '../lab/earth/sky';
@@ -126,7 +127,11 @@ const PAINTINGS: Record<string, Painting> = {
   },
 };
 
-const params = new URLSearchParams(location.search);
+// The tuning knobs (?v, ?model, ?still, ?sun...) are for development and the lab only. On the
+// live site a link cannot swap the painting or the model, or leave the screen half loaded.
+const params = new URLSearchParams(
+  import.meta.env.DEV || location.pathname.startsWith('/lab') ? location.search : '',
+);
 const num = (k: string, d: number): number => {
   const v = Number(params.get(k));
   return params.has(k) && Number.isFinite(v) ? v : d;

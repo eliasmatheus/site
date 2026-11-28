@@ -202,7 +202,13 @@ export function createEngine(opts: EngineOptions): Engine {
   };
 
   const goToHash = (): void => {
-    const id = decodeURIComponent(window.location.hash.slice(1));
+    // Anyone can write the hash: a malformed one (#%E0) is ignored, not thrown.
+    let id = '';
+    try {
+      id = decodeURIComponent(window.location.hash.slice(1));
+    } catch {
+      return;
+    }
     const j = placements.findIndex((s) => s.id === id);
     if (j >= 0) window.scrollTo({ top: origin + scrollForScene(tl, j), behavior: 'instant' });
   };
